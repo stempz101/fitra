@@ -1,10 +1,13 @@
 package com.diploma.fitra.service;
 
+import com.diploma.fitra.dto.user.UserSaveDto;
 import com.diploma.fitra.model.User;
 
 public interface UserService {
 
-    User saveUser(User user);
+    User saveUser(UserSaveDto userDto);
+
+    User getUser(Long id);
 
     void deleteUser(Long id);
 }
