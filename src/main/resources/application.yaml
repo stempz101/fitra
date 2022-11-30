@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: Fitra
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: create
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    username: postgres
+    password: ENC(TJFVF/dGBxpi2FyQPtQCGo8CK7lpiZacv7HN3IeXHI+/evGSNfZtczANF9QMA/Uk)
+    url: jdbc:postgresql://localhost:5432/fitra
+server:
+  port: 8081
