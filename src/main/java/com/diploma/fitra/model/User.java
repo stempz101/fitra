@@ -36,5 +36,15 @@ public class User {
 
     private String about;
 
+    @JoinColumn(nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @ToString.Exclude
+    private Country country;
+
+    @JoinColumn
+    @ManyToOne(fetch = FetchType.LAZY)
+    @ToString.Exclude
+    private City city;
+
     private Boolean isBlocked;
 }
