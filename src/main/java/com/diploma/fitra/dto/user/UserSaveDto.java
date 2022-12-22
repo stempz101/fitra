@@ -1,6 +1,7 @@
 package com.diploma.fitra.dto.user;
 
 import com.diploma.fitra.dto.validation.Password;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -32,6 +33,7 @@ public class UserSaveDto {
     private String repeatPassword;
 
     @NotNull(message = "{validation.not_null.birthday}")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate birthday;
 
     @NotNull

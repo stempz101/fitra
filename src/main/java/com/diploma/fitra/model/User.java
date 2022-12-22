@@ -46,5 +46,7 @@ public class User {
     @ToString.Exclude
     private City city;
 
+    private Boolean isAdmin;
+
     private Boolean isBlocked;
 }
