@@ -31,7 +31,7 @@ public class CountryController {
     }
 
     @GetMapping("/{countryId}/city")
-    public List<CityDto> getCities(@PathVariable Long countryId) {
-        return countryService.getCities(countryId);
+    public List<CityDto> getCities(@PathVariable Long countryId, @RequestParam(defaultValue = "") String search) {
+        return countryService.getCities(countryId, search);
     }
 }

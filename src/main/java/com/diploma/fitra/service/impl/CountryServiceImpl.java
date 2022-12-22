@@ -58,10 +58,10 @@ public class CountryServiceImpl implements CountryService {
     }
 
     @Override
-    public List<CityDto> getCities(Long countryId) {
+    public List<CityDto> getCities(Long countryId, String search) {
         Country country = getCountry(countryId);
         return cityRepository
-                .findAllByCountry(country, Sort.by("titleEn"))
+                .findAllByCountryAndTitleEnContainingIgnoreCase(country, search, Sort.by("titleEn"))
                 .stream()
                 .map(CityMapper.INSTANCE::toCityDto)
                 .collect(Collectors.toList());

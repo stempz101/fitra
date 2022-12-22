@@ -12,5 +12,5 @@ public interface CountryService {
 
     Country getCountry(Long id);
 
-    List<CityDto> getCities(Long countryId);
+    List<CityDto> getCities(Long countryId, String search);
 }
