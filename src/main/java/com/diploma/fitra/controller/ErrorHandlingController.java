@@ -2,6 +2,7 @@ package com.diploma.fitra.controller;
 
 import com.diploma.fitra.dto.error.ErrorDto;
 import com.diploma.fitra.exception.BadRequestException;
+import com.diploma.fitra.exception.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -30,6 +31,13 @@ public class ErrorHandlingController {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorDto handleBadRequestException(Exception ex) {
         log.error("handleBadRequestException: exception {}", ex.getMessage(), ex);
+        return new ErrorDto(ex.getMessage(), LocalDateTime.now());
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorDto handleNotFoundException(Exception ex) {
+        log.error("handleNotFoundException: exception {}", ex.getMessage(), ex);
         return new ErrorDto(ex.getMessage(), LocalDateTime.now());
     }
 }

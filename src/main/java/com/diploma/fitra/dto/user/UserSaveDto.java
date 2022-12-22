@@ -34,5 +34,10 @@ public class UserSaveDto {
     @NotNull(message = "{validation.not_null.birthday}")
     private LocalDate birthday;
 
+    @NotNull
+    private Long countryId;
+
+    private Long cityId;
+
     private String about;
 }

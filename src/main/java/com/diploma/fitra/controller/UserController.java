@@ -18,13 +18,13 @@ public class UserController {
         return userService.saveUser(userDto);
     }
 
-    @GetMapping("/{id}")
-    public User getUser(@PathVariable Long id) {
-        return userService.getUser(id);
+    @GetMapping("/{userId}")
+    public User getUser(@PathVariable Long userId) {
+        return userService.getUser(userId);
     }
 
-    @DeleteMapping("/{id}")
-    public void deleteUser(@PathVariable Long id) {
-        userService.deleteUser(id);
+    @DeleteMapping("/{userId}")
+    public void deleteUser(@PathVariable Long userId) {
+        userService.deleteUser(userId);
     }
 }
