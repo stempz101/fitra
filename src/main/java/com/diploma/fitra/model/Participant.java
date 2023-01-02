@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Entity(name = "_participant")
 @Getter
@@ -20,11 +22,13 @@ public class Participant {
     @JoinColumn(nullable = false)
     @ManyToOne
     @MapsId("travelId")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Travel travel;
 
     @JoinColumn(nullable = false)
     @ManyToOne
     @MapsId("userId")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
 
     private Boolean isCreator;

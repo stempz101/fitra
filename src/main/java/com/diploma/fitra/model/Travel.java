@@ -25,7 +25,8 @@ public class Travel {
     @Column(nullable = false)
     private String description;
 
-    private Integer count;
+    @Column(nullable = false)
+    private Integer peopleLimit;
 
     @Column(nullable = false)
     private LocalDate startDate;

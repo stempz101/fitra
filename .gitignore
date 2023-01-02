@@ -13,6 +13,9 @@ target/
 .springBeans
 .sts4-cache
 
+### Fleet ###
+.fleet
+
 ### IntelliJ IDEA ###
 .idea
 *.iws

@@ -1,5 +1,6 @@
 package com.diploma.fitra.dto.user;
 
+import com.diploma.fitra.dto.group.OnCreate;
 import com.diploma.fitra.dto.validation.Password;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -13,30 +14,30 @@ import java.time.LocalDate;
 @Data
 public class UserSaveDto {
 
-    @NotBlank(message = "{validation.not_blank.first_name}")
+    @NotBlank(message = "{validation.not_blank.first_name}", groups = OnCreate.class)
     private String firstName;
 
-    @NotBlank(message = "{validation.not_blank.last_name}")
+    @NotBlank(message = "{validation.not_blank.last_name}", groups = OnCreate.class)
     private String lastName;
 
     @Email
-    @NotBlank(message = "{validation.not_blank.email}")
+    @NotBlank(message = "{validation.not_blank.email}", groups = OnCreate.class)
     private String email;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Password
-    @NotBlank(message = "{validation.not_blank.password}")
+    @NotBlank(message = "{validation.not_blank.password}", groups = OnCreate.class)
     private String password;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @NotBlank(message = "{validation.not_blank.repeat_password}")
+    @NotBlank(message = "{validation.not_blank.repeat_password}", groups = OnCreate.class)
     private String repeatPassword;
 
-    @NotNull(message = "{validation.not_null.birthday}")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    @NotNull(message = "{validation.not_null.birthday}", groups = OnCreate.class)
     private LocalDate birthday;
 
-    @NotNull
+    @NotNull(message = "{validation.not_null.country_id}", groups = OnCreate.class)
     private Long countryId;
 
     private Long cityId;

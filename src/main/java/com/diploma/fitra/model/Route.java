@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Entity(name = "_route")
 @Getter
@@ -20,6 +22,7 @@ public class Route {
     @JoinColumn(nullable = false)
     @ManyToOne
     @MapsId("travelId")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Travel travel;
 
     @JoinColumn(nullable = false)

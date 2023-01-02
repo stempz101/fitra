@@ -18,5 +18,8 @@ public class Type {
     private Long id;
 
     @Column(nullable = false)
-    private String name;
+    private String nameEn;
+
+    @Column(nullable = false)
+    private String nameUa;
 }

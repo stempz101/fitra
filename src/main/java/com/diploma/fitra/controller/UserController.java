@@ -1,30 +1,31 @@
 package com.diploma.fitra.controller;
 
+import com.diploma.fitra.dto.user.UserDto;
 import com.diploma.fitra.dto.user.UserSaveDto;
-import com.diploma.fitra.model.User;
 import com.diploma.fitra.service.UserService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/user")
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
 
-    @PostMapping("/save")
-    public User saveUser(@RequestBody @Valid UserSaveDto userDto) {
-        return userService.saveUser(userDto);
+    public UserDto saveUser(UserSaveDto userSaveDto) {
+        return userService.createUser(userSaveDto);
     }
 
-    @GetMapping("/{userId}")
-    public User getUser(@PathVariable Long userId) {
+    public List<UserDto> getUsers() {
+        return userService.getUsers();
+    }
+
+    public UserDto getUser(Long userId) {
         return userService.getUser(userId);
     }
 
-    @DeleteMapping("/{userId}")
-    public void deleteUser(@PathVariable Long userId) {
+    public void deleteUser(Long userId) {
         userService.deleteUser(userId);
     }
 }
