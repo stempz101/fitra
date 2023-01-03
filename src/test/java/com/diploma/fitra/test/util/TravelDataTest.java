@@ -41,6 +41,7 @@ public class TravelDataTest {
     private static final RouteDto TRAVEL_CREATE_ROUTE_DTO_2 = RouteDataTest.createRouteDto2();
     private static final RouteDto TRAVEL_CREATE_ROUTE_DTO_3 = RouteDataTest.createRouteDto3();
 
+
     public static Travel getTravel1() {
         Travel travel = new Travel();
         travel.setId(TRAVEL_1_ID);
@@ -97,9 +98,9 @@ public class TravelDataTest {
         TravelDto travelDto = new TravelDto();
 
         List<RouteDto> routeDtoList = new ArrayList<>();
-        routeDtoList.add(TRAVEL_ROUTE_DTO_3);
         routeDtoList.add(TRAVEL_ROUTE_DTO_1);
         routeDtoList.add(TRAVEL_ROUTE_DTO_2);
+        routeDtoList.add(TRAVEL_ROUTE_DTO_3);
 
         travelDto.setId(TRAVEL_2_ID);
         travelDto.setTitle(TRAVEL_2_TITLE);
@@ -116,9 +117,9 @@ public class TravelDataTest {
         TravelDto travelDto = new TravelDto();
 
         List<RouteDto> routeDtoList = new ArrayList<>();
+        routeDtoList.add(TRAVEL_ROUTE_DTO_1);
         routeDtoList.add(TRAVEL_ROUTE_DTO_2);
         routeDtoList.add(TRAVEL_ROUTE_DTO_3);
-        routeDtoList.add(TRAVEL_ROUTE_DTO_1);
 
         travelDto.setId(TRAVEL_3_ID);
         travelDto.setTitle(TRAVEL_3_TITLE);

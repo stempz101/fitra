@@ -13,15 +13,15 @@ public class RouteDataTest {
 
     private final static Country ROUTE_1_COUNTRY = CountryDataTest.getCountry1();
     private final static City ROUTE_1_CITY = CityDataTest.getCity1();
-    private final static int ROUTE_1_PRIORITY = 1;
+    private final static int ROUTE_1_POSITION = 0;
 
     private final static Country ROUTE_2_COUNTRY = CountryDataTest.getCountry1();
     private final static City ROUTE_2_CITY = CityDataTest.getCity2();
-    private final static int ROUTE_2_PRIORITY = 2;
+    private final static int ROUTE_2_POSITION = 1;
 
     private final static Country ROUTE_3_COUNTRY = CountryDataTest.getCountry2();
     private final static City ROUTE_3_CITY = null;
-    private final static int ROUTE_3_PRIORITY = 3;
+    private final static int ROUTE_3_POSITION = 2;
 
     public static Route getRoute1() {
         Route route = new Route();
@@ -29,7 +29,7 @@ public class RouteDataTest {
         route.setTravel(ROUTE_TRAVEL);
         route.setCountry(ROUTE_1_COUNTRY);
         route.setCity(ROUTE_1_CITY);
-        route.setPriority(ROUTE_1_PRIORITY);
+        route.setPosition(ROUTE_1_POSITION);
         return route;
     }
 
@@ -39,7 +39,7 @@ public class RouteDataTest {
         route.setTravel(ROUTE_TRAVEL);
         route.setCountry(ROUTE_2_COUNTRY);
         route.setCity(ROUTE_2_CITY);
-        route.setPriority(ROUTE_2_PRIORITY);
+        route.setPosition(ROUTE_2_POSITION);
         return route;
     }
 
@@ -49,7 +49,7 @@ public class RouteDataTest {
         route.setTravel(ROUTE_TRAVEL);
         route.setCountry(ROUTE_3_COUNTRY);
         route.setCity(ROUTE_3_CITY);
-        route.setPriority(ROUTE_3_PRIORITY);
+        route.setPosition(ROUTE_3_POSITION);
         return route;
     }
 
@@ -57,6 +57,7 @@ public class RouteDataTest {
         RouteDto routeDto = createRouteDto1();
         routeDto.setCountry(ROUTE_1_COUNTRY.getTitleEn());
         routeDto.setCity(ROUTE_1_CITY.getTitleEn());
+        routeDto.setPosition(ROUTE_1_POSITION);
         return routeDto;
     }
 
@@ -64,6 +65,7 @@ public class RouteDataTest {
         RouteDto routeDto = createRouteDto2();
         routeDto.setCountry(ROUTE_2_COUNTRY.getTitleEn());
         routeDto.setCity(ROUTE_2_CITY.getTitleEn());
+        routeDto.setPosition(ROUTE_2_POSITION);
         return routeDto;
     }
 
@@ -71,6 +73,7 @@ public class RouteDataTest {
         RouteDto routeDto = createRouteDto3();
         routeDto.setCountry(ROUTE_3_COUNTRY.getTitleEn());
         routeDto.setCity(null);
+        routeDto.setPosition(ROUTE_3_POSITION);
         return routeDto;
     }
 
@@ -78,6 +81,7 @@ public class RouteDataTest {
         RouteDto routeDto = new RouteDto();
         routeDto.setCountryId(ROUTE_1_COUNTRY.getId());
         routeDto.setCityId(ROUTE_1_CITY.getId());
+        routeDto.setPosition(ROUTE_1_POSITION);
         return routeDto;
     }
 
@@ -85,6 +89,7 @@ public class RouteDataTest {
         RouteDto routeDto = new RouteDto();
         routeDto.setCountryId(ROUTE_2_COUNTRY.getId());
         routeDto.setCityId(ROUTE_2_CITY.getId());
+        routeDto.setPosition(ROUTE_2_POSITION);
         return routeDto;
     }
 
@@ -92,6 +97,7 @@ public class RouteDataTest {
         RouteDto routeDto = new RouteDto();
         routeDto.setCountryId(ROUTE_3_COUNTRY.getId());
         routeDto.setCityId(null);
+        routeDto.setPosition(ROUTE_3_POSITION);
         return routeDto;
     }
 }

@@ -35,5 +35,5 @@ public class Route {
     private City city;
 
     @Column(nullable = false)
-    private Integer priority;
+    private int position;
 }

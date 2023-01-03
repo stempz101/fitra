@@ -11,5 +11,7 @@ public interface TravelService {
 
     List<TravelDto> getTravels();
 
+    TravelDto updateTravel(Long travelId, TravelSaveDto travelSaveDto);
+
     void deleteTravel(Long travelId);
 }

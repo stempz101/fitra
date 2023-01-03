@@ -10,7 +10,8 @@ public enum Error {
 
     // BadRequestException messages
     CITY_NOT_IN_COUNTRY("City is not part of specified country!"),
-    NOT_SUPPORTED_LANGUAGE("Specified language is not supported!"),
+    NOT_SUPPORTED_LANGUAGE("The specified language is not supported!"),
+    LIMIT_IS_LOWER_THAN_CURRENT_COUNT("The specified limit is lower than the current count of participants in the travel!"),
 
     // ExistenceException messages
     USER_EXISTS_WITH_EMAIL("User with specified email already exists!"),

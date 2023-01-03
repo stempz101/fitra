@@ -15,14 +15,22 @@ import java.util.List;
 public class TravelController implements TravelApi {
     private final TravelService travelService;
 
+    @Override
     public TravelDto createTravel(TravelSaveDto travelSaveDto) {
         return travelService.createTravel(travelSaveDto);
     }
 
+    @Override
     public List<TravelDto> getTravels() {
         return travelService.getTravels();
     }
 
+    @Override
+    public TravelDto updateTravel(Long travelId, TravelSaveDto travelSaveDto) {
+        return travelService.updateTravel(travelId, travelSaveDto);
+    }
+
+    @Override
     public ResponseEntity<Void> deleteTravel(Long travelId) {
         travelService.deleteTravel(travelId);
         return ResponseEntity.noContent().build();

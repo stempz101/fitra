@@ -8,6 +8,7 @@ import com.diploma.fitra.exception.NotFoundException;
 import com.diploma.fitra.mapper.RouteMapper;
 import com.diploma.fitra.mapper.TravelMapper;
 import com.diploma.fitra.mapper.TypeMapper;
+import com.diploma.fitra.mapper.UpdateMapper;
 import com.diploma.fitra.model.*;
 import com.diploma.fitra.model.error.Error;
 import com.diploma.fitra.repo.*;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -43,13 +45,13 @@ public class TravelServiceImpl implements TravelService {
                 .orElseThrow(() -> new NotFoundException(Error.TYPE_NOT_FOUND.getMessage()));
         User creator = userRepository.findById(travelSaveDto.getCreatorId())
                 .orElseThrow(() -> new NotFoundException(Error.USER_NOT_FOUND.getMessage()));
-        List<Route> routeList = checkAndMapRouteDtoList(travelSaveDto.getRoute());
 
         Travel travel = TravelMapper.INSTANCE.fromTravelSaveDto(travelSaveDto);
         travel.setType(type);
         travel = travelRepository.save(travel);
         log.info("Travel is created: {}", travel);
 
+        List<Route> routeList = checkAndMapRouteDtoList(travelSaveDto.getRoute());
         for (Route route : routeList) {
             route.setTravel(travel);
             routeRepository.save(route);
@@ -63,13 +65,7 @@ public class TravelServiceImpl implements TravelService {
         participant = participantRepository.save(participant);
         log.info("Creator is became a participant of created travel: {}", participant);
 
-        TravelDto travelDto = TravelMapper.INSTANCE.toTravelDto(travel);
-        travelDto.setType(TypeMapper.INSTANCE.toTypeDto(travel.getType()));
-        List<RouteDto> routeDtoList = routeList.stream()
-                .map(RouteMapper.INSTANCE::toRouteDto)
-                .collect(Collectors.toList());
-        travelDto.setRoute(routeDtoList);
-        return travelDto;
+        return toTravelDto(travel, routeList);
     }
 
     @Override
@@ -91,6 +87,37 @@ public class TravelServiceImpl implements TravelService {
     }
 
     @Override
+    @Transactional
+    public TravelDto updateTravel(Long travelId, TravelSaveDto travelSaveDto) {
+        log.info("Updating travel (id={}): {}", travelId, travelSaveDto);
+
+        Travel travel = travelRepository.findById(travelId)
+                .orElseThrow(() -> new NotFoundException(Error.TRAVEL_NOT_FOUND.getMessage()));
+        Type type = typeRepository.findById(travelSaveDto.getTypeId())
+                .orElseThrow(() -> new NotFoundException(Error.TYPE_NOT_FOUND.getMessage()));
+        long participantCount = participantRepository.countByTravel(travel);
+        if (travelSaveDto.getLimit() < participantCount) {
+            throw new BadRequestException(Error.LIMIT_IS_LOWER_THAN_CURRENT_COUNT.getMessage());
+        }
+
+        travel = UpdateMapper.updateTravelWithPresentTravelSaveDtoFields(travel, travelSaveDto);
+        travel.setType(type);
+        travel = travelRepository.save(travel);
+        log.info("Travel is updated: {}", travel);
+
+        List<Route> routeList = checkAndMapRouteDtoList(travelSaveDto.getRoute());
+        routeRepository.deleteAllByTravel(travel);
+        for (Route route : routeList) {
+            route.setTravel(travel);
+            routeRepository.save(route);
+        }
+        log.info("Route for the travel (id={}) is updated: {}", travel.getId(), routeList);
+
+        return toTravelDto(travel, routeList);
+    }
+
+    @Override
+    @Transactional
     public void deleteTravel(Long travelId) {
         log.info("Deleting travel with id: {}", travelId);
 
@@ -101,12 +128,22 @@ public class TravelServiceImpl implements TravelService {
         log.info("Travel (id={}) is deleted", travelId);
     }
 
+    private TravelDto toTravelDto(Travel travel, List<Route> routeList) {
+        TravelDto travelDto = TravelMapper.INSTANCE.toTravelDto(travel);
+        travelDto.setType(TypeMapper.INSTANCE.toTypeDto(travel.getType()));
+        List<RouteDto> routeDtoList = routeList.stream()
+                .map(RouteMapper.INSTANCE::toRouteDto)
+                .sorted(Comparator.comparingInt(RouteDto::getPosition))
+                .collect(Collectors.toList());
+        travelDto.setRoute(routeDtoList);
+        return travelDto;
+    }
+
     private List<Route> checkAndMapRouteDtoList(List<RouteDto> routeDtoList) {
         List<Route> routeList = new ArrayList<>();
         Route route;
         Country country;
         City city;
-        int priority = 0;
         for (RouteDto routeDto : routeDtoList) {
             country = countryRepository.findById(routeDto.getCountryId())
                     .orElseThrow(() -> new NotFoundException(Error.COUNTRY_NOT_FOUND.getMessage()));
@@ -117,7 +154,7 @@ public class TravelServiceImpl implements TravelService {
             route = new Route();
             route.setCountry(country);
             route.setCity(city);
-            route.setPriority(++priority);
+            route.setPosition(routeDto.getPosition());
             routeList.add(route);
         }
         return routeList;

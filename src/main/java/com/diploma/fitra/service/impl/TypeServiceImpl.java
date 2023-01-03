@@ -55,6 +55,7 @@ public class TypeServiceImpl implements TypeService {
 
         Type type = typeRepository.findById(typeId)
                 .orElseThrow(() -> new NotFoundException(Error.TYPE_NOT_FOUND.getMessage()));
+
         log.info("Received category (id={}): {}", typeId, type);
         return type;
     }
