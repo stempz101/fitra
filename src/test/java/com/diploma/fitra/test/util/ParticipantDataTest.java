@@ -19,6 +19,7 @@ public class ParticipantDataTest {
 
     private static final Travel PARTICIPANT_TRAVEL = TravelDataTest.getTravel1();
     private static final boolean PARTICIPANT_IS_CREATOR = true;
+    private static final boolean PARTICIPANT_IS_NOT_CREATOR = false;
 
     public static Participant getParticipant1() {
         Participant participant = new Participant();
@@ -34,6 +35,7 @@ public class ParticipantDataTest {
         participant.setId(new ParticipantKey(PARTICIPANT_TRAVEL.getId(), PARTICIPANT_2_USER.getId()));
         participant.setTravel(PARTICIPANT_TRAVEL);
         participant.setUser(PARTICIPANT_2_USER);
+        participant.setCreator(PARTICIPANT_IS_NOT_CREATOR);
         return participant;
     }
 
@@ -42,6 +44,7 @@ public class ParticipantDataTest {
         participant.setId(new ParticipantKey(PARTICIPANT_TRAVEL.getId(), PARTICIPANT_3_USER.getId()));
         participant.setTravel(PARTICIPANT_TRAVEL);
         participant.setUser(PARTICIPANT_3_USER);
+        participant.setCreator(PARTICIPANT_IS_NOT_CREATOR);
         return participant;
     }
 
@@ -57,6 +60,7 @@ public class ParticipantDataTest {
         ParticipantDto participantDto = new ParticipantDto();
         participantDto.setTravelId(PARTICIPANT_TRAVEL.getId());
         participantDto.setUser(PARTICIPANT_2_USER_DTO);
+        participantDto.setIsCreator(PARTICIPANT_IS_NOT_CREATOR);
         return participantDto;
     }
 
@@ -64,6 +68,7 @@ public class ParticipantDataTest {
         ParticipantDto participantDto = new ParticipantDto();
         participantDto.setTravelId(PARTICIPANT_TRAVEL.getId());
         participantDto.setUser(PARTICIPANT_3_USER_DTO);
+        participantDto.setIsCreator(PARTICIPANT_IS_NOT_CREATOR);
         return participantDto;
     }
 }

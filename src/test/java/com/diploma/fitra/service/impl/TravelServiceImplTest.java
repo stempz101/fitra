@@ -258,13 +258,6 @@ public class TravelServiceImplTest {
         when(participantRepository.findAllByTravel(any())).thenReturn(participants);
         List<ParticipantDto> result = travelService.getUsers(travel.getId());
 
-        ParticipantDto participantDto1 = ParticipantDataTest.getParticipantDto1();
-        ParticipantDto participantDto2 = ParticipantDataTest.getParticipantDto2();
-        ParticipantDto participantDto3 = ParticipantDataTest.getParticipantDto3();
-        System.out.println(participantDto1.equals(result.get(0)));
-        System.out.println(participantDto2.equals(result.get(1)));
-        System.out.println(participantDto3.equals(result.get(2)));
-
         assertThat(result, hasSize(participants.size()));
         assertThat(result, hasItems(
                 ParticipantDataTest.getParticipantDto1(),

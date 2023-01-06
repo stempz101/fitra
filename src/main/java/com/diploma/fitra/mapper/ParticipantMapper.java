@@ -14,6 +14,7 @@ public interface ParticipantMapper {
     @Mapping(source = "travel.id", target = "travelId")
     @Mapping(source = "user.country.titleEn", target = "user.country.title")
     @Mapping(source = "user.city.titleEn", target = "user.city.title")
+    @Mapping(source = "user.admin", target = "user.isAdmin")
     @Mapping(source = "creator", target = "isCreator")
     ParticipantDto toParticipantDto(Participant participant);
 }

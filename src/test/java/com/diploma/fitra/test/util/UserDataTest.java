@@ -49,6 +49,7 @@ public class UserDataTest {
     private static final Country USER_COUNTRY = CountryDataTest.getCountry1();
     private static final CountryDto USER_COUNTRY_DTO = CountryDataTest.getCountryDto1();
     private static final boolean USER_IS_ADMIN = true;
+    private static final boolean USER_IS_NOT_ADMIN = false;
 
     public static UserSaveDto getUserSaveDto1() {
         UserSaveDto userSaveDto = new UserSaveDto();
@@ -90,6 +91,7 @@ public class UserDataTest {
         user.setBirthday(USER_2_BIRTHDAY);
         user.setCountry(USER_COUNTRY);
         user.setCity(USER_2_CITY);
+        user.setAdmin(USER_IS_NOT_ADMIN);
         return user;
     }
 
@@ -104,6 +106,7 @@ public class UserDataTest {
         user.setBirthday(USER_3_BIRTHDAY);
         user.setCountry(USER_COUNTRY);
         user.setCity(USER_3_CITY);
+        user.setAdmin(USER_IS_NOT_ADMIN);
         return user;
     }
 
@@ -118,6 +121,7 @@ public class UserDataTest {
         user.setBirthday(USER_4_BIRTHDAY);
         user.setCountry(USER_COUNTRY);
         user.setCity(USER_4_CITY);
+        user.setAdmin(USER_IS_NOT_ADMIN);
         return user;
     }
 
@@ -141,6 +145,7 @@ public class UserDataTest {
         userDto.setAbout(USER_ABOUT);
         userDto.setCountry(USER_COUNTRY_DTO);
         userDto.setCity(USER_2_CITY_DTO);
+        userDto.setIsAdmin(USER_IS_NOT_ADMIN);
         return userDto;
     }
 
@@ -152,6 +157,7 @@ public class UserDataTest {
         userDto.setAbout(USER_ABOUT);
         userDto.setCountry(USER_COUNTRY_DTO);
         userDto.setCity(USER_3_CITY_DTO);
+        userDto.setIsAdmin(USER_IS_NOT_ADMIN);
         return userDto;
     }
 
@@ -163,6 +169,7 @@ public class UserDataTest {
         userDto.setAbout(USER_ABOUT);
         userDto.setCountry(USER_COUNTRY_DTO);
         userDto.setCity(USER_4_CITY_DTO);
+        userDto.setIsAdmin(USER_IS_NOT_ADMIN);
         return userDto;
     }
 }
