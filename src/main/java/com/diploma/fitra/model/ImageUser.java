@@ -22,7 +22,7 @@ public class ImageUser {
     @Column(nullable = false)
     private String path;
 
-    private Boolean isMain;
+    private boolean isMain;
 
     @JoinColumn(nullable = false)
     @ManyToOne

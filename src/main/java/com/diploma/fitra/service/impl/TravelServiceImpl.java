@@ -1,16 +1,16 @@
 package com.diploma.fitra.service.impl;
 
+import com.diploma.fitra.dto.travel.ParticipantDto;
 import com.diploma.fitra.dto.travel.RouteDto;
 import com.diploma.fitra.dto.travel.TravelDto;
 import com.diploma.fitra.dto.travel.TravelSaveDto;
 import com.diploma.fitra.exception.BadRequestException;
+import com.diploma.fitra.exception.ExistenceException;
 import com.diploma.fitra.exception.NotFoundException;
-import com.diploma.fitra.mapper.RouteMapper;
-import com.diploma.fitra.mapper.TravelMapper;
-import com.diploma.fitra.mapper.TypeMapper;
-import com.diploma.fitra.mapper.UpdateMapper;
+import com.diploma.fitra.mapper.*;
 import com.diploma.fitra.model.*;
 import com.diploma.fitra.model.error.Error;
+import com.diploma.fitra.model.key.ParticipantKey;
 import com.diploma.fitra.repo.*;
 import com.diploma.fitra.service.TravelService;
 import lombok.RequiredArgsConstructor;
@@ -61,7 +61,7 @@ public class TravelServiceImpl implements TravelService {
         Participant participant = new Participant();
         participant.setTravel(travel);
         participant.setUser(creator);
-        participant.setIsCreator(true);
+        participant.setCreator(true);
         participant = participantRepository.save(participant);
         log.info("Creator is became a participant of created travel: {}", participant);
 
@@ -76,7 +76,7 @@ public class TravelServiceImpl implements TravelService {
                 .map(travel -> {
                     TravelDto travelDto = TravelMapper.INSTANCE.toTravelDto(travel);
                     travelDto.setType(TypeMapper.INSTANCE.toTypeDto(travel.getType()));
-                    List<RouteDto> routeDtoList = routeRepository.findAllByTravel(travel, Sort.by("priority"))
+                    List<RouteDto> routeDtoList = routeRepository.findAllByTravel(travel, Sort.by("position"))
                             .stream()
                             .map(RouteMapper.INSTANCE::toRouteDto)
                             .collect(Collectors.toList());
@@ -84,6 +84,56 @@ public class TravelServiceImpl implements TravelService {
                     return travelDto;
                 })
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public ParticipantDto addUser(Long travelId, Long userId) {
+        log.info("Adding user (id={}) to a travel with id: {}", userId, travelId);
+
+        Travel travel = travelRepository.findById(travelId)
+                .orElseThrow(() -> new NotFoundException(Error.TRAVEL_NOT_FOUND.getMessage()));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException(Error.USER_NOT_FOUND.getMessage()));
+        if (user.isAdmin()) {
+            throw new BadRequestException(Error.ADMIN_CANT_BE_ADDED_TO_TRAVEL.getMessage());
+        } else if (participantRepository.findById(new ParticipantKey(travel.getId(), user.getId())).isPresent()) {
+            throw new ExistenceException(Error.USER_EXISTS_IN_TRAVEL.getMessage());
+        }
+
+        Participant participant = new Participant();
+        participant.setTravel(travel);
+        participant.setUser(user);
+        participant = participantRepository.save(participant);
+
+        log.info("User (id={}) is added to a travel (id={}): {}", userId, travelId, participant);
+        return ParticipantMapper.INSTANCE.toParticipantDto(participant);
+    }
+
+    @Override
+    public List<ParticipantDto> getUsers(Long travelId) {
+        log.info("Getting users from travel (id={})", travelId);
+
+        Travel travel = travelRepository.findById(travelId)
+                .orElseThrow(() -> new NotFoundException(Error.TRAVEL_NOT_FOUND.getMessage()));
+
+        return participantRepository.findAllByTravel(travel).stream()
+                .map(ParticipantMapper.INSTANCE::toParticipantDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void removeUser(Long travelId, Long userId) {
+        log.info("Removing user (id={}) from the travel with id: {}", userId, travelId);
+
+        Travel travel = travelRepository.findById(travelId)
+                .orElseThrow(() -> new NotFoundException(Error.TRAVEL_NOT_FOUND.getMessage()));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException(Error.USER_NOT_FOUND.getMessage()));
+        Participant participant = participantRepository.findById(new ParticipantKey(travel.getId(), user.getId()))
+                .orElseThrow(() -> new ExistenceException(Error.USER_DOES_NOT_EXIST_IN_TRAVEL.getMessage()));
+
+        participantRepository.delete(participant);
+        log.info("User (id={}) is removed from the travel (id={})", userId, travelId);
     }
 
     @Override

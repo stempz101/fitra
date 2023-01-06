@@ -12,9 +12,12 @@ public enum Error {
     CITY_NOT_IN_COUNTRY("City is not part of specified country!"),
     NOT_SUPPORTED_LANGUAGE("The specified language is not supported!"),
     LIMIT_IS_LOWER_THAN_CURRENT_COUNT("The specified limit is lower than the current count of participants in the travel!"),
+    ADMIN_CANT_BE_ADDED_TO_TRAVEL("Admin can't be added to a travel!"),
 
     // ExistenceException messages
     USER_EXISTS_WITH_EMAIL("User with specified email already exists!"),
+    USER_EXISTS_IN_TRAVEL("User with specified id already exists in the travel!"),
+    USER_DOES_NOT_EXIST_IN_TRAVEL("User with specified id doesn't exist in the travel!"),
     TYPE_EXISTS_WITH_NAME_EN("Type with specified name (EN) already exists!"),
     TYPE_EXISTS_WITH_NAME_UA("Type with specified name (UA) already exists!"),
 

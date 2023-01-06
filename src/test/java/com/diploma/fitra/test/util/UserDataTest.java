@@ -48,6 +48,7 @@ public class UserDataTest {
     private static final String USER_ABOUT = "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusamus, aspernatur atque consectetur distinctio dolorum enim error et fugit id incidunt ipsam neque nisi optio perferendis porro possimus provident quaerat qui ratione repudiandae similique tempore totam ut. Animi delectus distinctio harum ipsum laborum libero, minima mollitia nam, pariatur sint vero vitae.";
     private static final Country USER_COUNTRY = CountryDataTest.getCountry1();
     private static final CountryDto USER_COUNTRY_DTO = CountryDataTest.getCountryDto1();
+    private static final boolean USER_IS_ADMIN = true;
 
     public static UserSaveDto getUserSaveDto1() {
         UserSaveDto userSaveDto = new UserSaveDto();
@@ -74,6 +75,7 @@ public class UserDataTest {
         user.setBirthday(USER_1_BIRTHDAY);
         user.setCountry(USER_COUNTRY);
         user.setCity(USER_1_CITY);
+        user.setAdmin(USER_IS_ADMIN);
         return user;
     }
 
@@ -127,6 +129,7 @@ public class UserDataTest {
         userDto.setAbout(USER_ABOUT);
         userDto.setCountry(USER_COUNTRY_DTO);
         userDto.setCity(USER_1_CITY_DTO);
+        userDto.setIsAdmin(USER_IS_ADMIN);
         return userDto;
     }
 

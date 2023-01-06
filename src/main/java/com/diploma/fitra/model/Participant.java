@@ -31,5 +31,5 @@ public class Participant {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
 
-    private Boolean isCreator;
+    private boolean isCreator;
 }

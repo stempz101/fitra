@@ -1,6 +1,7 @@
 package com.diploma.fitra.controller;
 
 import com.diploma.fitra.api.TravelApi;
+import com.diploma.fitra.dto.travel.ParticipantDto;
 import com.diploma.fitra.dto.travel.TravelDto;
 import com.diploma.fitra.dto.travel.TravelSaveDto;
 import com.diploma.fitra.service.TravelService;
@@ -23,6 +24,22 @@ public class TravelController implements TravelApi {
     @Override
     public List<TravelDto> getTravels() {
         return travelService.getTravels();
+    }
+
+    @Override
+    public ParticipantDto addUser(Long travelId, Long userId) {
+        return travelService.addUser(travelId, userId);
+    }
+
+    @Override
+    public List<ParticipantDto> getUsers(Long travelId) {
+        return travelService.getUsers(travelId);
+    }
+
+    @Override
+    public ResponseEntity<Void> removeUser(Long travelId, Long userId) {
+        travelService.removeUser(travelId, userId);
+        return ResponseEntity.noContent().build();
     }
 
     @Override

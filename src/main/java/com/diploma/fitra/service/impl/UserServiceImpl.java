@@ -78,6 +78,9 @@ public class UserServiceImpl implements UserService {
         UserDto userDto = UserMapper.INSTANCE.toUserDto(user);
         userDto.setCountry(CountryMapper.INSTANCE.toCountryDto(user.getCountry()));
         userDto.setCity(CityMapper.INSTANCE.toCityDto(user.getCity()));
+        if (user.isAdmin()) {
+            userDto.setIsAdmin(true);
+        }
         return userDto;
     }
 }

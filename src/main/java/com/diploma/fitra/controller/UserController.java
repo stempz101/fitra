@@ -1,5 +1,6 @@
 package com.diploma.fitra.controller;
 
+import com.diploma.fitra.api.UserApi;
 import com.diploma.fitra.dto.user.UserDto;
 import com.diploma.fitra.dto.user.UserSaveDto;
 import com.diploma.fitra.service.UserService;
@@ -10,10 +11,10 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-public class UserController {
+public class UserController implements UserApi {
     private final UserService userService;
 
-    public UserDto saveUser(UserSaveDto userSaveDto) {
+    public UserDto createUser(UserSaveDto userSaveDto) {
         return userService.createUser(userSaveDto);
     }
 

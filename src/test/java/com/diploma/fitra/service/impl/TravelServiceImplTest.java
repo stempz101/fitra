@@ -1,8 +1,11 @@
 package com.diploma.fitra.service.impl;
 
+import com.diploma.fitra.dto.travel.ParticipantDto;
 import com.diploma.fitra.dto.travel.TravelDto;
 import com.diploma.fitra.dto.travel.TravelSaveDto;
+import com.diploma.fitra.dto.user.UserDto;
 import com.diploma.fitra.exception.BadRequestException;
+import com.diploma.fitra.exception.ExistenceException;
 import com.diploma.fitra.exception.NotFoundException;
 import com.diploma.fitra.mapper.TravelMapper;
 import com.diploma.fitra.model.*;
@@ -176,6 +179,145 @@ public class TravelServiceImplTest {
                 TravelDataTest.getTravelDto2(),
                 TravelDataTest.getTravelDto3()
         ));
+    }
+
+    @Test
+    void addUserTest() {
+        Travel travel = TravelDataTest.getTravel1();
+        User user = UserDataTest.getUser2();
+        UserDto userDto = UserDataTest.getUserDto2();
+        Participant participant = ParticipantDataTest.getParticipant2();
+
+        when(travelRepository.findById(any())).thenReturn(Optional.of(travel));
+        when(userRepository.findById(any())).thenReturn(Optional.of(user));
+        when(participantRepository.findById(any())).thenReturn(Optional.empty());
+        when(participantRepository.save(any())).thenReturn(participant);
+        ParticipantDto result = travelService.addUser(travel.getId(), user.getId());
+
+        assertThat(result, allOf(
+                hasProperty("travelId", equalTo(travel.getId())),
+                hasProperty("user", equalTo(userDto)),
+                hasProperty("isCreator", equalTo(false))
+        ));
+    }
+
+    @Test
+    void addUserWithTravelNotFoundExceptionTest() {
+        Travel travel = TravelDataTest.getTravel1();
+        User user = UserDataTest.getUser2();
+
+        when(travelRepository.findById(any())).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> travelService.addUser(travel.getId(), user.getId()));
+    }
+
+    @Test
+    void addUserWithUserNotFoundExceptionTest() {
+        Travel travel = TravelDataTest.getTravel1();
+        User user = UserDataTest.getUser2();
+
+        when(travelRepository.findById(any())).thenReturn(Optional.of(travel));
+        when(userRepository.findById(any())).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> travelService.addUser(travel.getId(), user.getId()));
+    }
+
+    @Test
+    void addUserWithUserIsAdminBadRequestExceptionTest() {
+        Travel travel = TravelDataTest.getTravel1();
+        User user = UserDataTest.getUser1();
+
+        when(travelRepository.findById(any())).thenReturn(Optional.of(travel));
+        when(userRepository.findById(any())).thenReturn(Optional.of(user));
+
+        assertThrows(BadRequestException.class, () -> travelService.addUser(travel.getId(), user.getId()));
+    }
+
+    @Test
+    void addUserWithExistenceExceptionTest() {
+        Travel travel = TravelDataTest.getTravel1();
+        User user = UserDataTest.getUser2();
+        Participant participant = ParticipantDataTest.getParticipant2();
+
+        when(travelRepository.findById(any())).thenReturn(Optional.of(travel));
+        when(userRepository.findById(any())).thenReturn(Optional.of(user));
+        when(participantRepository.findById(any())).thenReturn(Optional.of(participant));
+
+        assertThrows(ExistenceException.class, () -> travelService.addUser(travel.getId(), user.getId()));
+    }
+
+    @Test
+    void getUsersTest() {
+        Travel travel = TravelDataTest.getTravel1();
+        List<Participant> participants = new ArrayList<>();
+        participants.add(ParticipantDataTest.getParticipant1());
+        participants.add(ParticipantDataTest.getParticipant2());
+        participants.add(ParticipantDataTest.getParticipant3());
+
+        when(travelRepository.findById(any())).thenReturn(Optional.of(travel));
+        when(participantRepository.findAllByTravel(any())).thenReturn(participants);
+        List<ParticipantDto> result = travelService.getUsers(travel.getId());
+
+        ParticipantDto participantDto1 = ParticipantDataTest.getParticipantDto1();
+        ParticipantDto participantDto2 = ParticipantDataTest.getParticipantDto2();
+        ParticipantDto participantDto3 = ParticipantDataTest.getParticipantDto3();
+        System.out.println(participantDto1.equals(result.get(0)));
+        System.out.println(participantDto2.equals(result.get(1)));
+        System.out.println(participantDto3.equals(result.get(2)));
+
+        assertThat(result, hasSize(participants.size()));
+        assertThat(result, hasItems(
+                ParticipantDataTest.getParticipantDto1(),
+                ParticipantDataTest.getParticipantDto2(),
+                ParticipantDataTest.getParticipantDto3()
+        ));
+    }
+
+    @Test
+    void removeUserTest() {
+        Travel travel = TravelDataTest.getTravel1();
+        User user = UserDataTest.getUser2();
+        Participant participant = ParticipantDataTest.getParticipant2();
+
+        when(travelRepository.findById(any())).thenReturn(Optional.of(travel));
+        when(userRepository.findById(any())).thenReturn(Optional.of(user));
+        when(participantRepository.findById(any())).thenReturn(Optional.of(participant));
+        travelService.removeUser(travel.getId(), user.getId());
+
+        verify(participantRepository, times(1)).delete(any());
+    }
+
+    @Test
+    void removeUserWithTravelNotFoundExceptionTest() {
+        Travel travel = TravelDataTest.getTravel1();
+        User user = UserDataTest.getUser2();
+
+        when(travelRepository.findById(any())).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> travelService.removeUser(travel.getId(), user.getId()));
+    }
+
+    @Test
+    void removeUserWithUserNotFoundExceptionTest() {
+        Travel travel = TravelDataTest.getTravel1();
+        User user = UserDataTest.getUser2();
+
+        when(travelRepository.findById(any())).thenReturn(Optional.of(travel));
+        when(userRepository.findById(any())).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> travelService.removeUser(travel.getId(), user.getId()));
+    }
+
+    @Test
+    void removeUserWithExistenceExceptionTest() {
+        Travel travel = TravelDataTest.getTravel1();
+        User user = UserDataTest.getUser2();
+
+        when(travelRepository.findById(any())).thenReturn(Optional.of(travel));
+        when(userRepository.findById(any())).thenReturn(Optional.of(user));
+        when(participantRepository.findById(any())).thenReturn(Optional.empty());
+
+        assertThrows(ExistenceException.class, () -> travelService.removeUser(travel.getId(), user.getId()));
     }
 
     @Test

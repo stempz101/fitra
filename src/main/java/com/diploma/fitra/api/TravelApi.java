@@ -2,6 +2,7 @@ package com.diploma.fitra.api;
 
 import com.diploma.fitra.dto.group.OnCreate;
 import com.diploma.fitra.dto.group.OnUpdate;
+import com.diploma.fitra.dto.travel.ParticipantDto;
 import com.diploma.fitra.dto.travel.TravelDto;
 import com.diploma.fitra.dto.travel.TravelSaveDto;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,15 @@ public interface TravelApi {
 
     @GetMapping
     List<TravelDto> getTravels();
+
+    @PostMapping("/{travelId}/user/{userId}")
+    ParticipantDto addUser(@PathVariable Long travelId, @PathVariable Long userId);
+
+    @GetMapping("/{travelId}/user")
+    List<ParticipantDto> getUsers(@PathVariable Long travelId);
+
+    @DeleteMapping("/{travelId}/user/{userId}")
+    ResponseEntity<Void> removeUser(@PathVariable Long travelId, @PathVariable Long userId);
 
     @PutMapping("/{travelId}")
     TravelDto updateTravel(@PathVariable Long travelId, @RequestBody @Validated(OnUpdate.class) TravelSaveDto travelSaveDto);
