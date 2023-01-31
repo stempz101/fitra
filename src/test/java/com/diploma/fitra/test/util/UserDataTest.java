@@ -76,7 +76,7 @@ public class UserDataTest {
         user.setBirthday(USER_1_BIRTHDAY);
         user.setCountry(USER_COUNTRY);
         user.setCity(USER_1_CITY);
-        user.setAdmin(USER_IS_ADMIN);
+//        user.setAdmin(USER_IS_ADMIN);
         return user;
     }
 
@@ -91,7 +91,7 @@ public class UserDataTest {
         user.setBirthday(USER_2_BIRTHDAY);
         user.setCountry(USER_COUNTRY);
         user.setCity(USER_2_CITY);
-        user.setAdmin(USER_IS_NOT_ADMIN);
+//        user.setAdmin(USER_IS_NOT_ADMIN);
         return user;
     }
 
@@ -106,7 +106,7 @@ public class UserDataTest {
         user.setBirthday(USER_3_BIRTHDAY);
         user.setCountry(USER_COUNTRY);
         user.setCity(USER_3_CITY);
-        user.setAdmin(USER_IS_NOT_ADMIN);
+//        user.setAdmin(USER_IS_NOT_ADMIN);
         return user;
     }
 
@@ -121,7 +121,7 @@ public class UserDataTest {
         user.setBirthday(USER_4_BIRTHDAY);
         user.setCountry(USER_COUNTRY);
         user.setCity(USER_4_CITY);
-        user.setAdmin(USER_IS_NOT_ADMIN);
+//        user.setAdmin(USER_IS_NOT_ADMIN);
         return user;
     }
 

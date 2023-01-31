@@ -12,7 +12,7 @@ public interface UserMapper {
 
     UserMapper INSTANCE = Mappers.getMapper(UserMapper.class);
 
-    @Mapping(source = "admin", target = "isAdmin")
+//    @Mapping(source = "admin", target = "isAdmin")
     UserDto toUserDto(User user);
 
     User fromUserSaveDto(UserSaveDto userDto);

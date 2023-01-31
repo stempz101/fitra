@@ -20,6 +20,9 @@ public class City {
     @Column(nullable = false)
     private String titleEn;
 
+    @Column(nullable = false)
+    private String titleUa;
+
     @JoinColumn(nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
     @ToString.Exclude

@@ -5,6 +5,8 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: update
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
   datasource:
     driver-class-name: org.postgresql.Driver
     username: postgres

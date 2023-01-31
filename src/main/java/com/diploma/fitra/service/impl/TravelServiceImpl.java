@@ -94,9 +94,10 @@ public class TravelServiceImpl implements TravelService {
                 .orElseThrow(() -> new NotFoundException(Error.TRAVEL_NOT_FOUND.getMessage()));
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(Error.USER_NOT_FOUND.getMessage()));
-        if (user.isAdmin()) {
-            throw new BadRequestException(Error.ADMIN_CANT_BE_ADDED_TO_TRAVEL.getMessage());
-        } else if (participantRepository.findById(new ParticipantKey(travel.getId(), user.getId())).isPresent()) {
+//        if (user.isAdmin()) {
+//            throw new BadRequestException(Error.ADMIN_CANT_BE_ADDED_TO_TRAVEL.getMessage());
+//        } else
+            if (participantRepository.findById(new ParticipantKey(travel.getId(), user.getId())).isPresent()) {
             throw new ExistenceException(Error.USER_EXISTS_IN_TRAVEL.getMessage());
         }
 
