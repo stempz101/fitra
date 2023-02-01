@@ -11,6 +11,7 @@ import com.diploma.fitra.mapper.*;
 import com.diploma.fitra.model.*;
 import com.diploma.fitra.model.error.Error;
 import com.diploma.fitra.model.key.ParticipantKey;
+import com.diploma.fitra.model.role.Role;
 import com.diploma.fitra.repo.*;
 import com.diploma.fitra.service.TravelService;
 import lombok.RequiredArgsConstructor;
@@ -94,9 +95,9 @@ public class TravelServiceImpl implements TravelService {
                 .orElseThrow(() -> new NotFoundException(Error.TRAVEL_NOT_FOUND.getMessage()));
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(Error.USER_NOT_FOUND.getMessage()));
-//        if (user.isAdmin()) {
-//            throw new BadRequestException(Error.ADMIN_CANT_BE_ADDED_TO_TRAVEL.getMessage());
-//        } else
+        if (user.getRole().equals(Role.ADMIN)) {
+            throw new BadRequestException(Error.ADMIN_CANT_BE_ADDED_TO_TRAVEL.getMessage());
+        } else
             if (participantRepository.findById(new ParticipantKey(travel.getId(), user.getId())).isPresent()) {
             throw new ExistenceException(Error.USER_EXISTS_IN_TRAVEL.getMessage());
         }
@@ -107,7 +108,7 @@ public class TravelServiceImpl implements TravelService {
         participant = participantRepository.save(participant);
 
         log.info("User (id={}) is added to a travel (id={}): {}", userId, travelId, participant);
-        return ParticipantMapper.INSTANCE.toParticipantDto(participant);
+        return toParticipantDto(participant);
     }
 
     @Override
@@ -118,7 +119,7 @@ public class TravelServiceImpl implements TravelService {
                 .orElseThrow(() -> new NotFoundException(Error.TRAVEL_NOT_FOUND.getMessage()));
 
         return participantRepository.findAllByTravel(travel).stream()
-                .map(ParticipantMapper.INSTANCE::toParticipantDto)
+                .map(this::toParticipantDto)
                 .collect(Collectors.toList());
     }
 
@@ -188,6 +189,14 @@ public class TravelServiceImpl implements TravelService {
                 .collect(Collectors.toList());
         travelDto.setRoute(routeDtoList);
         return travelDto;
+    }
+
+    private ParticipantDto toParticipantDto(Participant participant) {
+        ParticipantDto participantDto = ParticipantMapper.INSTANCE.toParticipantDto(participant);
+        if (participant.getUser().getRole().equals(Role.ADMIN)) {
+            participantDto.getUser().setIsAdmin(true);
+        }
+        return participantDto;
     }
 
     private List<Route> checkAndMapRouteDtoList(List<RouteDto> routeDtoList) {

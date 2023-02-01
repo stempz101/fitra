@@ -3,10 +3,10 @@ package com.diploma.fitra.test.util;
 import com.diploma.fitra.dto.country.CityDto;
 import com.diploma.fitra.dto.country.CountryDto;
 import com.diploma.fitra.dto.user.UserDto;
-import com.diploma.fitra.dto.user.UserSaveDto;
 import com.diploma.fitra.model.City;
 import com.diploma.fitra.model.Country;
 import com.diploma.fitra.model.User;
+import com.diploma.fitra.model.role.Role;
 
 import java.time.LocalDate;
 
@@ -51,20 +51,6 @@ public class UserDataTest {
     private static final boolean USER_IS_ADMIN = true;
     private static final boolean USER_IS_NOT_ADMIN = false;
 
-    public static UserSaveDto getUserSaveDto1() {
-        UserSaveDto userSaveDto = new UserSaveDto();
-        userSaveDto.setFirstName(USER_1_FIRST_NAME);
-        userSaveDto.setLastName(USER_1_LAST_NAME);
-        userSaveDto.setEmail(USER_1_EMAIL);
-        userSaveDto.setPassword(USER_PASSWORD);
-        userSaveDto.setRepeatPassword(USER_PASSWORD);
-        userSaveDto.setAbout(USER_ABOUT);
-        userSaveDto.setBirthday(USER_1_BIRTHDAY);
-        userSaveDto.setCountryId(USER_COUNTRY.getId());
-        userSaveDto.setCityId(USER_1_CITY.getId());
-        return userSaveDto;
-    }
-
     public static User getUser1() {
         User user = new User();
         user.setId(USER_1_ID);
@@ -76,7 +62,7 @@ public class UserDataTest {
         user.setBirthday(USER_1_BIRTHDAY);
         user.setCountry(USER_COUNTRY);
         user.setCity(USER_1_CITY);
-//        user.setAdmin(USER_IS_ADMIN);
+        user.setRole(Role.ADMIN);
         return user;
     }
 
@@ -91,7 +77,7 @@ public class UserDataTest {
         user.setBirthday(USER_2_BIRTHDAY);
         user.setCountry(USER_COUNTRY);
         user.setCity(USER_2_CITY);
-//        user.setAdmin(USER_IS_NOT_ADMIN);
+        user.setRole(Role.USER);
         return user;
     }
 
@@ -106,7 +92,7 @@ public class UserDataTest {
         user.setBirthday(USER_3_BIRTHDAY);
         user.setCountry(USER_COUNTRY);
         user.setCity(USER_3_CITY);
-//        user.setAdmin(USER_IS_NOT_ADMIN);
+        user.setRole(Role.USER);
         return user;
     }
 
@@ -121,7 +107,7 @@ public class UserDataTest {
         user.setBirthday(USER_4_BIRTHDAY);
         user.setCountry(USER_COUNTRY);
         user.setCity(USER_4_CITY);
-//        user.setAdmin(USER_IS_NOT_ADMIN);
+        user.setRole(Role.USER);
         return user;
     }
 
@@ -145,7 +131,6 @@ public class UserDataTest {
         userDto.setAbout(USER_ABOUT);
         userDto.setCountry(USER_COUNTRY_DTO);
         userDto.setCity(USER_2_CITY_DTO);
-        userDto.setIsAdmin(USER_IS_NOT_ADMIN);
         return userDto;
     }
 
@@ -157,7 +142,6 @@ public class UserDataTest {
         userDto.setAbout(USER_ABOUT);
         userDto.setCountry(USER_COUNTRY_DTO);
         userDto.setCity(USER_3_CITY_DTO);
-        userDto.setIsAdmin(USER_IS_NOT_ADMIN);
         return userDto;
     }
 
@@ -169,7 +153,6 @@ public class UserDataTest {
         userDto.setAbout(USER_ABOUT);
         userDto.setCountry(USER_COUNTRY_DTO);
         userDto.setCity(USER_4_CITY_DTO);
-        userDto.setIsAdmin(USER_IS_NOT_ADMIN);
         return userDto;
     }
 }

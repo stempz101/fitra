@@ -15,14 +15,17 @@ import java.util.List;
 public class CountryController implements CountryApi {
     private final CountryService countryService;
 
+    @Override
     public List<CountryDto> getCountries(String search) {
         return countryService.getCountries(search);
     }
 
+    @Override
     public Country getCountry(Long countryId) {
         return countryService.getCountry(countryId);
     }
 
+    @Override
     public List<CityDto> getCities(Long countryId, String search) {
         return countryService.getCities(countryId, search);
     }

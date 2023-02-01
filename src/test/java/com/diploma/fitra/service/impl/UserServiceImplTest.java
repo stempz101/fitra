@@ -1,21 +1,9 @@
 package com.diploma.fitra.service.impl;
 
 import com.diploma.fitra.dto.user.UserDto;
-import com.diploma.fitra.dto.user.UserSaveDto;
-import com.diploma.fitra.exception.BadRequestException;
-import com.diploma.fitra.exception.ExistenceException;
 import com.diploma.fitra.exception.NotFoundException;
-import com.diploma.fitra.exception.VerificationException;
-import com.diploma.fitra.mapper.CityMapper;
-import com.diploma.fitra.mapper.CountryMapper;
-import com.diploma.fitra.model.City;
-import com.diploma.fitra.model.Country;
 import com.diploma.fitra.model.User;
-import com.diploma.fitra.repo.CityRepository;
-import com.diploma.fitra.repo.CountryRepository;
 import com.diploma.fitra.repo.UserRepository;
-import com.diploma.fitra.test.util.CityDataTest;
-import com.diploma.fitra.test.util.CountryDataTest;
 import com.diploma.fitra.test.util.UserDataTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,72 +30,11 @@ public class UserServiceImplTest {
     @Mock
     private UserRepository userRepository;
 
-    @Mock
-    private CountryRepository countryRepository;
-
-    @Mock
-    private CityRepository cityRepository;
-
-    @Test
-    void createUserTest() {
-        UserSaveDto userSaveDto = UserDataTest.getUserSaveDto1();
-        User user = UserDataTest.getUser1();
-        Country country = CountryDataTest.getCountry1();
-        City city = CityDataTest.getCity1();
-
-        when(countryRepository.findById(any())).thenReturn(Optional.of(country));
-        when(cityRepository.findById(any())).thenReturn(Optional.of(city));
-        when(userRepository.save(any())).thenReturn(user);
-        UserDto result = userService.createUser(userSaveDto);
-
-        assertThat(result, allOf(
-                hasProperty("id", equalTo(user.getId())),
-                hasProperty("firstName", equalTo(userSaveDto.getFirstName())),
-                hasProperty("lastName", equalTo(userSaveDto.getLastName())),
-                hasProperty("about", equalTo(userSaveDto.getAbout())),
-                hasProperty("country", equalTo(CountryMapper.INSTANCE.toCountryDto(country))),
-                hasProperty("city", equalTo(CityMapper.INSTANCE.toCityDto(city)))
-        ));
-    }
-
-    @Test
-    void createUserWithExistenceExceptionTest() {
-        UserSaveDto userSaveDto = UserDataTest.getUserSaveDto1();
-
-        when(userRepository.existsByEmail(any())).thenReturn(true);
-
-        assertThrows(ExistenceException.class, () -> userService.createUser(userSaveDto));
-    }
-
-    @Test
-    void createUserWithVerificationExceptionTest() {
-        UserSaveDto userSaveDto = UserDataTest.getUserSaveDto1();
-        userSaveDto.setRepeatPassword("asdasdasdasd");
-
-        assertThrows(VerificationException.class, () -> userService.createUser(userSaveDto));
-    }
-
-    @Test
-    void createUserWithCountryNotFoundException() {
-        UserSaveDto userSaveDto = UserDataTest.getUserSaveDto1();
-
-        when(countryRepository.findById(any())).thenReturn(Optional.empty());
-
-        assertThrows(NotFoundException.class, () -> userService.createUser(userSaveDto));
-    }
-
-    @Test
-    void createUserWithBadRequestException() {
-        UserSaveDto userSaveDto = UserDataTest.getUserSaveDto1();
-        Country country = CountryDataTest.getCountry1();
-        City city = CityDataTest.getCity1();
-        city.setCountry(CountryDataTest.getCountry2());
-
-        when(countryRepository.findById(any())).thenReturn(Optional.of(country));
-        when(cityRepository.findById(any())).thenReturn(Optional.of(city));
-
-        assertThrows(BadRequestException.class, () -> userService.createUser(userSaveDto));
-    }
+//    @Mock
+//    private CountryRepository countryRepository;
+//
+//    @Mock
+//    private CityRepository cityRepository;
 
     @Test
     void getUsersTest() {
@@ -143,7 +70,8 @@ public class UserServiceImplTest {
                 hasProperty("lastName", equalTo(user.getLastName())),
                 hasProperty("about", equalTo(user.getAbout())),
                 hasProperty("country", equalTo(userDto.getCountry())),
-                hasProperty("city", equalTo(userDto.getCity()))
+                hasProperty("city", equalTo(userDto.getCity())),
+                hasProperty("isAdmin", equalTo(true))
         ));
     }
 

@@ -15,18 +15,22 @@ import java.util.List;
 public class TypeController implements TypeApi {
     private final TypeService typeService;
 
+    @Override
     public Type createType(TypeSaveDto typeSaveDto) {
         return typeService.createType(typeSaveDto);
     }
 
+    @Override
     public List<TypeDto> getTypes() {
         return typeService.getTypes();
     }
 
+    @Override
     public Type getType(Long typeId) {
         return typeService.getType(typeId);
     }
 
+    @Override
     public Type updateType(Long typeId, TypeSaveDto typeSaveDto) {
         return typeService.updateType(typeId, typeSaveDto);
     }
