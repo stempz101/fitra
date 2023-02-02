@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
-@RequestMapping("/api/v1/country")
+@RequestMapping("/api/v1/countries")
 public interface CountryApi {
 
     @GetMapping
