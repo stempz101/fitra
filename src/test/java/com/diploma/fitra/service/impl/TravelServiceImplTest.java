@@ -1,9 +1,9 @@
 package com.diploma.fitra.service.impl;
 
+import com.diploma.fitra.dto.success.SuccessDto;
 import com.diploma.fitra.dto.travel.ParticipantDto;
 import com.diploma.fitra.dto.travel.TravelDto;
 import com.diploma.fitra.dto.travel.TravelSaveDto;
-import com.diploma.fitra.dto.user.UserDto;
 import com.diploma.fitra.exception.BadRequestException;
 import com.diploma.fitra.exception.ExistenceException;
 import com.diploma.fitra.exception.NotFoundException;
@@ -16,6 +16,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,6 +55,9 @@ public class TravelServiceImplTest {
 
     @Mock
     private ParticipantRepository participantRepository;
+
+    @Mock
+    private InvitationRepository invitationRepository;
 
     @Test
     void createTravelTest() {
@@ -185,19 +190,17 @@ public class TravelServiceImplTest {
     void addUserTest() {
         Travel travel = TravelDataTest.getTravel1();
         User user = UserDataTest.getUser2();
-        UserDto userDto = UserDataTest.getUserDto2();
-        Participant participant = ParticipantDataTest.getParticipant2();
+        Invitation invitation = InvitationDataTest.getInvitation();
 
         when(travelRepository.findById(any())).thenReturn(Optional.of(travel));
         when(userRepository.findById(any())).thenReturn(Optional.of(user));
         when(participantRepository.findById(any())).thenReturn(Optional.empty());
-        when(participantRepository.save(any())).thenReturn(participant);
-        ParticipantDto result = travelService.addUser(travel.getId(), user.getId());
+        when(invitationRepository.save(any())).thenReturn(invitation);
+        ResponseEntity<SuccessDto> result = travelService.addUser(travel.getId(), user.getId());
 
-        assertThat(result, allOf(
-                hasProperty("travelId", equalTo(travel.getId())),
-                hasProperty("user", equalTo(userDto)),
-                hasProperty("isCreator", equalTo(false))
+        assertThat(result.getBody(), allOf(
+                hasProperty("statusCode", equalTo(HttpStatus.OK.value())),
+                hasProperty("result", instanceOf(String.class))
         ));
     }
 

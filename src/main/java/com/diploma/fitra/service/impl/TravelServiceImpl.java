@@ -1,5 +1,6 @@
 package com.diploma.fitra.service.impl;
 
+import com.diploma.fitra.dto.success.SuccessDto;
 import com.diploma.fitra.dto.travel.ParticipantDto;
 import com.diploma.fitra.dto.travel.RouteDto;
 import com.diploma.fitra.dto.travel.TravelDto;
@@ -17,6 +18,8 @@ import com.diploma.fitra.service.TravelService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,6 +39,7 @@ public class TravelServiceImpl implements TravelService {
     private final CityRepository cityRepository;
     private final RouteRepository routeRepository;
     private final ParticipantRepository participantRepository;
+    private final InvitationRepository invitationRepository;
 
     @Override
     @Transactional
@@ -88,7 +92,7 @@ public class TravelServiceImpl implements TravelService {
     }
 
     @Override
-    public ParticipantDto addUser(Long travelId, Long userId) {
+    public ResponseEntity<SuccessDto> addUser(Long travelId, Long userId) {
         log.info("Adding user (id={}) to a travel with id: {}", userId, travelId);
 
         Travel travel = travelRepository.findById(travelId)
@@ -97,18 +101,18 @@ public class TravelServiceImpl implements TravelService {
                 .orElseThrow(() -> new NotFoundException(Error.USER_NOT_FOUND.getMessage()));
         if (user.getRole().equals(Role.ADMIN)) {
             throw new BadRequestException(Error.ADMIN_CANT_BE_ADDED_TO_TRAVEL.getMessage());
-        } else
-            if (participantRepository.findById(new ParticipantKey(travel.getId(), user.getId())).isPresent()) {
+        } else if (participantRepository.findById(new ParticipantKey(travel.getId(), user.getId())).isPresent()) {
             throw new ExistenceException(Error.USER_EXISTS_IN_TRAVEL.getMessage());
         }
 
-        Participant participant = new Participant();
-        participant.setTravel(travel);
-        participant.setUser(user);
-        participant = participantRepository.save(participant);
+        Invitation invitation = new Invitation();
+        invitation.setTravel(travel);
+        invitation.setUser(user);
+        invitationRepository.save(invitation);
 
-        log.info("User (id={}) is added to a travel (id={}): {}", userId, travelId, participant);
-        return toParticipantDto(participant);
+        log.info("Travel (id={}) invitation is created to the user (id={})", travelId, userId);
+        return ResponseEntity.ok(new SuccessDto(HttpStatus.OK.value(),
+                String.format("Travel (id=%d) invitation is created to the user (id=%d)", travelId, userId)));
     }
 
     @Override

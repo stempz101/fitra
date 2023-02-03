@@ -1,8 +1,10 @@
 package com.diploma.fitra.service;
 
+import com.diploma.fitra.dto.success.SuccessDto;
 import com.diploma.fitra.dto.travel.ParticipantDto;
 import com.diploma.fitra.dto.travel.TravelDto;
 import com.diploma.fitra.dto.travel.TravelSaveDto;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
@@ -12,7 +14,7 @@ public interface TravelService {
 
     List<TravelDto> getTravels();
 
-    ParticipantDto addUser(Long travelId, Long userId);
+    ResponseEntity<SuccessDto> addUser(Long travelId, Long userId);
 
     List<ParticipantDto> getUsers(Long travelId);
 
