@@ -1,6 +1,5 @@
 package com.diploma.fitra.service.impl;
 
-import com.diploma.fitra.dto.success.SuccessDto;
 import com.diploma.fitra.dto.travel.ParticipantDto;
 import com.diploma.fitra.dto.travel.TravelDto;
 import com.diploma.fitra.dto.travel.TravelSaveDto;
@@ -16,8 +15,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -196,12 +193,9 @@ public class TravelServiceImplTest {
         when(userRepository.findById(any())).thenReturn(Optional.of(user));
         when(participantRepository.findById(any())).thenReturn(Optional.empty());
         when(invitationRepository.save(any())).thenReturn(invitation);
-        ResponseEntity<SuccessDto> result = travelService.addUser(travel.getId(), user.getId());
+        travelService.addUser(travel.getId(), user.getId());
 
-        assertThat(result.getBody(), allOf(
-                hasProperty("statusCode", equalTo(HttpStatus.OK.value())),
-                hasProperty("result", instanceOf(String.class))
-        ));
+        verify(invitationRepository, times(1)).save(any());
     }
 
     @Test

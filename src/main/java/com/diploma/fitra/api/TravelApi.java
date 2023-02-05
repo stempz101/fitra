@@ -2,7 +2,6 @@ package com.diploma.fitra.api;
 
 import com.diploma.fitra.dto.group.OnCreate;
 import com.diploma.fitra.dto.group.OnUpdate;
-import com.diploma.fitra.dto.success.SuccessDto;
 import com.diploma.fitra.dto.travel.ParticipantDto;
 import com.diploma.fitra.dto.travel.TravelDto;
 import com.diploma.fitra.dto.travel.TravelSaveDto;
@@ -28,7 +27,7 @@ public interface TravelApi {
     @PostMapping("/{travelId}/user/{userId}")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
-    ResponseEntity<SuccessDto> addUser(@PathVariable Long travelId, @PathVariable Long userId);
+    ResponseEntity<Void> addUser(@PathVariable Long travelId, @PathVariable Long userId);
 
     @GetMapping("/{travelId}/user")
     List<ParticipantDto> getUsers(@PathVariable Long travelId);

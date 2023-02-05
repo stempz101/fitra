@@ -1,7 +1,6 @@
 package com.diploma.fitra.controller;
 
 import com.diploma.fitra.api.TravelApi;
-import com.diploma.fitra.dto.success.SuccessDto;
 import com.diploma.fitra.dto.travel.ParticipantDto;
 import com.diploma.fitra.dto.travel.TravelDto;
 import com.diploma.fitra.dto.travel.TravelSaveDto;
@@ -28,8 +27,9 @@ public class TravelController implements TravelApi {
     }
 
     @Override
-    public ResponseEntity<SuccessDto> addUser(Long travelId, Long userId) {
-        return travelService.addUser(travelId, userId);
+    public ResponseEntity<Void> addUser(Long travelId, Long userId) {
+        travelService.addUser(travelId, userId);
+        return ResponseEntity.ok().build();
     }
 
     @Override

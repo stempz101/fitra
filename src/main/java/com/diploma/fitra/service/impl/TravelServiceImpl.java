@@ -1,6 +1,5 @@
 package com.diploma.fitra.service.impl;
 
-import com.diploma.fitra.dto.success.SuccessDto;
 import com.diploma.fitra.dto.travel.ParticipantDto;
 import com.diploma.fitra.dto.travel.RouteDto;
 import com.diploma.fitra.dto.travel.TravelDto;
@@ -18,8 +17,6 @@ import com.diploma.fitra.service.TravelService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -92,7 +89,7 @@ public class TravelServiceImpl implements TravelService {
     }
 
     @Override
-    public ResponseEntity<SuccessDto> addUser(Long travelId, Long userId) {
+    public void addUser(Long travelId, Long userId) {
         log.info("Adding user (id={}) to a travel with id: {}", userId, travelId);
 
         Travel travel = travelRepository.findById(travelId)
@@ -111,8 +108,6 @@ public class TravelServiceImpl implements TravelService {
         invitationRepository.save(invitation);
 
         log.info("Travel (id={}) invitation is created to the user (id={})", travelId, userId);
-        return ResponseEntity.ok(new SuccessDto(HttpStatus.OK.value(),
-                String.format("Travel (id=%d) invitation is created to the user (id=%d)", travelId, userId)));
     }
 
     @Override

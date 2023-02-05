@@ -2,7 +2,6 @@ package com.diploma.fitra.dto.error;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
 
