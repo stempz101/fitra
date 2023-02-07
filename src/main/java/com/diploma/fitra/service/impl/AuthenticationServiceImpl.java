@@ -1,6 +1,6 @@
 package com.diploma.fitra.service.impl;
 
-import com.diploma.fitra.config.JwtService;
+import com.diploma.fitra.config.security.JwtService;
 import com.diploma.fitra.dto.auth.AuthenticationDto;
 import com.diploma.fitra.dto.auth.AuthenticationResponseDto;
 import com.diploma.fitra.dto.auth.RegisterDto;
@@ -13,7 +13,7 @@ import com.diploma.fitra.model.City;
 import com.diploma.fitra.model.Country;
 import com.diploma.fitra.model.User;
 import com.diploma.fitra.model.error.Error;
-import com.diploma.fitra.model.role.Role;
+import com.diploma.fitra.model.enums.Role;
 import com.diploma.fitra.repo.CityRepository;
 import com.diploma.fitra.repo.CountryRepository;
 import com.diploma.fitra.repo.UserRepository;

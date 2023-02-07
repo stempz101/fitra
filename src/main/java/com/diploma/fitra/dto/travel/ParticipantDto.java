@@ -1,13 +1,12 @@
 package com.diploma.fitra.dto.travel;
 
-import com.diploma.fitra.dto.user.UserDto;
+import com.diploma.fitra.dto.user.UserShortDto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ParticipantDto {
-    private Long travelId;
-    private UserDto user;
+    private UserShortDto user;
     private Boolean isCreator;
 }

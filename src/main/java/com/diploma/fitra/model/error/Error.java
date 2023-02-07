@@ -7,6 +7,7 @@ public enum Error {
     TRAVEL_NOT_FOUND("Travel is not found!"),
     COUNTRY_NOT_FOUND("Country is not found!"),
     TYPE_NOT_FOUND("Type is not found!"),
+    INVITATION_NOT_FOUND("Invitation is not found!"),
 
     // BadRequestException messages
     CITY_NOT_IN_COUNTRY("City is not part of specified country!"),
@@ -22,7 +23,10 @@ public enum Error {
     TYPE_EXISTS_WITH_NAME_UA("Type with specified name (UA) already exists!"),
 
     // VerificationException messages
-    PASSWORD_CONFIRMATION_IS_FAILED("Password confirmation is failed!");
+    PASSWORD_CONFIRMATION_IS_FAILED("Password confirmation is failed!"),
+
+    // ForbiddenException messages
+    ACCESS_DENIED("Access denied");
 
     private final String message;
 

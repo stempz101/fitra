@@ -24,11 +24,6 @@ public interface TravelApi {
     @GetMapping
     List<TravelDto> getTravels();
 
-    @PostMapping("/{travelId}/user/{userId}")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    @SecurityRequirement(name = "Bearer Authentication")
-    ResponseEntity<Void> addUser(@PathVariable Long travelId, @PathVariable Long userId);
-
     @GetMapping("/{travelId}/user")
     List<ParticipantDto> getUsers(@PathVariable Long travelId);
 

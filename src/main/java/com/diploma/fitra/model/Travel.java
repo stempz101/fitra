@@ -35,4 +35,9 @@ public class Travel {
     @ManyToOne(fetch = FetchType.LAZY)
     @ToString.Exclude
     private Type type;
+
+    @JoinColumn(nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @ToString.Exclude
+    private User creator;
 }

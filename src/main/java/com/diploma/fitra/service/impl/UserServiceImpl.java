@@ -7,7 +7,7 @@ import com.diploma.fitra.mapper.CountryMapper;
 import com.diploma.fitra.mapper.UserMapper;
 import com.diploma.fitra.model.User;
 import com.diploma.fitra.model.error.Error;
-import com.diploma.fitra.model.role.Role;
+import com.diploma.fitra.model.enums.Role;
 import com.diploma.fitra.repo.UserRepository;
 import com.diploma.fitra.service.UserService;
 import lombok.RequiredArgsConstructor;

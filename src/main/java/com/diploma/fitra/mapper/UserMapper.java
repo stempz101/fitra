@@ -1,6 +1,7 @@
 package com.diploma.fitra.mapper;
 
 import com.diploma.fitra.dto.user.UserDto;
+import com.diploma.fitra.dto.user.UserShortDto;
 import com.diploma.fitra.model.User;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
@@ -18,4 +19,10 @@ public interface UserMapper {
     @Mapping(source = "lastName", target = "lastName")
     @Mapping(source = "about", target = "about")
     UserDto toUserDto(User user);
+
+    @BeanMapping(ignoreByDefault = true)
+    @Mapping(source = "id", target = "id")
+    @Mapping(source = "firstName", target = "firstName")
+    @Mapping(source = "lastName", target = "lastName")
+    UserShortDto toUserShortDto(User user);
 }

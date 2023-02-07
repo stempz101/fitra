@@ -1,6 +1,7 @@
 package com.diploma.fitra.dto.travel;
 
 import com.diploma.fitra.dto.type.TypeDto;
+import com.diploma.fitra.dto.user.UserShortDto;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -14,5 +15,6 @@ public class TravelDto {
     private String description;
     private Integer limit;
     private LocalDate startDate;
+    private UserShortDto creator;
     private List<RouteDto> route;
 }

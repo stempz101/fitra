@@ -11,7 +11,7 @@ import com.diploma.fitra.mapper.*;
 import com.diploma.fitra.model.*;
 import com.diploma.fitra.model.error.Error;
 import com.diploma.fitra.model.key.ParticipantKey;
-import com.diploma.fitra.model.role.Role;
+import com.diploma.fitra.model.enums.Role;
 import com.diploma.fitra.repo.*;
 import com.diploma.fitra.service.TravelService;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +36,6 @@ public class TravelServiceImpl implements TravelService {
     private final CityRepository cityRepository;
     private final RouteRepository routeRepository;
     private final ParticipantRepository participantRepository;
-    private final InvitationRepository invitationRepository;
 
     @Override
     @Transactional
@@ -50,6 +49,7 @@ public class TravelServiceImpl implements TravelService {
 
         Travel travel = TravelMapper.INSTANCE.fromTravelSaveDto(travelSaveDto);
         travel.setType(type);
+        travel.setCreator(creator);
         travel = travelRepository.save(travel);
         log.info("Travel is created: {}", travel);
 
@@ -67,7 +67,7 @@ public class TravelServiceImpl implements TravelService {
         participant = participantRepository.save(participant);
         log.info("Creator is became a participant of created travel: {}", participant);
 
-        return toTravelDto(travel, routeList);
+        return toTravelDto(travel, creator, routeList);
     }
 
     @Override
@@ -86,28 +86,6 @@ public class TravelServiceImpl implements TravelService {
                     return travelDto;
                 })
                 .collect(Collectors.toList());
-    }
-
-    @Override
-    public void addUser(Long travelId, Long userId) {
-        log.info("Adding user (id={}) to a travel with id: {}", userId, travelId);
-
-        Travel travel = travelRepository.findById(travelId)
-                .orElseThrow(() -> new NotFoundException(Error.TRAVEL_NOT_FOUND.getMessage()));
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException(Error.USER_NOT_FOUND.getMessage()));
-        if (user.getRole().equals(Role.ADMIN)) {
-            throw new BadRequestException(Error.ADMIN_CANT_BE_ADDED_TO_TRAVEL.getMessage());
-        } else if (participantRepository.findById(new ParticipantKey(travel.getId(), user.getId())).isPresent()) {
-            throw new ExistenceException(Error.USER_EXISTS_IN_TRAVEL.getMessage());
-        }
-
-        Invitation invitation = new Invitation();
-        invitation.setTravel(travel);
-        invitation.setUser(user);
-        invitationRepository.save(invitation);
-
-        log.info("Travel (id={}) invitation is created to the user (id={})", travelId, userId);
     }
 
     @Override
@@ -164,7 +142,7 @@ public class TravelServiceImpl implements TravelService {
         }
         log.info("Route for the travel (id={}) is updated: {}", travel.getId(), routeList);
 
-        return toTravelDto(travel, routeList);
+        return toTravelDto(travel, travel.getCreator(), routeList);
     }
 
     @Override
@@ -179,9 +157,10 @@ public class TravelServiceImpl implements TravelService {
         log.info("Travel (id={}) is deleted", travelId);
     }
 
-    private TravelDto toTravelDto(Travel travel, List<Route> routeList) {
+    private TravelDto toTravelDto(Travel travel, User creator, List<Route> routeList) {
         TravelDto travelDto = TravelMapper.INSTANCE.toTravelDto(travel);
         travelDto.setType(TypeMapper.INSTANCE.toTypeDto(travel.getType()));
+        travelDto.setCreator(UserMapper.INSTANCE.toUserShortDto(creator));
         List<RouteDto> routeDtoList = routeList.stream()
                 .map(RouteMapper.INSTANCE::toRouteDto)
                 .sorted(Comparator.comparingInt(RouteDto::getPosition))
@@ -192,6 +171,9 @@ public class TravelServiceImpl implements TravelService {
 
     private ParticipantDto toParticipantDto(Participant participant) {
         ParticipantDto participantDto = ParticipantMapper.INSTANCE.toParticipantDto(participant);
+        if (participant.isCreator()) {
+            participantDto.setIsCreator(true);
+        }
         if (participant.getUser().getRole().equals(Role.ADMIN)) {
             participantDto.getUser().setIsAdmin(true);
         }

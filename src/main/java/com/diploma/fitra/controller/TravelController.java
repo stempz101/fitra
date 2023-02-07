@@ -27,12 +27,6 @@ public class TravelController implements TravelApi {
     }
 
     @Override
-    public ResponseEntity<Void> addUser(Long travelId, Long userId) {
-        travelService.addUser(travelId, userId);
-        return ResponseEntity.ok().build();
-    }
-
-    @Override
     public List<ParticipantDto> getUsers(Long travelId) {
         return travelService.getUsers(travelId);
     }

@@ -1,6 +1,6 @@
 package com.diploma.fitra.model;
 
-import com.diploma.fitra.model.role.Role;
+import com.diploma.fitra.model.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -49,6 +49,7 @@ public class User implements UserDetails {
     @ToString.Exclude
     private City city;
 
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Role role;
 

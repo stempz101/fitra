@@ -3,10 +3,11 @@ package com.diploma.fitra.test.util;
 import com.diploma.fitra.dto.country.CityDto;
 import com.diploma.fitra.dto.country.CountryDto;
 import com.diploma.fitra.dto.user.UserDto;
+import com.diploma.fitra.dto.user.UserShortDto;
 import com.diploma.fitra.model.City;
 import com.diploma.fitra.model.Country;
 import com.diploma.fitra.model.User;
-import com.diploma.fitra.model.role.Role;
+import com.diploma.fitra.model.enums.Role;
 
 import java.time.LocalDate;
 
@@ -49,7 +50,6 @@ public class UserDataTest {
     private static final Country USER_COUNTRY = CountryDataTest.getCountry1();
     private static final CountryDto USER_COUNTRY_DTO = CountryDataTest.getCountryDto1();
     private static final boolean USER_IS_ADMIN = true;
-    private static final boolean USER_IS_NOT_ADMIN = false;
 
     public static User getUser1() {
         User user = new User();
@@ -154,5 +154,30 @@ public class UserDataTest {
         userDto.setCountry(USER_COUNTRY_DTO);
         userDto.setCity(USER_4_CITY_DTO);
         return userDto;
+    }
+
+    public static UserShortDto getUserShortDto1() {
+        UserShortDto userShortDto = new UserShortDto();
+        userShortDto.setId(USER_1_ID);
+        userShortDto.setFirstName(USER_1_FIRST_NAME);
+        userShortDto.setLastName(USER_1_LAST_NAME);
+        userShortDto.setIsAdmin(true);
+        return userShortDto;
+    }
+
+    public static UserShortDto getUserShortDto2() {
+        UserShortDto userShortDto = new UserShortDto();
+        userShortDto.setId(USER_2_ID);
+        userShortDto.setFirstName(USER_2_FIRST_NAME);
+        userShortDto.setLastName(USER_2_LAST_NAME);
+        return userShortDto;
+    }
+
+    public static UserShortDto getUserShortDto3() {
+        UserShortDto userShortDto = new UserShortDto();
+        userShortDto.setId(USER_3_ID);
+        userShortDto.setFirstName(USER_3_FIRST_NAME);
+        userShortDto.setLastName(USER_3_LAST_NAME);
+        return userShortDto;
     }
 }

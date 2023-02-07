@@ -12,8 +12,6 @@ public interface TravelService {
 
     List<TravelDto> getTravels();
 
-    void addUser(Long travelId, Long userId);
-
     List<ParticipantDto> getUsers(Long travelId);
 
     void removeUser(Long travelId, Long userId);

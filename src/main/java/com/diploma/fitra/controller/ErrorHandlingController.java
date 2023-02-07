@@ -2,6 +2,7 @@ package com.diploma.fitra.controller;
 
 import com.diploma.fitra.dto.error.ErrorDto;
 import com.diploma.fitra.exception.BadRequestException;
+import com.diploma.fitra.exception.ForbiddenException;
 import com.diploma.fitra.exception.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -38,6 +39,13 @@ public class ErrorHandlingController {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorDto handleNotFoundException(Exception ex) {
         log.error("handleNotFoundException: exception {}", ex.getMessage(), ex);
+        return new ErrorDto(ex.getMessage(), LocalDateTime.now());
+    }
+
+    @ExceptionHandler(ForbiddenException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorDto handleForbiddenException(Exception ex) {
+        log.error("handleForbiddenException: exception {}", ex.getMessage(), ex);
         return new ErrorDto(ex.getMessage(), LocalDateTime.now());
     }
 }
