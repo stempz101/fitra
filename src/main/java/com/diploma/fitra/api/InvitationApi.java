@@ -22,18 +22,23 @@ public interface InvitationApi {
     @SecurityRequirement(name = "Bearer Authentication")
     List<InvitationDto> getInvitations(@PathVariable Long userId, Authentication auth);
 
-    @PostMapping("/travel/{travelId}/user/{userId}/confirm")
+    @GetMapping("/user/{userId}/creator")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
-    ResponseEntity<Void> confirmInvitation(@PathVariable Long travelId, @PathVariable Long userId, Authentication auth);
+    List<InvitationDto> getInvitationsForCreator(@PathVariable Long userId, Authentication auth);
 
-    @PutMapping("/travel/{travelId}/user/{userId}/reject")
+    @PostMapping("/{invitationId}")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
-    ResponseEntity<Void> rejectInvitation(@PathVariable Long travelId, @PathVariable Long userId, Authentication auth);
+    ResponseEntity<Void> confirmInvitation(@PathVariable Long invitationId, Authentication auth);
 
-    @PutMapping("/travel/{travelId}/user/{userId}/cancel")
+    @PutMapping("/{invitationId}")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
-    ResponseEntity<Void> cancelInvitation(@PathVariable Long travelId, @PathVariable Long userId, Authentication auth);
+    ResponseEntity<Void> rejectInvitation(@PathVariable Long invitationId, Authentication auth);
+
+    @DeleteMapping("/{invitationId}")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @SecurityRequirement(name = "Bearer Authentication")
+    ResponseEntity<Void> cancelInvitation(@PathVariable Long invitationId, Authentication auth);
 }

@@ -11,9 +11,11 @@ public interface InvitationService {
 
     List<InvitationDto> getInvitations(Long userId, Authentication auth);
 
-    void confirmInvitation(Long travelId, Long userId, Authentication auth);
+    List<InvitationDto> getInvitationsForCreator(Long creatorId, Authentication auth);
 
-    void rejectInvitation(Long travelId, Long userId, Authentication auth);
+    void confirmInvitation(Long invitationId, Authentication auth);
 
-    void cancelInvitation(Long travelId, Long userId, Authentication auth);
+    void rejectInvitation(Long invitationId, Authentication auth);
+
+    void cancelInvitation(Long invitationId, Authentication auth);
 }

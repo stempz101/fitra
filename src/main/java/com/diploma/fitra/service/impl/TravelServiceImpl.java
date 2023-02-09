@@ -75,16 +75,7 @@ public class TravelServiceImpl implements TravelService {
         log.info("Getting travels");
 
         return travelRepository.findAll().stream()
-                .map(travel -> {
-                    TravelDto travelDto = TravelMapper.INSTANCE.toTravelDto(travel);
-                    travelDto.setType(TypeMapper.INSTANCE.toTypeDto(travel.getType()));
-                    List<RouteDto> routeDtoList = routeRepository.findAllByTravel(travel, Sort.by("position"))
-                            .stream()
-                            .map(RouteMapper.INSTANCE::toRouteDto)
-                            .collect(Collectors.toList());
-                    travelDto.setRoute(routeDtoList);
-                    return travelDto;
-                })
+                .map(this::toTravelDto)
                 .collect(Collectors.toList());
     }
 
@@ -161,9 +152,27 @@ public class TravelServiceImpl implements TravelService {
         TravelDto travelDto = TravelMapper.INSTANCE.toTravelDto(travel);
         travelDto.setType(TypeMapper.INSTANCE.toTypeDto(travel.getType()));
         travelDto.setCreator(UserMapper.INSTANCE.toUserShortDto(creator));
+        if (creator.getRole().equals(Role.ADMIN)) {
+            travelDto.getCreator().setIsAdmin(true);
+        }
         List<RouteDto> routeDtoList = routeList.stream()
                 .map(RouteMapper.INSTANCE::toRouteDto)
                 .sorted(Comparator.comparingInt(RouteDto::getPosition))
+                .collect(Collectors.toList());
+        travelDto.setRoute(routeDtoList);
+        return travelDto;
+    }
+
+    private TravelDto toTravelDto(Travel travel) {
+        TravelDto travelDto = TravelMapper.INSTANCE.toTravelDto(travel);
+        travelDto.setType(TypeMapper.INSTANCE.toTypeDto(travel.getType()));
+        travelDto.setCreator(UserMapper.INSTANCE.toUserShortDto(travel.getCreator()));
+        if (travel.getCreator().getRole().equals(Role.ADMIN)) {
+            travelDto.getCreator().setIsAdmin(true);
+        }
+        List<RouteDto> routeDtoList = routeRepository.findAllByTravel(travel, Sort.by("position"))
+                .stream()
+                .map(RouteMapper.INSTANCE::toRouteDto)
                 .collect(Collectors.toList());
         travelDto.setRoute(routeDtoList);
         return travelDto;

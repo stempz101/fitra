@@ -1,9 +1,11 @@
 package com.diploma.fitra.model;
 
 import com.diploma.fitra.model.enums.InvitationStatus;
-import com.diploma.fitra.model.key.InvitationKey;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 
@@ -14,17 +16,16 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class Invitation {
 
-    @EmbeddedId
-    private InvitationKey id = new InvitationKey();
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @JoinColumn(nullable = false)
     @ManyToOne
-    @MapsId("travelId")
     private Travel travel;
 
     @JoinColumn(nullable = false)
     @ManyToOne
-    @MapsId("userId")
     private User user;
 
     @Column(nullable = false)

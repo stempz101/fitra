@@ -11,10 +11,9 @@ import com.diploma.fitra.model.Participant;
 import com.diploma.fitra.model.Travel;
 import com.diploma.fitra.model.User;
 import com.diploma.fitra.model.enums.InvitationStatus;
-import com.diploma.fitra.model.error.Error;
-import com.diploma.fitra.model.key.InvitationKey;
-import com.diploma.fitra.model.key.ParticipantKey;
 import com.diploma.fitra.model.enums.Role;
+import com.diploma.fitra.model.error.Error;
+import com.diploma.fitra.model.key.ParticipantKey;
 import com.diploma.fitra.repo.InvitationRepository;
 import com.diploma.fitra.repo.ParticipantRepository;
 import com.diploma.fitra.repo.TravelRepository;
@@ -58,6 +57,13 @@ public class InvitationServiceImpl implements InvitationService {
             throw new ExistenceException(Error.USER_EXISTS_IN_TRAVEL.getMessage());
         }
 
+        List<Invitation> invitations = invitationRepository.findAllByTravelAndUser(travel, user).stream()
+                .sorted((inv1, inv2) -> inv2.getCreateTime().compareTo(inv1.getCreateTime()))
+                .collect(Collectors.toList());
+        if (invitations.size() != 0 && invitations.get(0).getStatus().equals(InvitationStatus.WAITING)) {
+            throw new ExistenceException(Error.INVITATION_IS_WAITING.getMessage());
+        }
+
         Invitation invitation = new Invitation();
         invitation.setTravel(travel);
         invitation.setUser(user);
@@ -85,42 +91,89 @@ public class InvitationServiceImpl implements InvitationService {
     }
 
     @Override
-    @Transactional
-    public void confirmInvitation(Long travelId, Long userId, Authentication auth) {
-        log.info("Invite confirmation to the travel (id={}) by user with id={}", travelId, userId);
+    public List<InvitationDto> getInvitationsForCreator(Long creatorId, Authentication auth) {
+        log.info("Getting invitations for creator");
 
-        Travel travel = travelRepository.findById(travelId)
-                .orElseThrow(() -> new NotFoundException(Error.TRAVEL_NOT_FOUND.getMessage()));
-        User user = userRepository.findById(userId)
+        User creator = userRepository.findById(creatorId)
                 .orElseThrow(() -> new NotFoundException(Error.USER_NOT_FOUND.getMessage()));
-        Invitation invitation = invitationRepository.findById(new InvitationKey(travel.getId(), user.getId()))
+        UserDetails userDetails = (UserDetails) auth.getPrincipal();
+        if (!creator.getEmail().equals(userDetails.getUsername())) {
+            throw new ForbiddenException(Error.ACCESS_DENIED.getMessage());
+        }
+
+        return invitationRepository.findAllByTravel_Creator(creator).stream()
+                .map(InvitationMapper.INSTANCE::toInvitationDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public void confirmInvitation(Long invitationId, Authentication auth) {
+        log.info("Invitation (id={}) confirmation", invitationId);
+
+        Invitation invitation = invitationRepository.findById(invitationId)
                 .orElseThrow(() -> new NotFoundException(Error.INVITATION_NOT_FOUND.getMessage()));
         UserDetails userDetails = (UserDetails) auth.getPrincipal();
-        if (!user.getEmail().equals(userDetails.getUsername())) {
+        if (!invitation.getUser().getEmail().equals(userDetails.getUsername())) {
             throw new ForbiddenException(Error.ACCESS_DENIED.getMessage());
-        } else if (participantRepository.findById(new ParticipantKey(travel.getId(), user.getId())).isPresent()) {
-            throw new ExistenceException(Error.USER_EXISTS_IN_TRAVEL.getMessage());
+        } else if (invitation.getStatus().equals(InvitationStatus.CONFIRMED)) {
+            throw new BadRequestException(Error.INVITATION_IS_CONFIRMED.getMessage());
+        } else if (invitation.getStatus().equals(InvitationStatus.REJECTED)) {
+            throw new BadRequestException(Error.INVITATION_IS_REJECTED.getMessage());
         }
 
         Participant participant = new Participant();
-        participant.setId(new ParticipantKey(travel.getId(), user.getId()));
-        participant.setTravel(travel);
-        participant.setUser(user);
+        participant.setId(new ParticipantKey(invitation.getTravel().getId(), invitation.getUser().getId()));
+        participant.setTravel(invitation.getTravel());
+        participant.setUser(invitation.getUser());
         participantRepository.save(participant);
 
         invitation.setStatus(InvitationStatus.CONFIRMED);
         invitationRepository.save(invitation);
 
-        log.info("Invite to the travel (id={}) was confirmed successfully by user with id={}", travelId, userId);
+        log.info("Invitation (id={}) to the travel (id={}) is confirmed successfully by user with id={}",
+                invitationId, invitation.getTravel().getId(), invitation.getUser().getId());
     }
 
     @Override
-    public void rejectInvitation(Long travelId, Long userId, Authentication auth) {
+    public void rejectInvitation(Long invitationId, Authentication auth) {
+        log.info("Invitation (id={}) rejection", invitationId);
 
+        Invitation invitation = invitationRepository.findById(invitationId)
+                .orElseThrow(() -> new NotFoundException(Error.INVITATION_NOT_FOUND.getMessage()));
+        UserDetails userDetails = (UserDetails) auth.getPrincipal();
+        if (!invitation.getUser().getEmail().equals(userDetails.getUsername())) {
+            throw new ForbiddenException(Error.ACCESS_DENIED.getMessage());
+        } else if (invitation.getStatus().equals(InvitationStatus.REJECTED)) {
+            throw new BadRequestException(Error.INVITATION_IS_REJECTED.getMessage());
+        } else if (invitation.getStatus().equals(InvitationStatus.CONFIRMED)) {
+            throw new BadRequestException(Error.INVITATION_IS_CONFIRMED.getMessage());
+        }
+
+        invitation.setStatus(InvitationStatus.REJECTED);
+        invitationRepository.save(invitation);
+
+        log.info("Invitation (id={}) to the travel (id={}) is rejected successfully by user with id={}",
+                invitationId, invitation.getTravel().getId(), invitation.getUser().getId());
     }
 
     @Override
-    public void cancelInvitation(Long travelId, Long userId, Authentication auth) {
+    public void cancelInvitation(Long invitationId, Authentication auth) {
+        log.info("Invitation (id={}) cancellation", invitationId);
 
+        Invitation invitation = invitationRepository.findById(invitationId)
+                .orElseThrow(() -> new NotFoundException(Error.INVITATION_NOT_FOUND.getMessage()));
+        UserDetails userDetails = (UserDetails) auth.getPrincipal();
+        if (!invitation.getTravel().getCreator().getEmail().equals(userDetails.getUsername())) {
+            throw new ForbiddenException(Error.ACCESS_DENIED.getMessage());
+        } else if (invitation.getStatus().equals(InvitationStatus.CONFIRMED) ||
+                invitation.getStatus().equals(InvitationStatus.REJECTED)) {
+            throw new BadRequestException(Error.INVITATION_IS_CONFIRMED_OR_REJECTED.getMessage());
+        }
+
+        invitationRepository.delete(invitation);
+
+        log.info("Invitation (id={}) to the travel (id={}) is cancelled successfully by creator with id={}",
+                invitationId, invitation.getTravel().getId(), invitation.getTravel().getCreator().getId());
     }
 }

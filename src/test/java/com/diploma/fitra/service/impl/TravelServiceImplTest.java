@@ -3,6 +3,7 @@ package com.diploma.fitra.service.impl;
 import com.diploma.fitra.dto.travel.ParticipantDto;
 import com.diploma.fitra.dto.travel.TravelDto;
 import com.diploma.fitra.dto.travel.TravelSaveDto;
+import com.diploma.fitra.dto.user.UserShortDto;
 import com.diploma.fitra.exception.BadRequestException;
 import com.diploma.fitra.exception.ExistenceException;
 import com.diploma.fitra.exception.NotFoundException;
@@ -58,6 +59,7 @@ public class TravelServiceImplTest {
         TravelSaveDto travelSaveDto = TravelDataTest.getTravelSaveDto1();
         Travel travel = TravelDataTest.getTravel1();
         User user = UserDataTest.getUser1();
+        UserShortDto userShortDto = UserDataTest.getUserShortDto1();
         Country country1 = CountryDataTest.getCountry1();
         Country country2 = CountryDataTest.getCountry1();
         Country country3 = CountryDataTest.getCountry2();
@@ -96,6 +98,7 @@ public class TravelServiceImplTest {
                 hasProperty("description", equalTo(travelSaveDto.getDescription())),
                 hasProperty("limit", equalTo(travelSaveDto.getLimit())),
                 hasProperty("startDate", equalTo(travelSaveDto.getStartDate())),
+                hasProperty("creator", equalTo(userShortDto)),
                 hasProperty("route", hasItems(
                         RouteDataTest.getRouteDto1(),
                         RouteDataTest.getRouteDto2(),
@@ -180,66 +183,6 @@ public class TravelServiceImplTest {
         ));
     }
 
-//    @Test
-//    void addUserTest() {
-//        Travel travel = TravelDataTest.getTravel1();
-//        User user = UserDataTest.getUser2();
-//        Invitation invitation = InvitationDataTest.getInvitation();
-//
-//        when(travelRepository.findById(any())).thenReturn(Optional.of(travel));
-//        when(userRepository.findById(any())).thenReturn(Optional.of(user));
-//        when(participantRepository.findById(any())).thenReturn(Optional.empty());
-//        when(invitationRepository.save(any())).thenReturn(invitation);
-//        travelService.addUser(travel.getId(), user.getId());
-//
-//        verify(invitationRepository, times(1)).save(any());
-//    }
-//
-//    @Test
-//    void addUserWithTravelNotFoundExceptionTest() {
-//        Travel travel = TravelDataTest.getTravel1();
-//        User user = UserDataTest.getUser2();
-//
-//        when(travelRepository.findById(any())).thenReturn(Optional.empty());
-//
-//        assertThrows(NotFoundException.class, () -> travelService.addUser(travel.getId(), user.getId()));
-//    }
-//
-//    @Test
-//    void addUserWithUserNotFoundExceptionTest() {
-//        Travel travel = TravelDataTest.getTravel1();
-//        User user = UserDataTest.getUser2();
-//
-//        when(travelRepository.findById(any())).thenReturn(Optional.of(travel));
-//        when(userRepository.findById(any())).thenReturn(Optional.empty());
-//
-//        assertThrows(NotFoundException.class, () -> travelService.addUser(travel.getId(), user.getId()));
-//    }
-//
-//    @Test
-//    void addUserWithUserIsAdminBadRequestExceptionTest() {
-//        Travel travel = TravelDataTest.getTravel1();
-//        User user = UserDataTest.getUser1();
-//
-//        when(travelRepository.findById(any())).thenReturn(Optional.of(travel));
-//        when(userRepository.findById(any())).thenReturn(Optional.of(user));
-//
-//        assertThrows(BadRequestException.class, () -> travelService.addUser(travel.getId(), user.getId()));
-//    }
-//
-//    @Test
-//    void addUserWithExistenceExceptionTest() {
-//        Travel travel = TravelDataTest.getTravel1();
-//        User user = UserDataTest.getUser2();
-//        Participant participant = ParticipantDataTest.getParticipant2();
-//
-//        when(travelRepository.findById(any())).thenReturn(Optional.of(travel));
-//        when(userRepository.findById(any())).thenReturn(Optional.of(user));
-//        when(participantRepository.findById(any())).thenReturn(Optional.of(participant));
-//
-//        assertThrows(ExistenceException.class, () -> travelService.addUser(travel.getId(), user.getId()));
-//    }
-
     @Test
     void getUsersTest() {
         Travel travel = TravelDataTest.getTravel1();
@@ -263,8 +206,8 @@ public class TravelServiceImplTest {
     @Test
     void removeUserTest() {
         Travel travel = TravelDataTest.getTravel1();
-        User user = UserDataTest.getUser2();
-        Participant participant = ParticipantDataTest.getParticipant2();
+        User user = UserDataTest.getUser3();
+        Participant participant = ParticipantDataTest.getParticipant3();
 
         when(travelRepository.findById(any())).thenReturn(Optional.of(travel));
         when(userRepository.findById(any())).thenReturn(Optional.of(user));
@@ -277,7 +220,7 @@ public class TravelServiceImplTest {
     @Test
     void removeUserWithTravelNotFoundExceptionTest() {
         Travel travel = TravelDataTest.getTravel1();
-        User user = UserDataTest.getUser2();
+        User user = UserDataTest.getUser3();
 
         when(travelRepository.findById(any())).thenReturn(Optional.empty());
 
@@ -287,7 +230,7 @@ public class TravelServiceImplTest {
     @Test
     void removeUserWithUserNotFoundExceptionTest() {
         Travel travel = TravelDataTest.getTravel1();
-        User user = UserDataTest.getUser2();
+        User user = UserDataTest.getUser3();
 
         when(travelRepository.findById(any())).thenReturn(Optional.of(travel));
         when(userRepository.findById(any())).thenReturn(Optional.empty());
@@ -298,7 +241,7 @@ public class TravelServiceImplTest {
     @Test
     void removeUserWithExistenceExceptionTest() {
         Travel travel = TravelDataTest.getTravel1();
-        User user = UserDataTest.getUser2();
+        User user = UserDataTest.getUser3();
 
         when(travelRepository.findById(any())).thenReturn(Optional.of(travel));
         when(userRepository.findById(any())).thenReturn(Optional.of(user));
@@ -309,12 +252,15 @@ public class TravelServiceImplTest {
 
     @Test
     void updateTravelTest() {
-        Travel travel = TravelDataTest.getTravel2();
         TravelSaveDto travelSaveDto = TravelDataTest.getTravelSaveDto1();
+        Travel travel = TravelDataTest.getTravel2();
+        User user = UserDataTest.getUser1();
+        UserShortDto userShortDto = UserDataTest.getUserShortDto1();
         Type updatedType = TypeDataTest.getType1();
         Travel updatedTravel = TravelMapper.INSTANCE.fromTravelSaveDto(travelSaveDto);
         updatedTravel.setId(travel.getId());
         updatedTravel.setType(updatedType);
+        updatedTravel.setCreator(user);
         long participantCount = 10L;
         Country country1 = CountryDataTest.getCountry1();
         Country country2 = CountryDataTest.getCountry1();
@@ -354,6 +300,7 @@ public class TravelServiceImplTest {
                 hasProperty("description", equalTo(travelSaveDto.getDescription())),
                 hasProperty("limit", equalTo(travelSaveDto.getLimit())),
                 hasProperty("startDate", equalTo(travelSaveDto.getStartDate())),
+                hasProperty("creator", equalTo(userShortDto)),
                 hasProperty("route", hasItems(
                         RouteDataTest.getRouteDto1(),
                         RouteDataTest.getRouteDto2(),

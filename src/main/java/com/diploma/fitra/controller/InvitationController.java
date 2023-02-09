@@ -19,7 +19,7 @@ public class InvitationController implements InvitationApi {
     @Override
     public ResponseEntity<Void> createInvitation(Long travelId, Long userId, Authentication auth) {
         invitationService.createInvitation(travelId, userId, auth);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
     @Override
@@ -28,20 +28,25 @@ public class InvitationController implements InvitationApi {
     }
 
     @Override
-    public ResponseEntity<Void> confirmInvitation(Long travelId, Long userId, Authentication auth) {
-        invitationService.confirmInvitation(travelId, userId, auth);
+    public List<InvitationDto> getInvitationsForCreator(Long userId, Authentication auth) {
+        return invitationService.getInvitationsForCreator(userId, auth);
+    }
+
+    @Override
+    public ResponseEntity<Void> confirmInvitation(Long invitationId, Authentication auth) {
+        invitationService.confirmInvitation(invitationId, auth);
         return ResponseEntity.ok().build();
     }
 
     @Override
-    public ResponseEntity<Void> rejectInvitation(Long travelId, Long userId, Authentication auth) {
-        invitationService.rejectInvitation(travelId, userId, auth);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<Void> rejectInvitation(Long invitationId, Authentication auth) {
+        invitationService.rejectInvitation(invitationId, auth);
+        return ResponseEntity.noContent().build();
     }
 
     @Override
-    public ResponseEntity<Void> cancelInvitation(Long travelId, Long userId, Authentication auth) {
-        invitationService.cancelInvitation(travelId, userId, auth);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<Void> cancelInvitation(Long invitationId, Authentication auth) {
+        invitationService.cancelInvitation(invitationId, auth);
+        return ResponseEntity.noContent().build();
     }
 }

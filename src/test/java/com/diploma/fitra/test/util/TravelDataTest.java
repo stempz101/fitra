@@ -3,9 +3,12 @@ package com.diploma.fitra.test.util;
 import com.diploma.fitra.dto.travel.RouteDto;
 import com.diploma.fitra.dto.travel.TravelDto;
 import com.diploma.fitra.dto.travel.TravelSaveDto;
+import com.diploma.fitra.dto.travel.TravelShortDto;
 import com.diploma.fitra.dto.type.TypeDto;
+import com.diploma.fitra.dto.user.UserShortDto;
 import com.diploma.fitra.model.Travel;
 import com.diploma.fitra.model.Type;
+import com.diploma.fitra.model.User;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -18,19 +21,24 @@ public class TravelDataTest {
     private static final LocalDate TRAVEL_1_START_DATE = LocalDate.of(2023, 4, 23);
     private static final Type TRAVEL_1_TYPE = TypeDataTest.getType1();
     private static final TypeDto TRAVEL_1_TYPE_DTO = TypeDataTest.getTypeDto1();
-    private static final Long TRAVEL_1_CREATOR_ID = UserDataTest.getUser1().getId();
+    private static final User TRAVEL_1_CREATOR = UserDataTest.getUser1();
+    private static final UserShortDto TRAVEL_1_CREATOR_SHORT_DTO = UserDataTest.getUserShortDto1();
 
     private static final Long TRAVEL_2_ID = 2L;
     private static final String TRAVEL_2_TITLE = "Travel title 2";
     private static final LocalDate TRAVEL_2_START_DATE = LocalDate.of(2023, 1, 30);
     private static final Type TRAVEL_2_TYPE = TypeDataTest.getType4();
     private static final TypeDto TRAVEL_2_TYPE_DTO = TypeDataTest.getTypeDto4();
+    private static final User TRAVEL_2_CREATOR = UserDataTest.getUser1();
+    private static final UserShortDto TRAVEL_2_CREATOR_SHORT_DTO = UserDataTest.getUserShortDto1();
 
     private static final Long TRAVEL_3_ID = 3L;
     private static final String TRAVEL_3_TITLE = "Travel title 3";
     private static final LocalDate TRAVEL_3_START_DATE = LocalDate.of(2023, 7, 14);
     private static final Type TRAVEL_3_TYPE = TypeDataTest.getType2();
     private static final TypeDto TRAVEL_3_TYPE_DTO = TypeDataTest.getTypeDto2();
+    private static final User TRAVEL_3_CREATOR = UserDataTest.getUser2();
+    private static final UserShortDto TRAVEL_3_CREATOR_SHORT_DTO = UserDataTest.getUserShortDto2();
 
     private static final String TRAVEL_DESCRIPTION = "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusamus, aspernatur atque consectetur distinctio dolorum enim error et fugit id incidunt ipsam neque nisi optio perferendis porro possimus provident quaerat qui ratione repudiandae similique tempore totam ut. Animi delectus distinctio harum ipsum laborum libero, minima mollitia nam, pariatur sint vero vitae.";
     private static final Integer TRAVEL_LIMIT = 10;
@@ -50,6 +58,7 @@ public class TravelDataTest {
         travel.setPeopleLimit(TRAVEL_LIMIT);
         travel.setStartDate(TRAVEL_1_START_DATE);
         travel.setType(TRAVEL_1_TYPE);
+        travel.setCreator(TRAVEL_1_CREATOR);
         return travel;
     }
 
@@ -61,6 +70,7 @@ public class TravelDataTest {
         travel.setPeopleLimit(TRAVEL_LIMIT);
         travel.setStartDate(TRAVEL_2_START_DATE);
         travel.setType(TRAVEL_2_TYPE);
+        travel.setCreator(TRAVEL_2_CREATOR);
         return travel;
     }
 
@@ -72,6 +82,7 @@ public class TravelDataTest {
         travel.setPeopleLimit(TRAVEL_LIMIT);
         travel.setStartDate(TRAVEL_3_START_DATE);
         travel.setType(TRAVEL_3_TYPE);
+        travel.setCreator(TRAVEL_3_CREATOR);
         return travel;
     }
 
@@ -89,6 +100,7 @@ public class TravelDataTest {
         travelDto.setDescription(TRAVEL_DESCRIPTION);
         travelDto.setLimit(TRAVEL_LIMIT);
         travelDto.setStartDate(TRAVEL_1_START_DATE);
+        travelDto.setCreator(TRAVEL_1_CREATOR_SHORT_DTO);
         travelDto.setRoute(routeDtoList);
 
         return travelDto;
@@ -108,6 +120,7 @@ public class TravelDataTest {
         travelDto.setDescription(TRAVEL_DESCRIPTION);
         travelDto.setLimit(TRAVEL_LIMIT);
         travelDto.setStartDate(TRAVEL_2_START_DATE);
+        travelDto.setCreator(TRAVEL_2_CREATOR_SHORT_DTO);
         travelDto.setRoute(routeDtoList);
 
         return travelDto;
@@ -127,6 +140,7 @@ public class TravelDataTest {
         travelDto.setDescription(TRAVEL_DESCRIPTION);
         travelDto.setLimit(TRAVEL_LIMIT);
         travelDto.setStartDate(TRAVEL_3_START_DATE);
+        travelDto.setCreator(TRAVEL_3_CREATOR_SHORT_DTO);
         travelDto.setRoute(routeDtoList);
 
         return travelDto;
@@ -145,9 +159,17 @@ public class TravelDataTest {
         travelSaveDto.setDescription(TRAVEL_DESCRIPTION);
         travelSaveDto.setLimit(TRAVEL_LIMIT);
         travelSaveDto.setStartDate(TRAVEL_1_START_DATE);
-        travelSaveDto.setCreatorId(TRAVEL_1_CREATOR_ID);
+        travelSaveDto.setCreatorId(TRAVEL_1_CREATOR_SHORT_DTO.getId());
         travelSaveDto.setRoute(routeDtoList);
 
         return travelSaveDto;
+    }
+
+    public static TravelShortDto getTravelShortDto1() {
+        TravelShortDto travelShortDto = new TravelShortDto();
+        travelShortDto.setId(TRAVEL_1_ID);
+        travelShortDto.setTitle(TRAVEL_1_TITLE);
+        travelShortDto.setCreator(TRAVEL_1_CREATOR_SHORT_DTO);
+        return travelShortDto;
     }
 }
