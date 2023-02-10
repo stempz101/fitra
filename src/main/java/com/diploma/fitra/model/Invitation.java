@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
 
@@ -22,10 +24,12 @@ public class Invitation {
 
     @JoinColumn(nullable = false)
     @ManyToOne
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Travel travel;
 
     @JoinColumn(nullable = false)
     @ManyToOne
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
 
     @Column(nullable = false)

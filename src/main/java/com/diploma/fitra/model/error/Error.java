@@ -8,6 +8,7 @@ public enum Error {
     COUNTRY_NOT_FOUND("Country is not found!"),
     TYPE_NOT_FOUND("Type is not found!"),
     INVITATION_NOT_FOUND("Invitation is not found!"),
+    PARTICIPANT_NOT_FOUND("Participant is not found!"),
 
     // BadRequestException messages
     CITY_NOT_IN_COUNTRY("City is not part of specified country!"),

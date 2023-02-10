@@ -8,6 +8,7 @@ import com.diploma.fitra.dto.travel.TravelSaveDto;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,6 +32,11 @@ public interface TravelApi {
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
     ResponseEntity<Void> removeUser(@PathVariable Long travelId, @PathVariable Long userId);
+
+    @DeleteMapping("/{travelId}/user/{userId}/leave")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @SecurityRequirement(name = "Bearer Authentication")
+    ResponseEntity<Void> leaveTravel(@PathVariable Long travelId, @PathVariable Long userId, Authentication auth);
 
     @PutMapping("/{travelId}")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")

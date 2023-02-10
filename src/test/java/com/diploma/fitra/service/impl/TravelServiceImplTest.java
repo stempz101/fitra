@@ -6,6 +6,7 @@ import com.diploma.fitra.dto.travel.TravelSaveDto;
 import com.diploma.fitra.dto.user.UserShortDto;
 import com.diploma.fitra.exception.BadRequestException;
 import com.diploma.fitra.exception.ExistenceException;
+import com.diploma.fitra.exception.ForbiddenException;
 import com.diploma.fitra.exception.NotFoundException;
 import com.diploma.fitra.mapper.TravelMapper;
 import com.diploma.fitra.model.*;
@@ -16,6 +17,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.Authentication;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -248,6 +250,90 @@ public class TravelServiceImplTest {
         when(participantRepository.findById(any())).thenReturn(Optional.empty());
 
         assertThrows(ExistenceException.class, () -> travelService.removeUser(travel.getId(), user.getId()));
+    }
+
+    @Test
+    void leaveTravelByUserTest() {
+        Travel travel = TravelDataTest.getTravel1();
+        User user = UserDataTest.getUser2();
+        Authentication auth = mock(Authentication.class);
+        Participant participant = ParticipantDataTest.getParticipant2();
+
+        when(travelRepository.findById(any())).thenReturn(Optional.of(travel));
+        when(userRepository.findById(any())).thenReturn(Optional.of(user));
+        when(auth.getPrincipal()).thenReturn(user);
+        when(participantRepository.findById(any())).thenReturn(Optional.of(participant));
+        travelService.leaveTravel(travel.getId(), user.getId(), auth);
+
+        verify(participantRepository, times(1)).delete(any());
+        verify(travelRepository, times(0)).delete(any());
+    }
+
+    @Test
+    void leaveTravelByCreatorTest() {
+        Travel travel = TravelDataTest.getTravel1();
+        User user = UserDataTest.getUser1();
+        Authentication auth = mock(Authentication.class);
+        Participant participant = ParticipantDataTest.getParticipant2();
+
+        when(travelRepository.findById(any())).thenReturn(Optional.of(travel));
+        when(userRepository.findById(any())).thenReturn(Optional.of(user));
+        when(auth.getPrincipal()).thenReturn(user);
+        when(participantRepository.findById(any())).thenReturn(Optional.of(participant));
+        travelService.leaveTravel(travel.getId(), user.getId(), auth);
+
+        verify(participantRepository, times(1)).delete(any());
+        verify(travelRepository, times(1)).delete(any());
+    }
+
+    @Test
+    void leaveTravelWithTravelNotFoundExceptionTest() {
+        Travel travel = TravelDataTest.getTravel1();
+        User user = UserDataTest.getUser2();
+        Authentication auth = mock(Authentication.class);
+
+        when(travelRepository.findById(any())).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> travelService.leaveTravel(travel.getId(), user.getId(), auth));
+    }
+
+    @Test
+    void leaveTravelWithUserNotFoundExceptionTest() {
+        Travel travel = TravelDataTest.getTravel1();
+        User user = UserDataTest.getUser2();
+        Authentication auth = mock(Authentication.class);
+
+        when(travelRepository.findById(any())).thenReturn(Optional.of(travel));
+        when(userRepository.findById(any())).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> travelService.leaveTravel(travel.getId(), user.getId(), auth));
+    }
+
+    @Test
+    void leaveTravelWithForbiddenExceptionTest() {
+        Travel travel = TravelDataTest.getTravel1();
+        User user = UserDataTest.getUser2();
+        Authentication auth = mock(Authentication.class);
+
+        when(travelRepository.findById(any())).thenReturn(Optional.of(travel));
+        when(userRepository.findById(any())).thenReturn(Optional.of(user));
+        when(auth.getPrincipal()).thenReturn(travel.getCreator());
+
+        assertThrows(ForbiddenException.class, () -> travelService.leaveTravel(travel.getId(), user.getId(), auth));
+    }
+
+    @Test
+    void leaveTravelWithParticipantNotFoundExceptionTest() {
+        Travel travel = TravelDataTest.getTravel1();
+        User user = UserDataTest.getUser2();
+        Authentication auth = mock(Authentication.class);
+
+        when(travelRepository.findById(any())).thenReturn(Optional.of(travel));
+        when(userRepository.findById(any())).thenReturn(Optional.of(user));
+        when(auth.getPrincipal()).thenReturn(user);
+        when(participantRepository.findById(any())).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> travelService.leaveTravel(travel.getId(), user.getId(), auth));
     }
 
     @Test

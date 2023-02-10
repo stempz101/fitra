@@ -40,7 +40,7 @@ public class RegisterDto {
     @NotNull(message = "{validation.not_null.country_id}", groups = OnCreate.class)
     private Long countryId;
 
-    private Long cityId;
+    private long cityId;
 
     private String about;
 }

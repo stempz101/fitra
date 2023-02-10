@@ -6,6 +6,7 @@ import com.diploma.fitra.dto.travel.TravelDto;
 import com.diploma.fitra.dto.travel.TravelSaveDto;
 import com.diploma.fitra.exception.BadRequestException;
 import com.diploma.fitra.exception.ExistenceException;
+import com.diploma.fitra.exception.ForbiddenException;
 import com.diploma.fitra.exception.NotFoundException;
 import com.diploma.fitra.mapper.*;
 import com.diploma.fitra.model.*;
@@ -17,6 +18,8 @@ import com.diploma.fitra.service.TravelService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -104,6 +107,31 @@ public class TravelServiceImpl implements TravelService {
 
         participantRepository.delete(participant);
         log.info("User (id={}) is removed from the travel (id={})", userId, travelId);
+    }
+
+    @Override
+    @Transactional
+    public void leaveTravel(Long travelId, Long userId, Authentication auth) {
+        log.info("Leaving from the travel (id={}) by user with id={}", travelId, userId);
+
+        Travel travel = travelRepository.findById(travelId)
+                .orElseThrow(() -> new NotFoundException(Error.TRAVEL_NOT_FOUND.getMessage()));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException(Error.USER_NOT_FOUND.getMessage()));
+        UserDetails userDetails = (UserDetails) auth.getPrincipal();
+        if (!user.getEmail().equals(userDetails.getUsername())) {
+            throw new ForbiddenException(Error.ACCESS_DENIED.getMessage());
+        }
+        Participant participant = participantRepository.findById(new ParticipantKey(travel.getId(), user.getId()))
+                .orElseThrow(() -> new NotFoundException(Error.PARTICIPANT_NOT_FOUND.getMessage()));
+
+        participantRepository.delete(participant);
+        log.info("User (id={}) left the travel with id={} successfully", userId, travelId);
+
+        if (user.equals(travel.getCreator())) {
+            travelRepository.delete(travel);
+            log.info("Travel (id={}) is deleted due to the leaving from it by creator (id={})", travelId, userId);
+        }
     }
 
     @Override

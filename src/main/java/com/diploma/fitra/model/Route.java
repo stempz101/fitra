@@ -1,6 +1,5 @@
 package com.diploma.fitra.model;
 
-import com.diploma.fitra.model.key.RouteKey;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -16,22 +15,21 @@ import org.hibernate.annotations.OnDeleteAction;
 @RequiredArgsConstructor
 public class Route {
 
-    @EmbeddedId
-    private RouteKey id = new RouteKey();
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @JoinColumn(nullable = false)
     @ManyToOne
-    @MapsId("travelId")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Travel travel;
 
     @JoinColumn(nullable = false)
     @ManyToOne
-    @MapsId("countryId")
     private Country country;
 
+    @JoinColumn
     @ManyToOne
-    @MapsId("cityId")
     private City city;
 
     @Column(nullable = false)

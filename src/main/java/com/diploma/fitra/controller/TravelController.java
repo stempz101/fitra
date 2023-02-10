@@ -7,6 +7,7 @@ import com.diploma.fitra.dto.travel.TravelSaveDto;
 import com.diploma.fitra.service.TravelService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -34,6 +35,12 @@ public class TravelController implements TravelApi {
     @Override
     public ResponseEntity<Void> removeUser(Long travelId, Long userId) {
         travelService.removeUser(travelId, userId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Override
+    public ResponseEntity<Void> leaveTravel(Long travelId, Long userId, Authentication auth) {
+        travelService.leaveTravel(travelId, userId, auth);
         return ResponseEntity.noContent().build();
     }
 

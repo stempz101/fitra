@@ -5,27 +5,29 @@ import com.diploma.fitra.model.City;
 import com.diploma.fitra.model.Country;
 import com.diploma.fitra.model.Route;
 import com.diploma.fitra.model.Travel;
-import com.diploma.fitra.model.key.RouteKey;
 
 public class RouteDataTest {
 
     private final static Travel ROUTE_TRAVEL = TravelDataTest.getTravel1();
 
+    private final static Long ROUTE_1_ID = 1L;
     private final static Country ROUTE_1_COUNTRY = CountryDataTest.getCountry1();
     private final static City ROUTE_1_CITY = CityDataTest.getCity1();
     private final static int ROUTE_1_POSITION = 0;
 
+    private final static Long ROUTE_2_ID = 2L;
     private final static Country ROUTE_2_COUNTRY = CountryDataTest.getCountry1();
     private final static City ROUTE_2_CITY = CityDataTest.getCity2();
     private final static int ROUTE_2_POSITION = 1;
 
+    private final static Long ROUTE_3_ID = 3L;
     private final static Country ROUTE_3_COUNTRY = CountryDataTest.getCountry2();
     private final static City ROUTE_3_CITY = null;
     private final static int ROUTE_3_POSITION = 2;
 
     public static Route getRoute1() {
         Route route = new Route();
-        route.setId(new RouteKey(ROUTE_TRAVEL.getId(), ROUTE_1_COUNTRY.getId(), ROUTE_1_CITY.getId()));
+        route.setId(ROUTE_1_ID);
         route.setTravel(ROUTE_TRAVEL);
         route.setCountry(ROUTE_1_COUNTRY);
         route.setCity(ROUTE_1_CITY);
@@ -35,7 +37,7 @@ public class RouteDataTest {
 
     public static Route getRoute2() {
         Route route = new Route();
-        route.setId(new RouteKey(ROUTE_TRAVEL.getId(), ROUTE_2_COUNTRY.getId(), ROUTE_2_CITY.getId()));
+        route.setId(ROUTE_2_ID);
         route.setTravel(ROUTE_TRAVEL);
         route.setCountry(ROUTE_2_COUNTRY);
         route.setCity(ROUTE_2_CITY);
@@ -45,7 +47,7 @@ public class RouteDataTest {
 
     public static Route getRoute3() {
         Route route = new Route();
-        route.setId(new RouteKey(ROUTE_TRAVEL.getId(), ROUTE_3_COUNTRY.getId(), null));
+        route.setId(ROUTE_3_ID);
         route.setTravel(ROUTE_TRAVEL);
         route.setCountry(ROUTE_3_COUNTRY);
         route.setCity(ROUTE_3_CITY);
@@ -96,7 +98,7 @@ public class RouteDataTest {
     public static RouteDto createRouteDto3() {
         RouteDto routeDto = new RouteDto();
         routeDto.setCountryId(ROUTE_3_COUNTRY.getId());
-        routeDto.setCityId(null);
+        routeDto.setCityId(0);
         routeDto.setPosition(ROUTE_3_POSITION);
         return routeDto;
     }
