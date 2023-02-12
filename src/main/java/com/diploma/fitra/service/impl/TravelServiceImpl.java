@@ -19,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,13 +43,17 @@ public class TravelServiceImpl implements TravelService {
 
     @Override
     @Transactional
-    public TravelDto createTravel(TravelSaveDto travelSaveDto) {
+    public TravelDto createTravel(TravelSaveDto travelSaveDto, Authentication auth) {
         log.info("Saving type: {}", travelSaveDto);
 
-        Type type = typeRepository.findById(travelSaveDto.getTypeId())
-                .orElseThrow(() -> new NotFoundException(Error.TYPE_NOT_FOUND.getMessage()));
         User creator = userRepository.findById(travelSaveDto.getCreatorId())
                 .orElseThrow(() -> new NotFoundException(Error.USER_NOT_FOUND.getMessage()));
+        UserDetails userDetails = (UserDetails) auth.getPrincipal();
+        if (!creator.getEmail().equals(userDetails.getUsername())) {
+            throw new ForbiddenException(Error.ACCESS_DENIED.getMessage());
+        }
+        Type type = typeRepository.findById(travelSaveDto.getTypeId())
+                .orElseThrow(() -> new NotFoundException(Error.TYPE_NOT_FOUND.getMessage()));
 
         Travel travel = TravelMapper.INSTANCE.fromTravelSaveDto(travelSaveDto);
         travel.setType(type);
@@ -95,13 +100,20 @@ public class TravelServiceImpl implements TravelService {
     }
 
     @Override
-    public void removeUser(Long travelId, Long userId) {
+    public void removeUser(Long travelId, Long userId, Authentication auth) {
         log.info("Removing user (id={}) from the travel with id: {}", userId, travelId);
 
         Travel travel = travelRepository.findById(travelId)
                 .orElseThrow(() -> new NotFoundException(Error.TRAVEL_NOT_FOUND.getMessage()));
+        UserDetails userDetails = (UserDetails) auth.getPrincipal();
+        if (!travel.getCreator().getEmail().equals(userDetails.getUsername())) {
+            throw new ForbiddenException(Error.ACCESS_DENIED.getMessage());
+        }
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(Error.USER_NOT_FOUND.getMessage()));
+        if (user.getEmail().equals(travel.getCreator().getEmail())) {
+            throw new BadRequestException(Error.CREATOR_CANT_REMOVE_HIMSELF.getMessage());
+        }
         Participant participant = participantRepository.findById(new ParticipantKey(travel.getId(), user.getId()))
                 .orElseThrow(() -> new ExistenceException(Error.USER_DOES_NOT_EXIST_IN_TRAVEL.getMessage()));
 
@@ -136,11 +148,16 @@ public class TravelServiceImpl implements TravelService {
 
     @Override
     @Transactional
-    public TravelDto updateTravel(Long travelId, TravelSaveDto travelSaveDto) {
+    public TravelDto updateTravel(Long travelId, TravelSaveDto travelSaveDto, Authentication auth) {
         log.info("Updating travel (id={}): {}", travelId, travelSaveDto);
 
         Travel travel = travelRepository.findById(travelId)
                 .orElseThrow(() -> new NotFoundException(Error.TRAVEL_NOT_FOUND.getMessage()));
+        UserDetails userDetails = (UserDetails) auth.getPrincipal();
+        if (!travel.getCreator().getEmail().equals(userDetails.getUsername())
+                || userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_USER"))) {
+            throw new ForbiddenException(Error.ACCESS_DENIED.getMessage());
+        }
         Type type = typeRepository.findById(travelSaveDto.getTypeId())
                 .orElseThrow(() -> new NotFoundException(Error.TYPE_NOT_FOUND.getMessage()));
         long participantCount = participantRepository.countByTravel(travel);
@@ -159,6 +176,7 @@ public class TravelServiceImpl implements TravelService {
             route.setTravel(travel);
             routeRepository.save(route);
         }
+
         log.info("Route for the travel (id={}) is updated: {}", travel.getId(), routeList);
 
         return toTravelDto(travel, travel.getCreator(), routeList);
@@ -166,11 +184,16 @@ public class TravelServiceImpl implements TravelService {
 
     @Override
     @Transactional
-    public void deleteTravel(Long travelId) {
+    public void deleteTravel(Long travelId, Authentication auth) {
         log.info("Deleting travel with id: {}", travelId);
 
         Travel travel = travelRepository.findById(travelId)
                 .orElseThrow(() -> new NotFoundException(Error.TRAVEL_NOT_FOUND.getMessage()));
+        UserDetails userDetails = (UserDetails) auth.getPrincipal();
+        if (!travel.getCreator().getEmail().equals(userDetails.getUsername())
+                || userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_USER"))) {
+            throw new ForbiddenException(Error.ACCESS_DENIED.getMessage());
+        }
 
         travelRepository.delete(travel);
         log.info("Travel (id={}) is deleted", travelId);

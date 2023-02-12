@@ -18,8 +18,8 @@ public class TravelController implements TravelApi {
     private final TravelService travelService;
 
     @Override
-    public TravelDto createTravel(TravelSaveDto travelSaveDto) {
-        return travelService.createTravel(travelSaveDto);
+    public TravelDto createTravel(TravelSaveDto travelSaveDto, Authentication auth) {
+        return travelService.createTravel(travelSaveDto, auth);
     }
 
     @Override
@@ -33,8 +33,8 @@ public class TravelController implements TravelApi {
     }
 
     @Override
-    public ResponseEntity<Void> removeUser(Long travelId, Long userId) {
-        travelService.removeUser(travelId, userId);
+    public ResponseEntity<Void> removeUser(Long travelId, Long userId, Authentication auth) {
+        travelService.removeUser(travelId, userId, auth);
         return ResponseEntity.noContent().build();
     }
 
@@ -45,13 +45,13 @@ public class TravelController implements TravelApi {
     }
 
     @Override
-    public TravelDto updateTravel(Long travelId, TravelSaveDto travelSaveDto) {
-        return travelService.updateTravel(travelId, travelSaveDto);
+    public TravelDto updateTravel(Long travelId, TravelSaveDto travelSaveDto, Authentication auth) {
+        return travelService.updateTravel(travelId, travelSaveDto, auth);
     }
 
     @Override
-    public ResponseEntity<Void> deleteTravel(Long travelId) {
-        travelService.deleteTravel(travelId);
+    public ResponseEntity<Void> deleteTravel(Long travelId, Authentication auth) {
+        travelService.deleteTravel(travelId, auth);
         return ResponseEntity.noContent().build();
     }
 }

@@ -20,7 +20,7 @@ public interface TravelApi {
     @PostMapping
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
-    TravelDto createTravel(@RequestBody @Validated(OnCreate.class) TravelSaveDto travelSaveDto);
+    TravelDto createTravel(@RequestBody @Validated(OnCreate.class) TravelSaveDto travelSaveDto, Authentication auth);
 
     @GetMapping
     List<TravelDto> getTravels();
@@ -31,7 +31,7 @@ public interface TravelApi {
     @DeleteMapping("/{travelId}/user/{userId}")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
-    ResponseEntity<Void> removeUser(@PathVariable Long travelId, @PathVariable Long userId);
+    ResponseEntity<Void> removeUser(@PathVariable Long travelId, @PathVariable Long userId, Authentication auth);
 
     @DeleteMapping("/{travelId}/user/{userId}/leave")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
@@ -41,10 +41,10 @@ public interface TravelApi {
     @PutMapping("/{travelId}")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
-    TravelDto updateTravel(@PathVariable Long travelId, @RequestBody @Validated(OnUpdate.class) TravelSaveDto travelSaveDto);
+    TravelDto updateTravel(@PathVariable Long travelId, @RequestBody @Validated(OnUpdate.class) TravelSaveDto travelSaveDto, Authentication auth);
 
     @DeleteMapping("/{travelId}")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
-    ResponseEntity<Void> deleteTravel(@PathVariable Long travelId);
+    ResponseEntity<Void> deleteTravel(@PathVariable Long travelId, Authentication auth);
 }

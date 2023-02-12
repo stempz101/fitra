@@ -1,6 +1,8 @@
 package com.diploma.fitra.service.impl;
 
 import com.diploma.fitra.dto.user.UserDto;
+import com.diploma.fitra.exception.BadRequestException;
+import com.diploma.fitra.exception.ForbiddenException;
 import com.diploma.fitra.exception.NotFoundException;
 import com.diploma.fitra.model.User;
 import com.diploma.fitra.repo.UserRepository;
@@ -10,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.Authentication;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -86,20 +89,47 @@ public class UserServiceImplTest {
 
     @Test
     void deleteUserTest() {
-        User user = UserDataTest.getUser1();
+        Authentication auth = mock(Authentication.class);
+        User user1 = UserDataTest.getUser1();
+        User user2 = UserDataTest.getUser2();
 
-        when(userRepository.findById(any())).thenReturn(Optional.of(user));
-        userService.deleteUser(user.getId());
+        when(auth.getPrincipal()).thenReturn(user1);
+        when(userRepository.findById(any())).thenReturn(Optional.of(user2));
+        userService.deleteUser(user2.getId(), auth);
 
         verify(userRepository, times(1)).delete(any());
     }
 
     @Test
-    void deleteUserWithNotFoundExceptionTest() {
-        User user = UserDataTest.getUser1();
+    void deleteUserWithForbiddenExceptionTest() {
+        Authentication auth = mock(Authentication.class);
+        User user1 = UserDataTest.getUser1();
+        User user2 = UserDataTest.getUser2();
 
+        when(auth.getPrincipal()).thenReturn(user2);
+
+        assertThrows(ForbiddenException.class, () -> userService.deleteUser(user1.getId(), auth));
+    }
+
+    @Test
+    void deleteUserWithNotFoundExceptionTest() {
+        Authentication auth = mock(Authentication.class);
+        User user1 = UserDataTest.getUser1();
+
+        when(auth.getPrincipal()).thenReturn(user1);
         when(userRepository.findById(any())).thenReturn(Optional.empty());
 
-        assertThrows(NotFoundException.class, () -> userService.deleteUser(user.getId()));
+        assertThrows(NotFoundException.class, () -> userService.deleteUser(user1.getId(), auth));
+    }
+
+    @Test
+    void deleteUserWithBadRequestExceptionTest() {
+        Authentication auth = mock(Authentication.class);
+        User user1 = UserDataTest.getUser1();
+
+        when(auth.getPrincipal()).thenReturn(user1);
+        when(userRepository.findById(any())).thenReturn(Optional.of(user1));
+
+        assertThrows(BadRequestException.class, () -> userService.deleteUser(user1.getId(), auth));
     }
 }

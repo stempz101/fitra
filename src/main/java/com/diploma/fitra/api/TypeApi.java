@@ -6,6 +6,7 @@ import com.diploma.fitra.model.Type;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,7 +17,7 @@ public interface TypeApi {
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
-    Type createType(@RequestBody @Valid TypeSaveDto typeSaveDto);
+    Type createType(@RequestBody @Valid TypeSaveDto typeSaveDto, Authentication auth);
 
     @GetMapping
     List<TypeDto> getTypes();
@@ -27,5 +28,5 @@ public interface TypeApi {
     @PutMapping("/{typeId}")
     @PreAuthorize("hasRole('ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
-    Type updateType(@PathVariable Long typeId, @RequestBody @Valid TypeSaveDto typeSaveDto);
+    Type updateType(@PathVariable Long typeId, @RequestBody @Valid TypeSaveDto typeSaveDto, Authentication auth);
 }

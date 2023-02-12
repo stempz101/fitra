@@ -3,6 +3,7 @@ package com.diploma.fitra.service.impl;
 import com.diploma.fitra.dto.type.TypeDto;
 import com.diploma.fitra.dto.type.TypeSaveDto;
 import com.diploma.fitra.exception.ExistenceException;
+import com.diploma.fitra.exception.ForbiddenException;
 import com.diploma.fitra.exception.NotFoundException;
 import com.diploma.fitra.mapper.TypeMapper;
 import com.diploma.fitra.mapper.UpdateMapper;
@@ -12,6 +13,9 @@ import com.diploma.fitra.repo.TypeRepository;
 import com.diploma.fitra.service.TypeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,10 +28,13 @@ public class TypeServiceImpl implements TypeService {
     private final TypeRepository typeRepository;
 
     @Override
-    public Type createType(TypeSaveDto typeSaveDto) {
+    public Type createType(TypeSaveDto typeSaveDto, Authentication auth) {
         log.info("Saving type: {}", typeSaveDto);
 
-        if (typeRepository.existsByNameEn(typeSaveDto.getNameEn())) {
+        UserDetails userDetails = (UserDetails) auth.getPrincipal();
+        if (userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_USER"))) {
+            throw new ForbiddenException(Error.ACCESS_DENIED.getMessage());
+        } else if (typeRepository.existsByNameEn(typeSaveDto.getNameEn())) {
             throw new ExistenceException(Error.TYPE_EXISTS_WITH_NAME_EN.getMessage());
         } else if (typeRepository.existsByNameUa(typeSaveDto.getNameUa())) {
             throw new ExistenceException(Error.TYPE_EXISTS_WITH_NAME_UA.getMessage());
@@ -61,8 +68,13 @@ public class TypeServiceImpl implements TypeService {
     }
 
     @Override
-    public Type updateType(Long typeId, TypeSaveDto typeSaveDto) {
+    public Type updateType(Long typeId, TypeSaveDto typeSaveDto, Authentication auth) {
         log.info("Updating type (id={}): {}", typeId, typeSaveDto);
+
+        UserDetails userDetails = (UserDetails) auth.getPrincipal();
+        if (userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_USER"))) {
+            throw new ForbiddenException(Error.ACCESS_DENIED.getMessage());
+        }
 
         Type type = typeRepository.findById(typeId)
                 .orElseThrow(() -> new NotFoundException(Error.TYPE_NOT_FOUND.getMessage()));

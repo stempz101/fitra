@@ -9,17 +9,17 @@ import java.util.List;
 
 public interface TravelService {
 
-    TravelDto createTravel(TravelSaveDto travelSaveDto);
+    TravelDto createTravel(TravelSaveDto travelSaveDto, Authentication auth);
 
     List<TravelDto> getTravels();
 
     List<ParticipantDto> getUsers(Long travelId);
 
-    void removeUser(Long travelId, Long userId);
+    void removeUser(Long travelId, Long userId, Authentication auth);
 
     void leaveTravel(Long travelId, Long userId, Authentication auth);
 
-    TravelDto updateTravel(Long travelId, TravelSaveDto travelSaveDto);
+    TravelDto updateTravel(Long travelId, TravelSaveDto travelSaveDto, Authentication auth);
 
-    void deleteTravel(Long travelId);
+    void deleteTravel(Long travelId, Authentication auth);
 }

@@ -62,6 +62,7 @@ public class TravelServiceImplTest {
         Travel travel = TravelDataTest.getTravel1();
         User user = UserDataTest.getUser1();
         UserShortDto userShortDto = UserDataTest.getUserShortDto1();
+        Authentication auth = mock(Authentication.class);
         Country country1 = CountryDataTest.getCountry1();
         Country country2 = CountryDataTest.getCountry1();
         Country country3 = CountryDataTest.getCountry2();
@@ -72,8 +73,9 @@ public class TravelServiceImplTest {
         Route route3 = RouteDataTest.getRoute3();
         Participant participant = ParticipantDataTest.getParticipant1();
 
-        when(typeRepository.findById(any())).thenReturn(Optional.of(travel.getType()));
         when(userRepository.findById(any())).thenReturn(Optional.of(user));
+        when(auth.getPrincipal()).thenReturn(user);
+        when(typeRepository.findById(any())).thenReturn(Optional.of(travel.getType()));
         when(travelRepository.save(any())).thenReturn(travel);
         when(countryRepository.findById(any()))
                 .thenReturn(Optional.of(country1))
@@ -88,7 +90,7 @@ public class TravelServiceImplTest {
                 .thenReturn(route2)
                 .thenReturn(route3);
         when(participantRepository.save(any())).thenReturn(participant);
-        TravelDto result = travelService.createTravel(travelSaveDto);
+        TravelDto result = travelService.createTravel(travelSaveDto, auth);
 
         assertThat(result, allOf(
                 hasProperty("id", equalTo(travel.getId())),
@@ -110,52 +112,72 @@ public class TravelServiceImplTest {
     }
 
     @Test
-    void createTravelWithTypeNotFoundExceptionTest() {
+    void createTravelWithUserNotFoundExceptionTest() {
         TravelSaveDto travelSaveDto = TravelDataTest.getTravelSaveDto1();
+        Authentication auth = mock(Authentication.class);
 
-        when(typeRepository.findById(any())).thenReturn(Optional.empty());
+        when(userRepository.findById(any())).thenReturn(Optional.empty());
 
-        assertThrows(NotFoundException.class, () -> travelService.createTravel(travelSaveDto));
+        assertThrows(NotFoundException.class, () -> travelService.createTravel(travelSaveDto, auth));
     }
 
     @Test
-    void createTravelWithUserNotFoundExceptionTest() {
+    void createTravelWithForbiddenExceptionTest() {
         TravelSaveDto travelSaveDto = TravelDataTest.getTravelSaveDto1();
-        Travel travel = TravelDataTest.getTravel1();
+        Authentication auth = mock(Authentication.class);
+        User user1 = UserDataTest.getUser1();
+        User user2 = UserDataTest.getUser2();
 
-        when(typeRepository.findById(any())).thenReturn(Optional.of(travel.getType()));
-        when(userRepository.findById(any())).thenReturn(Optional.empty());
+        when(userRepository.findById(any())).thenReturn(Optional.of(user1));
+        when(auth.getPrincipal()).thenReturn(user2);
 
-        assertThrows(NotFoundException.class, () -> travelService.createTravel(travelSaveDto));
+        assertThrows(ForbiddenException.class, () -> travelService.createTravel(travelSaveDto, auth));
+    }
+
+    @Test
+    void createTravelWithTypeNotFoundExceptionTest() {
+        TravelSaveDto travelSaveDto = TravelDataTest.getTravelSaveDto1();
+        Authentication auth = mock(Authentication.class);
+        User user = UserDataTest.getUser1();
+
+        when(userRepository.findById(any())).thenReturn(Optional.of(user));
+        when(auth.getPrincipal()).thenReturn(user);
+        when(typeRepository.findById(any())).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> travelService.createTravel(travelSaveDto, auth));
     }
 
     @Test
     void createTravelWithCountryNotFoundExceptionTest() {
         TravelSaveDto travelSaveDto = TravelDataTest.getTravelSaveDto1();
+        Authentication auth = mock(Authentication.class);
         Travel travel = TravelDataTest.getTravel1();
         User user = UserDataTest.getUser1();
 
-        when(typeRepository.findById(any())).thenReturn(Optional.of(travel.getType()));
         when(userRepository.findById(any())).thenReturn(Optional.of(user));
+        when(auth.getPrincipal()).thenReturn(user);
+        when(typeRepository.findById(any())).thenReturn(Optional.of(travel.getType()));
         when(countryRepository.findById(any())).thenReturn(Optional.empty());
 
-        assertThrows(NotFoundException.class, () -> travelService.createTravel(travelSaveDto));
+        assertThrows(NotFoundException.class, () -> travelService.createTravel(travelSaveDto, auth));
     }
 
     @Test
     void createTravelWithCityBadRequestExceptionTest() {
         TravelSaveDto travelSaveDto = TravelDataTest.getTravelSaveDto1();
+        Authentication auth = mock(Authentication.class);
         Travel travel = TravelDataTest.getTravel1();
         User user = UserDataTest.getUser1();
         Country country = CountryDataTest.getCountry2();
         City city = CityDataTest.getCity1();
 
-        when(typeRepository.findById(any())).thenReturn(Optional.of(travel.getType()));
         when(userRepository.findById(any())).thenReturn(Optional.of(user));
+        when(auth.getPrincipal()).thenReturn(user);
+        when(typeRepository.findById(any())).thenReturn(Optional.of(travel.getType()));
         when(countryRepository.findById(any())).thenReturn(Optional.of(country));
         when(cityRepository.findById(any())).thenReturn(Optional.of(city));
 
-        assertThrows(BadRequestException.class, () -> travelService.createTravel(travelSaveDto));
+        assertThrows(BadRequestException.class, () -> travelService.createTravel(travelSaveDto, auth));
     }
 
     @Test
@@ -208,13 +230,15 @@ public class TravelServiceImplTest {
     @Test
     void removeUserTest() {
         Travel travel = TravelDataTest.getTravel1();
+        Authentication auth = mock(Authentication.class);
         User user = UserDataTest.getUser3();
         Participant participant = ParticipantDataTest.getParticipant3();
 
         when(travelRepository.findById(any())).thenReturn(Optional.of(travel));
+        when(auth.getPrincipal()).thenReturn(travel.getCreator());
         when(userRepository.findById(any())).thenReturn(Optional.of(user));
         when(participantRepository.findById(any())).thenReturn(Optional.of(participant));
-        travelService.removeUser(travel.getId(), user.getId());
+        travelService.removeUser(travel.getId(), user.getId(), auth);
 
         verify(participantRepository, times(1)).delete(any());
     }
@@ -222,34 +246,64 @@ public class TravelServiceImplTest {
     @Test
     void removeUserWithTravelNotFoundExceptionTest() {
         Travel travel = TravelDataTest.getTravel1();
+        Authentication auth = mock(Authentication.class);
         User user = UserDataTest.getUser3();
 
         when(travelRepository.findById(any())).thenReturn(Optional.empty());
 
-        assertThrows(NotFoundException.class, () -> travelService.removeUser(travel.getId(), user.getId()));
+        assertThrows(NotFoundException.class, () -> travelService.removeUser(travel.getId(), user.getId(), auth));
+    }
+
+    @Test
+    void removeUserWithForbiddenExceptionTest() {
+        Travel travel = TravelDataTest.getTravel1();
+        Authentication auth = mock(Authentication.class);
+        User user = UserDataTest.getUser3();
+
+        when(travelRepository.findById(any())).thenReturn(Optional.of(travel));
+        when(auth.getPrincipal()).thenReturn(user);
+
+        assertThrows(ForbiddenException.class, () -> travelService.removeUser(travel.getId(), user.getId(), auth));
     }
 
     @Test
     void removeUserWithUserNotFoundExceptionTest() {
         Travel travel = TravelDataTest.getTravel1();
+        Authentication auth = mock(Authentication.class);
         User user = UserDataTest.getUser3();
 
         when(travelRepository.findById(any())).thenReturn(Optional.of(travel));
+        when(auth.getPrincipal()).thenReturn(travel.getCreator());
         when(userRepository.findById(any())).thenReturn(Optional.empty());
 
-        assertThrows(NotFoundException.class, () -> travelService.removeUser(travel.getId(), user.getId()));
+        assertThrows(NotFoundException.class, () -> travelService.removeUser(travel.getId(), user.getId(), auth));
+    }
+
+    @Test
+    void removeUserWithBadRequestExceptionTest() {
+        Travel travel = TravelDataTest.getTravel1();
+        Authentication auth = mock(Authentication.class);
+        User user = UserDataTest.getUser3();
+
+        when(travelRepository.findById(any())).thenReturn(Optional.of(travel));
+        when(auth.getPrincipal()).thenReturn(travel.getCreator());
+        when(userRepository.findById(any())).thenReturn(Optional.of(travel.getCreator()));
+
+        assertThrows(BadRequestException.class, () -> travelService.removeUser(travel.getId(), user.getId(), auth));
     }
 
     @Test
     void removeUserWithExistenceExceptionTest() {
         Travel travel = TravelDataTest.getTravel1();
+        Authentication auth = mock(Authentication.class);
         User user = UserDataTest.getUser3();
 
         when(travelRepository.findById(any())).thenReturn(Optional.of(travel));
+        when(auth.getPrincipal()).thenReturn(travel.getCreator());
         when(userRepository.findById(any())).thenReturn(Optional.of(user));
         when(participantRepository.findById(any())).thenReturn(Optional.empty());
 
-        assertThrows(ExistenceException.class, () -> travelService.removeUser(travel.getId(), user.getId()));
+        assertThrows(ExistenceException.class, () -> travelService.removeUser(travel.getId(), user.getId(), auth));
     }
 
     @Test
@@ -340,6 +394,7 @@ public class TravelServiceImplTest {
     void updateTravelTest() {
         TravelSaveDto travelSaveDto = TravelDataTest.getTravelSaveDto1();
         Travel travel = TravelDataTest.getTravel2();
+        Authentication auth = mock(Authentication.class);
         User user = UserDataTest.getUser1();
         UserShortDto userShortDto = UserDataTest.getUserShortDto1();
         Type updatedType = TypeDataTest.getType1();
@@ -358,6 +413,7 @@ public class TravelServiceImplTest {
         Route route3 = RouteDataTest.getRoute3();
 
         when(travelRepository.findById(any())).thenReturn(Optional.of(travel));
+        when(auth.getPrincipal()).thenReturn(travel.getCreator());
         when(typeRepository.findById(any())).thenReturn(Optional.of(updatedType));
         when(participantRepository.countByTravel(any())).thenReturn(participantCount);
         when(travelRepository.save(any())).thenReturn(updatedTravel);
@@ -373,7 +429,7 @@ public class TravelServiceImplTest {
                 .thenReturn(route1)
                 .thenReturn(route2)
                 .thenReturn(route3);
-        TravelDto result = travelService.updateTravel(travel.getId(), travelSaveDto);
+        TravelDto result = travelService.updateTravel(travel.getId(), travelSaveDto, auth);
 
         verify(routeRepository, times(1)).deleteAllByTravel(any());
         assertThat(result, allOf(
@@ -398,41 +454,60 @@ public class TravelServiceImplTest {
     @Test
     void updateTravelWithTravelNotFoundExceptionTest() {
         Travel travel = TravelDataTest.getTravel2();
+        Authentication auth = mock(Authentication.class);
         TravelSaveDto travelSaveDto = TravelDataTest.getTravelSaveDto1();
 
         when(travelRepository.findById(any())).thenReturn(Optional.empty());
 
-        assertThrows(NotFoundException.class, () -> travelService.updateTravel(travel.getId(), travelSaveDto));
+        assertThrows(NotFoundException.class, () -> travelService.updateTravel(travel.getId(), travelSaveDto, auth));
+    }
+
+    @Test
+    void updateTravelWithForbiddenExceptionTest() {
+        Travel travel = TravelDataTest.getTravel2();
+        Authentication auth = mock(Authentication.class);
+        TravelSaveDto travelSaveDto = TravelDataTest.getTravelSaveDto1();
+        User user = UserDataTest.getUser2();
+
+        when(travelRepository.findById(any())).thenReturn(Optional.of(travel));
+        when(auth.getPrincipal()).thenReturn(user);
+
+        assertThrows(ForbiddenException.class, () -> travelService.updateTravel(travel.getId(), travelSaveDto, auth));
     }
 
     @Test
     void updateTravelWithTypeNotFoundExceptionTest() {
         Travel travel = TravelDataTest.getTravel2();
+        Authentication auth = mock(Authentication.class);
         TravelSaveDto travelSaveDto = TravelDataTest.getTravelSaveDto1();
 
         when(travelRepository.findById(any())).thenReturn(Optional.of(travel));
+        when(auth.getPrincipal()).thenReturn(travel.getCreator());
         when(typeRepository.findById(any())).thenReturn(Optional.empty());
 
-        assertThrows(NotFoundException.class, () -> travelService.updateTravel(travel.getId(), travelSaveDto));
+        assertThrows(NotFoundException.class, () -> travelService.updateTravel(travel.getId(), travelSaveDto, auth));
     }
 
     @Test
     void updateTravelWithLimitBadRequestExceptionTest() {
         Travel travel = TravelDataTest.getTravel2();
+        Authentication auth = mock(Authentication.class);
         TravelSaveDto travelSaveDto = TravelDataTest.getTravelSaveDto1();
         Type updatedType = TypeDataTest.getType1();
         long participantCount = 15L;
 
         when(travelRepository.findById(any())).thenReturn(Optional.of(travel));
+        when(auth.getPrincipal()).thenReturn(travel.getCreator());
         when(typeRepository.findById(any())).thenReturn(Optional.of(updatedType));
         when(participantRepository.countByTravel(any())).thenReturn(participantCount);
 
-        assertThrows(BadRequestException.class, () -> travelService.updateTravel(travel.getId(), travelSaveDto));
+        assertThrows(BadRequestException.class, () -> travelService.updateTravel(travel.getId(), travelSaveDto, auth));
     }
 
     @Test
     void updateTravelWithCountryNotFoundExceptionTest() {
         Travel travel = TravelDataTest.getTravel2();
+        Authentication auth = mock(Authentication.class);
         TravelSaveDto travelSaveDto = TravelDataTest.getTravelSaveDto1();
         Type updatedType = TypeDataTest.getType1();
         Travel updatedTravel = TravelMapper.INSTANCE.fromTravelSaveDto(travelSaveDto);
@@ -441,17 +516,19 @@ public class TravelServiceImplTest {
         long participantCount = 10L;
 
         when(travelRepository.findById(any())).thenReturn(Optional.of(travel));
+        when(auth.getPrincipal()).thenReturn(travel.getCreator());
         when(typeRepository.findById(any())).thenReturn(Optional.of(updatedType));
         when(participantRepository.countByTravel(any())).thenReturn(participantCount);
         when(travelRepository.save(any())).thenReturn(updatedTravel);
         when(countryRepository.findById(any())).thenReturn(Optional.empty());
 
-        assertThrows(NotFoundException.class, () -> travelService.updateTravel(travel.getId(), travelSaveDto));
+        assertThrows(NotFoundException.class, () -> travelService.updateTravel(travel.getId(), travelSaveDto, auth));
     }
 
     @Test
     void updateTravelWithCityBadRequestExceptionTest() {
         Travel travel = TravelDataTest.getTravel2();
+        Authentication auth = mock(Authentication.class);
         TravelSaveDto travelSaveDto = TravelDataTest.getTravelSaveDto1();
         Type updatedType = TypeDataTest.getType1();
         Travel updatedTravel = TravelMapper.INSTANCE.fromTravelSaveDto(travelSaveDto);
@@ -462,21 +539,24 @@ public class TravelServiceImplTest {
         City city = CityDataTest.getCity1();
 
         when(travelRepository.findById(any())).thenReturn(Optional.of(travel));
+        when(auth.getPrincipal()).thenReturn(travel.getCreator());
         when(typeRepository.findById(any())).thenReturn(Optional.of(updatedType));
         when(participantRepository.countByTravel(any())).thenReturn(participantCount);
         when(travelRepository.save(any())).thenReturn(updatedTravel);
         when(countryRepository.findById(any())).thenReturn(Optional.of(country));
         when(cityRepository.findById(any())).thenReturn(Optional.of(city));
 
-        assertThrows(BadRequestException.class, () -> travelService.updateTravel(travel.getId(), travelSaveDto));
+        assertThrows(BadRequestException.class, () -> travelService.updateTravel(travel.getId(), travelSaveDto, auth));
     }
 
     @Test
     void deleteTravelTest() {
         Travel travel = TravelDataTest.getTravel1();
+        Authentication auth = mock(Authentication.class);
 
         when(travelRepository.findById(any())).thenReturn(Optional.of(travel));
-        travelService.deleteTravel(travel.getId());
+        when(auth.getPrincipal()).thenReturn(travel.getCreator());
+        travelService.deleteTravel(travel.getId(), auth);
 
         verify(travelRepository, times(1)).delete(any());
     }
@@ -484,9 +564,22 @@ public class TravelServiceImplTest {
     @Test
     void deleteTravelWithNotFoundExceptionTest() {
         Travel travel = TravelDataTest.getTravel1();
+        Authentication auth = mock(Authentication.class);
 
         when(travelRepository.findById(any())).thenReturn(Optional.empty());
 
-        assertThrows(NotFoundException.class, () -> travelService.deleteTravel(travel.getId()));
+        assertThrows(NotFoundException.class, () -> travelService.deleteTravel(travel.getId(), auth));
+    }
+
+    @Test
+    void deleteTravelWithForbiddenExceptionTest() {
+        Travel travel = TravelDataTest.getTravel1();
+        Authentication auth = mock(Authentication.class);
+        User user = UserDataTest.getUser2();
+
+        when(travelRepository.findById(any())).thenReturn(Optional.of(travel));
+        when(auth.getPrincipal()).thenReturn(user);
+
+        assertThrows(ForbiddenException.class, () -> travelService.deleteTravel(travel.getId(), auth));
     }
 }

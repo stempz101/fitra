@@ -6,6 +6,7 @@ import com.diploma.fitra.dto.type.TypeSaveDto;
 import com.diploma.fitra.model.Type;
 import com.diploma.fitra.service.TypeService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -16,8 +17,8 @@ public class TypeController implements TypeApi {
     private final TypeService typeService;
 
     @Override
-    public Type createType(TypeSaveDto typeSaveDto) {
-        return typeService.createType(typeSaveDto);
+    public Type createType(TypeSaveDto typeSaveDto, Authentication auth) {
+        return typeService.createType(typeSaveDto, auth);
     }
 
     @Override
@@ -31,7 +32,7 @@ public class TypeController implements TypeApi {
     }
 
     @Override
-    public Type updateType(Long typeId, TypeSaveDto typeSaveDto) {
-        return typeService.updateType(typeId, typeSaveDto);
+    public Type updateType(Long typeId, TypeSaveDto typeSaveDto, Authentication auth) {
+        return typeService.updateType(typeId, typeSaveDto, auth);
     }
 }

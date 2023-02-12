@@ -1,6 +1,8 @@
 package com.diploma.fitra.service.impl;
 
 import com.diploma.fitra.dto.user.UserDto;
+import com.diploma.fitra.exception.BadRequestException;
+import com.diploma.fitra.exception.ForbiddenException;
 import com.diploma.fitra.exception.NotFoundException;
 import com.diploma.fitra.mapper.CityMapper;
 import com.diploma.fitra.mapper.CountryMapper;
@@ -11,6 +13,9 @@ import com.diploma.fitra.model.enums.Role;
 import com.diploma.fitra.repo.UserRepository;
 import com.diploma.fitra.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -38,9 +43,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void deleteUser(Long userId) {
+    public void deleteUser(Long userId, Authentication auth) {
+        UserDetails userDetails = (UserDetails) auth.getPrincipal();
+        if (userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_USER"))) {
+            throw new ForbiddenException(Error.ACCESS_DENIED.getMessage());
+        }
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(Error.USER_NOT_FOUND.getMessage()));
+        if (user.getEmail().equals(userDetails.getUsername())) {
+            throw new BadRequestException(Error.ADMIN_CANT_DELETE_HIMSELF.getMessage());
+        }
 
         userRepository.delete(user);
     }
