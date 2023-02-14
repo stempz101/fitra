@@ -1,6 +1,6 @@
 package com.diploma.fitra.model.enums;
 
-public enum InvitationStatus {
+public enum Status {
 
     WAITING,
     CONFIRMED,

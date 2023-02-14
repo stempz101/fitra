@@ -98,7 +98,7 @@ public class RouteDataTest {
     public static RouteDto createRouteDto3() {
         RouteDto routeDto = new RouteDto();
         routeDto.setCountryId(ROUTE_3_COUNTRY.getId());
-        routeDto.setCityId(0);
+//        routeDto.setCityId(0);
         routeDto.setPosition(ROUTE_3_POSITION);
         return routeDto;
     }

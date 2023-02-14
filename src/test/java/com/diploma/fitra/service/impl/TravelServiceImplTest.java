@@ -199,6 +199,13 @@ public class TravelServiceImplTest {
         when(travelRepository.findAll()).thenReturn(travels);
         List<TravelDto> result = travelService.getTravels();
 
+        TravelDto travelDto1 = TravelDataTest.getTravelDto1();
+        TravelDto travelDto2 = TravelDataTest.getTravelDto2();
+        TravelDto travelDto3 = TravelDataTest.getTravelDto3();
+        System.out.println(result.get(0).equals(travelDto1));
+        System.out.println(result.get(1).equals(travelDto2));
+        System.out.println(result.get(2).equals(travelDto3));
+
         assertThat(result, hasSize(travels.size()));
         assertThat(result, hasItems(
                 TravelDataTest.getTravelDto1(),

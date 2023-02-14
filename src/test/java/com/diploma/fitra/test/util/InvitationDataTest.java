@@ -6,36 +6,32 @@ import com.diploma.fitra.dto.user.UserShortDto;
 import com.diploma.fitra.model.Invitation;
 import com.diploma.fitra.model.Travel;
 import com.diploma.fitra.model.User;
-import com.diploma.fitra.model.enums.InvitationStatus;
+import com.diploma.fitra.model.enums.Status;
 
 import java.time.LocalDateTime;
 
 public class InvitationDataTest {
 
-    public static final Long INVITATION_1_ID = 1L;
-    private static final InvitationStatus INVITATION_1_STATUS = InvitationStatus.REJECTED;
+    private static final Long INVITATION_1_ID = 1L;
+    private static final Status INVITATION_1_STATUS = Status.REJECTED;
     private static final LocalDateTime INVITATION_1_CREATE_TIME = LocalDateTime.of(2023, 2, 8, 12, 55);
 
-    public static final Long INVITATION_2_ID = 2L;
-    private static final InvitationStatus INVITATION_2_STATUS = InvitationStatus.CONFIRMED;
+    private static final Long INVITATION_2_ID = 2L;
+    private static final Status INVITATION_2_STATUS = Status.CONFIRMED;
     private static final LocalDateTime INVITATION_2_CREATE_TIME = LocalDateTime.of(2023, 2, 8, 17, 41);
 
-    public static final Long INVITATION_3_ID = 3L;
-    private static final InvitationStatus INVITATION_3_STATUS = InvitationStatus.REJECTED;
+    private static final Long INVITATION_3_ID = 3L;
+    private static final Status INVITATION_3_STATUS = Status.REJECTED;
     private static final LocalDateTime INVITATION_3_CREATE_TIME = LocalDateTime.of(2023, 2, 9, 4, 14);
 
-    public static final Long INVITATION_4_ID = 4L;
-    private static final InvitationStatus INVITATION_4_STATUS = InvitationStatus.WAITING;
+    private static final Long INVITATION_4_ID = 4L;
+    private static final Status INVITATION_4_STATUS = Status.WAITING;
     private static final LocalDateTime INVITATION_4_CREATE_TIME = LocalDateTime.of(2023, 2, 9, 11, 23);
 
-    private static final Travel INVITATION_TRAVEL = TravelDataTest.getTravel1();
-    private static final TravelShortDto INVITATION_TRAVEL_SHORT_DTO = TravelDataTest.getTravelShortDto1();
-    private static final User INVITATION_USER = UserDataTest.getUser2();
-    private static final UserShortDto INVITATION_USER_SHORT_DTO = UserDataTest.getUserShortDto2();
-
-    static {
-        INVITATION_TRAVEL_SHORT_DTO.getCreator().setIsAdmin(null);
-    }
+    private static final Travel INVITATION_TRAVEL = TravelDataTest.getTravel3();
+    private static final TravelShortDto INVITATION_TRAVEL_SHORT_DTO = TravelDataTest.getTravelShortDto3();
+    private static final User INVITATION_USER = UserDataTest.getUser3();
+    private static final UserShortDto INVITATION_USER_SHORT_DTO = UserDataTest.getUserShortDto3();
 
     public static Invitation getInvitation1() {
         Invitation invitation = new Invitation();

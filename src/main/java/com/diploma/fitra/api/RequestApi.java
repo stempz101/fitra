@@ -1,6 +1,6 @@
 package com.diploma.fitra.api;
 
-import com.diploma.fitra.dto.invitation.InvitationDto;
+import com.diploma.fitra.dto.request.RequestDto;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -9,36 +9,36 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RequestMapping("/api/v1/invitations")
-public interface InvitationApi {
+@RequestMapping("/api/v1/requests")
+public interface RequestApi {
 
     @PostMapping("/travel/{travelId}/user/{userId}")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
-    ResponseEntity<Void> createInvitation(@PathVariable Long travelId, @PathVariable Long userId, Authentication auth);
-
-    @GetMapping("/user/{userId}")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    @SecurityRequirement(name = "Bearer Authentication")
-    List<InvitationDto> getInvitations(@PathVariable Long userId, Authentication auth);
+    ResponseEntity<Void> createRequest(@PathVariable Long travelId, @PathVariable Long userId, Authentication auth);
 
     @GetMapping("/creator/{creatorId}")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
-    List<InvitationDto> getInvitationsForCreator(@PathVariable Long creatorId, Authentication auth);
+    List<RequestDto> getRequests(@PathVariable Long creatorId, Authentication auth);
 
-    @PostMapping("/{invitationId}")
+    @GetMapping("/user/{userId}")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
-    ResponseEntity<Void> confirmInvitation(@PathVariable Long invitationId, Authentication auth);
+    List<RequestDto> getRequestsForUser(@PathVariable Long userId, Authentication auth);
 
-    @PutMapping("/{invitationId}")
+    @PostMapping("/{requestId}")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
-    ResponseEntity<Void> rejectInvitation(@PathVariable Long invitationId, Authentication auth);
+    ResponseEntity<Void> confirmRequest(@PathVariable Long requestId, Authentication auth);
 
-    @DeleteMapping("/{invitationId}")
+    @PutMapping("/{requestId}")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
-    ResponseEntity<Void> cancelInvitation(@PathVariable Long invitationId, Authentication auth);
+    ResponseEntity<Void> rejectRequest(@PathVariable Long requestId, Authentication auth);
+
+    @DeleteMapping("/{requestId}")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @SecurityRequirement(name = "Bearer Authentication")
+    ResponseEntity<Void> cancelRequest(@PathVariable Long requestId, Authentication auth);
 }

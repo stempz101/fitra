@@ -28,8 +28,8 @@ public class InvitationController implements InvitationApi {
     }
 
     @Override
-    public List<InvitationDto> getInvitationsForCreator(Long userId, Authentication auth) {
-        return invitationService.getInvitationsForCreator(userId, auth);
+    public List<InvitationDto> getInvitationsForCreator(Long creatorId, Authentication auth) {
+        return invitationService.getInvitationsForCreator(creatorId, auth);
     }
 
     @Override

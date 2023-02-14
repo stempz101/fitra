@@ -165,11 +165,11 @@ public class TravelDataTest {
         return travelSaveDto;
     }
 
-    public static TravelShortDto getTravelShortDto1() {
+    public static TravelShortDto getTravelShortDto3() {
         TravelShortDto travelShortDto = new TravelShortDto();
-        travelShortDto.setId(TRAVEL_1_ID);
-        travelShortDto.setTitle(TRAVEL_1_TITLE);
-        travelShortDto.setCreator(TRAVEL_1_CREATOR_SHORT_DTO);
+        travelShortDto.setId(TRAVEL_3_ID);
+        travelShortDto.setTitle(TRAVEL_3_TITLE);
+        travelShortDto.setCreator(TRAVEL_3_CREATOR_SHORT_DTO);
         return travelShortDto;
     }
 }

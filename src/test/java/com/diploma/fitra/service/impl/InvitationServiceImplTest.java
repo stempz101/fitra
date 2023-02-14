@@ -9,8 +9,7 @@ import com.diploma.fitra.model.Invitation;
 import com.diploma.fitra.model.Participant;
 import com.diploma.fitra.model.Travel;
 import com.diploma.fitra.model.User;
-import com.diploma.fitra.model.enums.InvitationStatus;
-import com.diploma.fitra.model.enums.Role;
+import com.diploma.fitra.model.enums.Status;
 import com.diploma.fitra.repo.InvitationRepository;
 import com.diploma.fitra.repo.ParticipantRepository;
 import com.diploma.fitra.repo.TravelRepository;
@@ -56,20 +55,20 @@ public class InvitationServiceImplTest {
 
     @Test
     void createInvitationTest() {
-        Travel travel = TravelDataTest.getTravel1();
-        User user = UserDataTest.getUser2();
+        Travel travel = TravelDataTest.getTravel3();
+        User user = UserDataTest.getUser3();
         Authentication auth = mock(Authentication.class);
         List<Invitation> invitations = new ArrayList<>();
+        invitations.add(InvitationDataTest.getInvitation3());
         invitations.add(InvitationDataTest.getInvitation2());
         invitations.add(InvitationDataTest.getInvitation1());
-        invitations.add(InvitationDataTest.getInvitation3());
         Invitation invitation = InvitationDataTest.getInvitation4();
 
         when(travelRepository.findById(any())).thenReturn(Optional.of(travel));
         when(userRepository.findById(any())).thenReturn(Optional.of(user));
         when(auth.getPrincipal()).thenReturn(travel.getCreator());
         when(participantRepository.findById(any())).thenReturn(Optional.empty());
-        when(invitationRepository.findAllByTravelAndUser(any(), any())).thenReturn(invitations);
+        when(invitationRepository.findAllByTravelAndUser(any(), any(), any())).thenReturn(invitations);
         when(invitationRepository.save(any())).thenReturn(invitation);
         invitationService.createInvitation(travel.getId(), user.getId(), auth);
 
@@ -78,8 +77,8 @@ public class InvitationServiceImplTest {
 
     @Test
     void createInvitationWithTravelNotFoundExceptionTest() {
-        Travel travel = TravelDataTest.getTravel1();
-        User user = UserDataTest.getUser2();
+        Travel travel = TravelDataTest.getTravel3();
+        User user = UserDataTest.getUser3();
         Authentication auth = mock(Authentication.class);
 
         when(travelRepository.findById(any())).thenReturn(Optional.empty());
@@ -89,8 +88,8 @@ public class InvitationServiceImplTest {
 
     @Test
     void createInvitationWithUserNotFoundExceptionTest() {
-        Travel travel = TravelDataTest.getTravel1();
-        User user = UserDataTest.getUser2();
+        Travel travel = TravelDataTest.getTravel3();
+        User user = UserDataTest.getUser3();
         Authentication auth = mock(Authentication.class);
 
         when(travelRepository.findById(any())).thenReturn(Optional.of(travel));
@@ -101,8 +100,8 @@ public class InvitationServiceImplTest {
 
     @Test
     void createInvitationWithForbiddenExceptionTest() {
-        Travel travel = TravelDataTest.getTravel1();
-        User user = UserDataTest.getUser2();
+        Travel travel = TravelDataTest.getTravel3();
+        User user = UserDataTest.getUser3();
         Authentication auth = mock(Authentication.class);
 
         when(travelRepository.findById(any())).thenReturn(Optional.of(travel));
@@ -114,9 +113,8 @@ public class InvitationServiceImplTest {
 
     @Test
     void createInvitationWithBadRequestExceptionTest() {
-        Travel travel = TravelDataTest.getTravel1();
-        User user = UserDataTest.getUser2();
-        user.setRole(Role.ADMIN);
+        Travel travel = TravelDataTest.getTravel3();
+        User user = UserDataTest.getUser1();
         Authentication auth = mock(Authentication.class);
 
         when(travelRepository.findById(any())).thenReturn(Optional.of(travel));
@@ -128,10 +126,11 @@ public class InvitationServiceImplTest {
 
     @Test
     void createInvitationWithParticipantExistenceExceptionTest() {
-        Travel travel = TravelDataTest.getTravel1();
-        User user = UserDataTest.getUser2();
+        Travel travel = TravelDataTest.getTravel3();
+        User user = UserDataTest.getUser3();
         Authentication auth = mock(Authentication.class);
-        Participant participant = ParticipantDataTest.getParticipant2();
+        Participant participant = ParticipantDataTest.getParticipant3();
+        participant.setTravel(travel);
 
         when(travelRepository.findById(any())).thenReturn(Optional.of(travel));
         when(userRepository.findById(any())).thenReturn(Optional.of(user));
@@ -143,26 +142,26 @@ public class InvitationServiceImplTest {
 
     @Test
     void createInvitationWithInvitationExistenceExceptionTest() {
-        Travel travel = TravelDataTest.getTravel1();
-        User user = UserDataTest.getUser2();
+        Travel travel = TravelDataTest.getTravel3();
+        User user = UserDataTest.getUser3();
         Authentication auth = mock(Authentication.class);
         List<Invitation> invitations = new ArrayList<>();
-        invitations.add(InvitationDataTest.getInvitation2());
         invitations.add(InvitationDataTest.getInvitation4());
         invitations.add(InvitationDataTest.getInvitation3());
+        invitations.add(InvitationDataTest.getInvitation2());
 
         when(travelRepository.findById(any())).thenReturn(Optional.of(travel));
         when(userRepository.findById(any())).thenReturn(Optional.of(user));
         when(auth.getPrincipal()).thenReturn(travel.getCreator());
         when(participantRepository.findById(any())).thenReturn(Optional.empty());
-        when(invitationRepository.findAllByTravelAndUser(any(), any())).thenReturn(invitations);
+        when(invitationRepository.findAllByTravelAndUser(any(), any(), any())).thenReturn(invitations);
 
         assertThrows(ExistenceException.class, () -> invitationService.createInvitation(travel.getId(), user.getId(), auth));
     }
 
     @Test
     void getInvitationsTest() {
-        User user = UserDataTest.getUser2();
+        User user = UserDataTest.getUser3();
         Authentication auth = mock(Authentication.class);
         List<Invitation> invitations = new ArrayList<>();
         invitations.add(InvitationDataTest.getInvitation4());
@@ -186,7 +185,7 @@ public class InvitationServiceImplTest {
 
     @Test
     void getInvitationsWithUserNotFoundExceptionTest() {
-        User user = UserDataTest.getUser2();
+        User user = UserDataTest.getUser3();
         Authentication auth = mock(Authentication.class);
 
         when(userRepository.findById(any())).thenReturn(Optional.empty());
@@ -196,19 +195,19 @@ public class InvitationServiceImplTest {
 
     @Test
     void getInvitationsWithForbiddenExceptionTest() {
+        User user1 = UserDataTest.getUser3();
         User user2 = UserDataTest.getUser2();
-        User user3 = UserDataTest.getUser3();
         Authentication auth = mock(Authentication.class);
 
-        when(userRepository.findById(any())).thenReturn(Optional.of(user2));
-        when(auth.getPrincipal()).thenReturn(user3);
+        when(userRepository.findById(any())).thenReturn(Optional.of(user1));
+        when(auth.getPrincipal()).thenReturn(user2);
 
-        assertThrows(ForbiddenException.class, () -> invitationService.getInvitations(user2.getId(), auth));
+        assertThrows(ForbiddenException.class, () -> invitationService.getInvitations(user1.getId(), auth));
     }
 
     @Test
     void getInvitationsForCreatorTest() {
-        User user = UserDataTest.getUser1();
+        User user = UserDataTest.getUser2();
         Authentication auth = mock(Authentication.class);
         List<Invitation> invitations = new ArrayList<>();
         invitations.add(InvitationDataTest.getInvitation4());
@@ -232,7 +231,7 @@ public class InvitationServiceImplTest {
 
     @Test
     void getInvitationsForCreatorWithUserNotFoundExceptionTest() {
-        User user = UserDataTest.getUser1();
+        User user = UserDataTest.getUser2();
         Authentication auth = mock(Authentication.class);
 
         when(userRepository.findById(any())).thenReturn(Optional.empty());
@@ -242,8 +241,8 @@ public class InvitationServiceImplTest {
 
     @Test
     void getInvitationsForCreatorWithForbiddenExceptionTest() {
-        User user1 = UserDataTest.getUser1();
-        User user2 = UserDataTest.getUser2();
+        User user1 = UserDataTest.getUser2();
+        User user2 = UserDataTest.getUser3();
         Authentication auth = mock(Authentication.class);
 
         when(userRepository.findById(any())).thenReturn(Optional.of(user1));
@@ -256,9 +255,10 @@ public class InvitationServiceImplTest {
     void confirmInvitationTest() {
         Invitation invitation = InvitationDataTest.getInvitation4();
         Authentication auth = mock(Authentication.class);
-        Participant participant = ParticipantDataTest.getParticipant2();
+        Participant participant = ParticipantDataTest.getParticipant3();
+        participant.setTravel(invitation.getTravel());
         Invitation confirmedInvitation = InvitationDataTest.getInvitation4();
-        confirmedInvitation.setStatus(InvitationStatus.CONFIRMED);
+        confirmedInvitation.setStatus(Status.CONFIRMED);
 
         when(invitationRepository.findById(any())).thenReturn(Optional.of(invitation));
         when(auth.getPrincipal()).thenReturn(invitation.getUser());
@@ -294,7 +294,7 @@ public class InvitationServiceImplTest {
     @Test
     void confirmInvitationsWithConfirmedStatusBadRequestExceptionTest() {
         Invitation invitation = InvitationDataTest.getInvitation4();
-        invitation.setStatus(InvitationStatus.CONFIRMED);
+        invitation.setStatus(Status.CONFIRMED);
         Authentication auth = mock(Authentication.class);
 
         when(invitationRepository.findById(any())).thenReturn(Optional.of(invitation));
@@ -306,7 +306,7 @@ public class InvitationServiceImplTest {
     @Test
     void confirmInvitationsWithRejectedStatusBadRequestExceptionTest() {
         Invitation invitation = InvitationDataTest.getInvitation4();
-        invitation.setStatus(InvitationStatus.REJECTED);
+        invitation.setStatus(Status.REJECTED);
         Authentication auth = mock(Authentication.class);
 
         when(invitationRepository.findById(any())).thenReturn(Optional.of(invitation));
@@ -320,7 +320,7 @@ public class InvitationServiceImplTest {
         Invitation invitation = InvitationDataTest.getInvitation4();
         Authentication auth = mock(Authentication.class);
         Invitation rejectedInvitation = InvitationDataTest.getInvitation4();
-        rejectedInvitation.setStatus(InvitationStatus.REJECTED);
+        rejectedInvitation.setStatus(Status.REJECTED);
 
         when(invitationRepository.findById(any())).thenReturn(Optional.of(invitation));
         when(auth.getPrincipal()).thenReturn(invitation.getUser());
@@ -354,7 +354,7 @@ public class InvitationServiceImplTest {
     @Test
     void rejectInvitationWithRejectedStatusBadRequestExceptionTest() {
         Invitation invitation = InvitationDataTest.getInvitation4();
-        invitation.setStatus(InvitationStatus.REJECTED);
+        invitation.setStatus(Status.REJECTED);
         Authentication auth = mock(Authentication.class);
 
         when(invitationRepository.findById(any())).thenReturn(Optional.of(invitation));
@@ -366,7 +366,7 @@ public class InvitationServiceImplTest {
     @Test
     void rejectInvitationWithConfirmedStatusBadRequestExceptionTest() {
         Invitation invitation = InvitationDataTest.getInvitation4();
-        invitation.setStatus(InvitationStatus.CONFIRMED);
+        invitation.setStatus(Status.CONFIRMED);
         Authentication auth = mock(Authentication.class);
 
         when(invitationRepository.findById(any())).thenReturn(Optional.of(invitation));
@@ -411,7 +411,7 @@ public class InvitationServiceImplTest {
     @Test
     void cancelInvitationWithConfirmedStatusBadRequestExceptionTest() {
         Invitation invitation = InvitationDataTest.getInvitation4();
-        invitation.setStatus(InvitationStatus.CONFIRMED);
+        invitation.setStatus(Status.CONFIRMED);
         Authentication auth = mock(Authentication.class);
 
         when(invitationRepository.findById(any())).thenReturn(Optional.of(invitation));
@@ -423,7 +423,7 @@ public class InvitationServiceImplTest {
     @Test
     void cancelInvitationWithRejectedStatusBadRequestExceptionTest() {
         Invitation invitation = InvitationDataTest.getInvitation4();
-        invitation.setStatus(InvitationStatus.REJECTED);
+        invitation.setStatus(Status.REJECTED);
         Authentication auth = mock(Authentication.class);
 
         when(invitationRepository.findById(any())).thenReturn(Optional.of(invitation));

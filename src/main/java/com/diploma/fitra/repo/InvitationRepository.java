@@ -3,6 +3,7 @@ package com.diploma.fitra.repo;
 import com.diploma.fitra.model.Invitation;
 import com.diploma.fitra.model.Travel;
 import com.diploma.fitra.model.User;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -15,7 +16,7 @@ public interface InvitationRepository extends JpaRepository<Invitation, Long> {
 
     List<Invitation> findAllByTravel_Creator(User creator);
 
-    List<Invitation> findAllByTravelAndUser(Travel travel, User user);
+    List<Invitation> findAllByTravelAndUser(Travel travel, User user, Sort sort);
 
 //    Optional<Invitation> findByTravelAndUser(Travel travel, User user);
 }

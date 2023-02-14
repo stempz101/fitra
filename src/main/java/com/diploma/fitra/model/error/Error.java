@@ -9,6 +9,7 @@ public enum Error {
     TYPE_NOT_FOUND("Type is not found!"),
     INVITATION_NOT_FOUND("Invitation is not found!"),
     PARTICIPANT_NOT_FOUND("Participant is not found!"),
+    REQUEST_NOT_FOUND("Request is not found!"),
 
     // BadRequestException messages
     CITY_NOT_IN_COUNTRY("City is not part of specified country!"),
@@ -19,10 +20,10 @@ public enum Error {
     ADMIN_CANT_DELETE_HIMSELF("Admin can't delete himself!"),
     INVITATION_IS_CONFIRMED("Invitation is already confirmed!"),
     INVITATION_IS_REJECTED("Invitation is already rejected!"),
-    INVITATION_IS_CANCELLED("Invitation is already cancelled!"),
-    INVITATION_IS_REJECTED_OR_CANCELLED("Invitation is already rejected or cancelled!"),
-    INVITATION_IS_CONFIRMED_OR_CANCELLED("Invitation is already confirmed or cancelled!"),
     INVITATION_IS_CONFIRMED_OR_REJECTED("Invitation is already confirmed or rejected!"),
+    REQUEST_IS_CONFIRMED("Request is already confirmed!"),
+    REQUEST_IS_REJECTED("Request is already rejected!"),
+    REQUEST_IS_CONFIRMED_OR_REJECTED("Request is already confirmed or rejected!"),
 
     // ExistenceException messages
     USER_EXISTS_WITH_EMAIL("User with specified email already exists!"),
@@ -31,6 +32,7 @@ public enum Error {
     TYPE_EXISTS_WITH_NAME_EN("Type with specified name (EN) already exists!"),
     TYPE_EXISTS_WITH_NAME_UA("Type with specified name (UA) already exists!"),
     INVITATION_IS_WAITING("Invitation is already waiting!"),
+    REQUEST_IS_WAITING("Request is already waiting!"),
 
     // VerificationException messages
     PASSWORD_CONFIRMATION_IS_FAILED("Password confirmation is failed!"),

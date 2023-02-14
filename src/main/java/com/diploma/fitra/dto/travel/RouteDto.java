@@ -17,7 +17,7 @@ public class RouteDto {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String country;
 
-    private long cityId;
+    private Long cityId;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String city;
