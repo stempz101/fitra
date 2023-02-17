@@ -31,6 +31,8 @@ public class Travel {
     @Column(nullable = false)
     private LocalDate startDate;
 
+    private boolean isConfirmed;
+
     @JoinColumn(nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
     @ToString.Exclude

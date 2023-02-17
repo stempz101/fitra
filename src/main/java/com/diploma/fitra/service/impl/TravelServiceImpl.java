@@ -10,9 +10,10 @@ import com.diploma.fitra.exception.ForbiddenException;
 import com.diploma.fitra.exception.NotFoundException;
 import com.diploma.fitra.mapper.*;
 import com.diploma.fitra.model.*;
+import com.diploma.fitra.model.enums.Role;
+import com.diploma.fitra.model.enums.Status;
 import com.diploma.fitra.model.error.Error;
 import com.diploma.fitra.model.key.ParticipantKey;
-import com.diploma.fitra.model.enums.Role;
 import com.diploma.fitra.repo.*;
 import com.diploma.fitra.service.TravelService;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -40,11 +42,13 @@ public class TravelServiceImpl implements TravelService {
     private final CityRepository cityRepository;
     private final RouteRepository routeRepository;
     private final ParticipantRepository participantRepository;
+    private final RequestToCreateRepository requestToCreateRepository;
+    private final InvitationRepository invitationRepository;
 
     @Override
     @Transactional
     public TravelDto createTravel(TravelSaveDto travelSaveDto, Authentication auth) {
-        log.info("Saving type: {}", travelSaveDto);
+        log.info("Creating travel: {}", travelSaveDto);
 
         User creator = userRepository.findById(travelSaveDto.getCreatorId())
                 .orElseThrow(() -> new NotFoundException(Error.USER_NOT_FOUND.getMessage()));
@@ -58,6 +62,9 @@ public class TravelServiceImpl implements TravelService {
         Travel travel = TravelMapper.INSTANCE.fromTravelSaveDto(travelSaveDto);
         travel.setType(type);
         travel.setCreator(creator);
+        if (creator.getRole().equals(Role.ADMIN)) {
+            travel.setConfirmed(true);
+        }
         travel = travelRepository.save(travel);
         log.info("Travel is created: {}", travel);
 
@@ -68,12 +75,11 @@ public class TravelServiceImpl implements TravelService {
         }
         log.info("Route for the travel (id={}) is built: {}", travel.getId(), routeList);
 
-        Participant participant = new Participant();
-        participant.setTravel(travel);
-        participant.setUser(creator);
-        participant.setCreator(true);
-        participant = participantRepository.save(participant);
-        log.info("Creator is became a participant of created travel: {}", participant);
+        saveParticipant(creator, travel, creator.equals(travel.getCreator()));
+        saveInvitations(travel, travelSaveDto.getParticipants());
+        if (!creator.getRole().equals(Role.ADMIN)) {
+            saveRequestToCreate(travel);
+        }
 
         return toTravelDto(travel, creator, routeList);
     }
@@ -82,7 +88,7 @@ public class TravelServiceImpl implements TravelService {
     public List<TravelDto> getTravels() {
         log.info("Getting travels");
 
-        return travelRepository.findAll().stream()
+        return travelRepository.findAllByIsConfirmedIsTrue().stream()
                 .map(this::toTravelDto)
                 .collect(Collectors.toList());
     }
@@ -259,5 +265,48 @@ public class TravelServiceImpl implements TravelService {
             routeList.add(route);
         }
         return routeList;
+    }
+
+    private void saveParticipant(User user, Travel travel, boolean isCreator) {
+        Participant participant = new Participant();
+        participant.setTravel(travel);
+        participant.setUser(user);
+        participant.setCreator(isCreator);
+        participantRepository.save(participant);
+
+        log.info("New participant (userId={}, isCreator={}) is inserted to the travel (id={})",
+                user.getId(), isCreator, travel.getId());
+    }
+
+    private void saveInvitations(Travel travel, List<Long> participants) {
+        if (participants != null && participants.size() > 0) {
+            Invitation invitation;
+            for (long userId : participants) {
+                if (userId != travel.getCreator().getId()) {
+                    User user = userRepository.findById(userId)
+                            .orElseThrow(() -> new NotFoundException(Error.USER_NOT_FOUND.getMessage()));
+
+                    invitation = new Invitation();
+                    invitation.setTravel(travel);
+                    invitation.setUser(user);
+                    invitation.setStatus(Status.WAITING);
+                    invitation.setCreateTime(LocalDateTime.now());
+                    invitationRepository.save(invitation);
+
+                    log.info("Invitation to the travel (id={}) is created for the user (id={})",
+                            travel.getId(), user.getId());
+                }
+            }
+        }
+    }
+
+    private void saveRequestToCreate(Travel travel) {
+        RequestToCreate request = new RequestToCreate();
+        request.setTravel(travel);
+        request.setStatus(Status.WAITING);
+        request.setCreateTime(LocalDateTime.now());
+        requestToCreateRepository.save(request);
+
+        log.info("Request to creat the travel (id={}) is created", travel.getId());
     }
 }

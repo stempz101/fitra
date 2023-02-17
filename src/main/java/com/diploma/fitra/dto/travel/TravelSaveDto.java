@@ -3,7 +3,6 @@ package com.diploma.fitra.dto.travel;
 import com.diploma.fitra.dto.group.OnCreate;
 import com.diploma.fitra.dto.group.OnUpdate;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
@@ -35,7 +34,9 @@ public class TravelSaveDto {
     @Null(message = "{validation.null.creator_id}", groups = OnUpdate.class)
     private Long creatorId;
 
-    @Valid
     @NotNull(message = "{validation.not_null.route}", groups = {OnCreate.class, OnUpdate.class})
     private List<RouteDto> route;
+
+    @Null(message = "{validation.null.participants}", groups = OnUpdate.class)
+    private List<Long> participants;
 }
