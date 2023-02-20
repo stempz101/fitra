@@ -3,7 +3,7 @@ package com.diploma.fitra.test.util;
 import com.diploma.fitra.dto.request.RequestDto;
 import com.diploma.fitra.dto.travel.TravelShortDto;
 import com.diploma.fitra.dto.user.UserShortDto;
-import com.diploma.fitra.model.Request;
+import com.diploma.fitra.model.RequestToJoin;
 import com.diploma.fitra.model.Travel;
 import com.diploma.fitra.model.User;
 import com.diploma.fitra.model.enums.Status;
@@ -33,8 +33,8 @@ public class RequestDataTest {
     private static final User REQUEST_USER = UserDataTest.getUser3();
     private static final UserShortDto REQUEST_USER_SHORT_DTO = UserDataTest.getUserShortDto3();
 
-    public static Request getRequest1() {
-        Request request = new Request();
+    public static RequestToJoin getRequest1() {
+        RequestToJoin request = new RequestToJoin();
         request.setId(REQUEST_1_ID);
         request.setTravel(REQUEST_TRAVEL);
         request.setUser(REQUEST_USER);
@@ -43,8 +43,8 @@ public class RequestDataTest {
         return request;
     }
 
-    public static Request getRequest2() {
-        Request request = new Request();
+    public static RequestToJoin getRequest2() {
+        RequestToJoin request = new RequestToJoin();
         request.setId(REQUEST_2_ID);
         request.setTravel(REQUEST_TRAVEL);
         request.setUser(REQUEST_USER);
@@ -53,8 +53,8 @@ public class RequestDataTest {
         return request;
     }
 
-    public static Request getRequest3() {
-        Request request = new Request();
+    public static RequestToJoin getRequest3() {
+        RequestToJoin request = new RequestToJoin();
         request.setId(REQUEST_3_ID);
         request.setTravel(REQUEST_TRAVEL);
         request.setUser(REQUEST_USER);
@@ -63,8 +63,8 @@ public class RequestDataTest {
         return request;
     }
 
-    public static Request getRequest4() {
-        Request request = new Request();
+    public static RequestToJoin getRequest4() {
+        RequestToJoin request = new RequestToJoin();
         request.setId(REQUEST_4_ID);
         request.setTravel(REQUEST_TRAVEL);
         request.setUser(REQUEST_USER);

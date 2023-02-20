@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RequestMapping("/api/v1/requests")
-public interface RequestApi {
+@RequestMapping("/api/v1/requests-to-join")
+public interface RequestToJoinApi {
 
     @PostMapping("/travel/{travelId}/user/{userId}")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")

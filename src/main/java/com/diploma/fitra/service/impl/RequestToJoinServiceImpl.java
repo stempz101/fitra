@@ -7,7 +7,7 @@ import com.diploma.fitra.exception.ForbiddenException;
 import com.diploma.fitra.exception.NotFoundException;
 import com.diploma.fitra.mapper.RequestMapper;
 import com.diploma.fitra.model.Participant;
-import com.diploma.fitra.model.Request;
+import com.diploma.fitra.model.RequestToJoin;
 import com.diploma.fitra.model.Travel;
 import com.diploma.fitra.model.User;
 import com.diploma.fitra.model.enums.Role;
@@ -15,10 +15,10 @@ import com.diploma.fitra.model.enums.Status;
 import com.diploma.fitra.model.error.Error;
 import com.diploma.fitra.model.key.ParticipantKey;
 import com.diploma.fitra.repo.ParticipantRepository;
-import com.diploma.fitra.repo.RequestRepository;
+import com.diploma.fitra.repo.RequestToJoinRepository;
 import com.diploma.fitra.repo.TravelRepository;
 import com.diploma.fitra.repo.UserRepository;
-import com.diploma.fitra.service.RequestService;
+import com.diploma.fitra.service.RequestToJoinService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
@@ -34,9 +34,9 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class RequestServiceImpl implements RequestService {
+public class RequestToJoinServiceImpl implements RequestToJoinService {
 
-    private final RequestRepository requestRepository;
+    private final RequestToJoinRepository requestRepository;
     private final TravelRepository travelRepository;
     private final UserRepository userRepository;
     private final ParticipantRepository participantRepository;
@@ -58,13 +58,13 @@ public class RequestServiceImpl implements RequestService {
             throw new ExistenceException(Error.USER_EXISTS_IN_TRAVEL.getMessage());
         }
 
-        List<Request> requests = requestRepository
+        List<RequestToJoin> requests = requestRepository
                 .findAllByTravelAndUser(travel, user, Sort.by("createTime").descending());
         if (requests.size() != 0 && requests.get(0).getStatus().equals(Status.WAITING)) {
             throw new ExistenceException(Error.REQUEST_IS_WAITING.getMessage());
         }
 
-        Request request = new Request();
+        RequestToJoin request = new RequestToJoin();
         request.setTravel(travel);
         request.setUser(user);
         request.setStatus(Status.WAITING);
@@ -111,7 +111,7 @@ public class RequestServiceImpl implements RequestService {
     public void confirmRequest(Long requestId, Authentication auth) {
         log.info("Request (id={}) confirmation", requestId);
 
-        Request request = requestRepository.findById(requestId)
+        RequestToJoin request = requestRepository.findById(requestId)
                 .orElseThrow(() -> new NotFoundException(Error.REQUEST_NOT_FOUND.getMessage()));
         UserDetails userDetails = (UserDetails) auth.getPrincipal();
         if (!request.getTravel().getCreator().getEmail().equals(userDetails.getUsername())) {
@@ -138,7 +138,7 @@ public class RequestServiceImpl implements RequestService {
     public void rejectRequest(Long requestId, Authentication auth) {
         log.info("Request (id={}) rejection", requestId);
 
-        Request request = requestRepository.findById(requestId)
+        RequestToJoin request = requestRepository.findById(requestId)
                 .orElseThrow(() -> new NotFoundException(Error.REQUEST_NOT_FOUND.getMessage()));
         UserDetails userDetails = (UserDetails) auth.getPrincipal();
         if (!request.getTravel().getCreator().getEmail().equals(userDetails.getUsername())) {
@@ -160,7 +160,7 @@ public class RequestServiceImpl implements RequestService {
     public void cancelRequest(Long requestId, Authentication auth) {
         log.info("Request (id={}) cancellation", requestId);
 
-        Request request = requestRepository.findById(requestId)
+        RequestToJoin request = requestRepository.findById(requestId)
                 .orElseThrow(() -> new NotFoundException(Error.REQUEST_NOT_FOUND.getMessage()));
         UserDetails userDetails = (UserDetails) auth.getPrincipal();
         if (!request.getUser().getEmail().equals(userDetails.getUsername())) {

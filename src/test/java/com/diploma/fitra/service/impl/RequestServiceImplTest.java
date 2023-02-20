@@ -8,7 +8,7 @@ import com.diploma.fitra.exception.NotFoundException;
 import com.diploma.fitra.model.*;
 import com.diploma.fitra.model.enums.Status;
 import com.diploma.fitra.repo.ParticipantRepository;
-import com.diploma.fitra.repo.RequestRepository;
+import com.diploma.fitra.repo.RequestToJoinRepository;
 import com.diploma.fitra.repo.TravelRepository;
 import com.diploma.fitra.repo.UserRepository;
 import com.diploma.fitra.test.util.*;
@@ -33,10 +33,10 @@ import static org.mockito.Mockito.*;
 public class RequestServiceImplTest {
 
     @InjectMocks
-    private RequestServiceImpl requestService;
+    private RequestToJoinServiceImpl requestService;
 
     @Mock
-    private RequestRepository requestRepository;
+    private RequestToJoinRepository requestRepository;
 
     @Mock
     private TravelRepository travelRepository;
@@ -52,11 +52,11 @@ public class RequestServiceImplTest {
         Travel travel = TravelDataTest.getTravel3();
         User user = UserDataTest.getUser3();
         Authentication auth = mock(Authentication.class);
-        List<Request> requests = new ArrayList<>();
+        List<RequestToJoin> requests = new ArrayList<>();
         requests.add(RequestDataTest.getRequest3());
         requests.add(RequestDataTest.getRequest2());
         requests.add(RequestDataTest.getRequest1());
-        Request request = RequestDataTest.getRequest4();
+        RequestToJoin request = RequestDataTest.getRequest4();
 
         when(travelRepository.findById(any())).thenReturn(Optional.of(travel));
         when(userRepository.findById(any())).thenReturn(Optional.of(user));
@@ -139,7 +139,7 @@ public class RequestServiceImplTest {
         Travel travel = TravelDataTest.getTravel3();
         User user = UserDataTest.getUser3();
         Authentication auth = mock(Authentication.class);
-        List<Request> requests = new ArrayList<>();
+        List<RequestToJoin> requests = new ArrayList<>();
         requests.add(RequestDataTest.getRequest4());
         requests.add(RequestDataTest.getRequest3());
         requests.add(RequestDataTest.getRequest2());
@@ -157,7 +157,7 @@ public class RequestServiceImplTest {
     void getRequestsTest() {
         User user = UserDataTest.getUser2();
         Authentication auth = mock(Authentication.class);
-        List<Request> requests = new ArrayList<>();
+        List<RequestToJoin> requests = new ArrayList<>();
         requests.add(RequestDataTest.getRequest4());
         requests.add(RequestDataTest.getRequest3());
         requests.add(RequestDataTest.getRequest2());
@@ -203,7 +203,7 @@ public class RequestServiceImplTest {
     void getRequestsForUserTest() {
         User user = UserDataTest.getUser3();
         Authentication auth = mock(Authentication.class);
-        List<Request> requests = new ArrayList<>();
+        List<RequestToJoin> requests = new ArrayList<>();
         requests.add(RequestDataTest.getRequest4());
         requests.add(RequestDataTest.getRequest3());
         requests.add(RequestDataTest.getRequest2());
@@ -247,11 +247,11 @@ public class RequestServiceImplTest {
 
     @Test
     void confirmRequestTest() {
-        Request request = RequestDataTest.getRequest4();
+        RequestToJoin request = RequestDataTest.getRequest4();
         Authentication auth = mock(Authentication.class);
         Participant participant = ParticipantDataTest.getParticipant3();
         participant.setTravel(request.getTravel());
-        Request confirmedRequest = RequestDataTest.getRequest4();
+        RequestToJoin confirmedRequest = RequestDataTest.getRequest4();
         confirmedRequest.setStatus(Status.CONFIRMED);
 
         when(requestRepository.findById(any())).thenReturn(Optional.of(request));
@@ -266,7 +266,7 @@ public class RequestServiceImplTest {
 
     @Test
     void confirmRequestWithNotFoundExceptionTest() {
-        Request request = RequestDataTest.getRequest4();
+        RequestToJoin request = RequestDataTest.getRequest4();
         Authentication auth = mock(Authentication.class);
 
         when(requestRepository.findById(any())).thenReturn(Optional.empty());
@@ -276,7 +276,7 @@ public class RequestServiceImplTest {
 
     @Test
     void confirmRequestWithForbiddenExceptionTest() {
-        Request request = RequestDataTest.getRequest4();
+        RequestToJoin request = RequestDataTest.getRequest4();
         Authentication auth = mock(Authentication.class);
 
         when(requestRepository.findById(any())).thenReturn(Optional.of(request));
@@ -287,7 +287,7 @@ public class RequestServiceImplTest {
 
     @Test
     void confirmRequestWithConfirmedStatusBadRequestExceptionTest() {
-        Request request = RequestDataTest.getRequest4();
+        RequestToJoin request = RequestDataTest.getRequest4();
         request.setStatus(Status.CONFIRMED);
         Authentication auth = mock(Authentication.class);
 
@@ -299,7 +299,7 @@ public class RequestServiceImplTest {
 
     @Test
     void confirmRequestWithRejectedStatusBadRequestExceptionTest() {
-        Request request = RequestDataTest.getRequest4();
+        RequestToJoin request = RequestDataTest.getRequest4();
         request.setStatus(Status.REJECTED);
         Authentication auth = mock(Authentication.class);
 
@@ -311,9 +311,9 @@ public class RequestServiceImplTest {
 
     @Test
     void rejectRequestTest() {
-        Request request = RequestDataTest.getRequest4();
+        RequestToJoin request = RequestDataTest.getRequest4();
         Authentication auth = mock(Authentication.class);
-        Request rejectedRequest = RequestDataTest.getRequest4();
+        RequestToJoin rejectedRequest = RequestDataTest.getRequest4();
         rejectedRequest.setStatus(Status.REJECTED);
 
         when(requestRepository.findById(any())).thenReturn(Optional.of(request));
@@ -326,7 +326,7 @@ public class RequestServiceImplTest {
 
     @Test
     void rejectRequestWithNotFoundExceptionTest() {
-        Request request = RequestDataTest.getRequest4();
+        RequestToJoin request = RequestDataTest.getRequest4();
         Authentication auth = mock(Authentication.class);
 
         when(requestRepository.findById(any())).thenReturn(Optional.empty());
@@ -336,7 +336,7 @@ public class RequestServiceImplTest {
 
     @Test
     void rejectRequestWithForbiddenExceptionTest() {
-        Request request = RequestDataTest.getRequest4();
+        RequestToJoin request = RequestDataTest.getRequest4();
         Authentication auth = mock(Authentication.class);
 
         when(requestRepository.findById(any())).thenReturn(Optional.of(request));
@@ -347,7 +347,7 @@ public class RequestServiceImplTest {
 
     @Test
     void rejectRequestWithRejectedStatusBadRequestExceptionTest() {
-        Request request = RequestDataTest.getRequest4();
+        RequestToJoin request = RequestDataTest.getRequest4();
         request.setStatus(Status.REJECTED);
         Authentication auth = mock(Authentication.class);
 
@@ -359,7 +359,7 @@ public class RequestServiceImplTest {
 
     @Test
     void rejectRequestWithConfirmedStatusBadRequestExceptionTest() {
-        Request request = RequestDataTest.getRequest4();
+        RequestToJoin request = RequestDataTest.getRequest4();
         request.setStatus(Status.CONFIRMED);
         Authentication auth = mock(Authentication.class);
 
@@ -371,7 +371,7 @@ public class RequestServiceImplTest {
 
     @Test
     void cancelRequestTest() {
-        Request request = RequestDataTest.getRequest4();
+        RequestToJoin request = RequestDataTest.getRequest4();
         Authentication auth = mock(Authentication.class);
 
         when(requestRepository.findById(any())).thenReturn(Optional.of(request));
@@ -383,7 +383,7 @@ public class RequestServiceImplTest {
 
     @Test
     void cancelRequestWithNotFoundExceptionTest() {
-        Request request = RequestDataTest.getRequest4();
+        RequestToJoin request = RequestDataTest.getRequest4();
         Authentication auth = mock(Authentication.class);
 
         when(requestRepository.findById(any())).thenReturn(Optional.empty());
@@ -393,7 +393,7 @@ public class RequestServiceImplTest {
 
     @Test
     void cancelRequestWithForbiddenExceptionTest() {
-        Request request = RequestDataTest.getRequest4();
+        RequestToJoin request = RequestDataTest.getRequest4();
         Authentication auth = mock(Authentication.class);
 
         when(requestRepository.findById(any())).thenReturn(Optional.of(request));
@@ -404,7 +404,7 @@ public class RequestServiceImplTest {
 
     @Test
     void cancelRequestWithConfirmedStatusBadRequestExceptionTest() {
-        Request request = RequestDataTest.getRequest4();
+        RequestToJoin request = RequestDataTest.getRequest4();
         request.setStatus(Status.CONFIRMED);
         Authentication auth = mock(Authentication.class);
 
@@ -416,7 +416,7 @@ public class RequestServiceImplTest {
 
     @Test
     void cancelRequestWithRejectedStatusBadRequestExceptionTest() {
-        Request request = RequestDataTest.getRequest4();
+        RequestToJoin request = RequestDataTest.getRequest4();
         request.setStatus(Status.REJECTED);
         Authentication auth = mock(Authentication.class);
 

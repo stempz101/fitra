@@ -1,8 +1,8 @@
 package com.diploma.fitra.controller;
 
-import com.diploma.fitra.api.RequestApi;
+import com.diploma.fitra.api.RequestToJoinApi;
 import com.diploma.fitra.dto.request.RequestDto;
-import com.diploma.fitra.service.RequestService;
+import com.diploma.fitra.service.RequestToJoinService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -12,9 +12,9 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-public class RequestController implements RequestApi {
+public class RequestToJoinController implements RequestToJoinApi {
 
-    private final RequestService requestService;
+    private final RequestToJoinService requestService;
 
     @Override
     public ResponseEntity<Void> createRequest(Long travelId, Long userId, Authentication auth) {

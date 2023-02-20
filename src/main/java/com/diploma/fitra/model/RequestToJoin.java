@@ -11,12 +11,12 @@ import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
 
-@Entity(name = "_request")
+@Entity(name = "_request_to_join")
 @Getter
 @Setter
 @ToString
 @RequiredArgsConstructor
-public class Request {
+public class RequestToJoin {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
