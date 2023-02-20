@@ -8,7 +8,7 @@ import lombok.ToString;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-@Entity(name = "_route")
+@Entity(name = "_routes")
 @Getter
 @Setter
 @ToString

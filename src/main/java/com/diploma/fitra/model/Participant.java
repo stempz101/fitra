@@ -9,7 +9,7 @@ import lombok.ToString;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-@Entity(name = "_participant")
+@Entity(name = "_participants")
 @Getter
 @Setter
 @ToString

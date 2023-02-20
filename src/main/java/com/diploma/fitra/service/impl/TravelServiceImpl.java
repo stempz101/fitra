@@ -42,7 +42,7 @@ public class TravelServiceImpl implements TravelService {
     private final CityRepository cityRepository;
     private final RouteRepository routeRepository;
     private final ParticipantRepository participantRepository;
-    private final RequestToCreateRepository requestToCreateRepository;
+    private final CreateRequestRepository createRequestRepository;
     private final InvitationRepository invitationRepository;
 
     @Override
@@ -301,11 +301,11 @@ public class TravelServiceImpl implements TravelService {
     }
 
     private void saveRequestToCreate(Travel travel) {
-        RequestToCreate request = new RequestToCreate();
+        CreateRequest request = new CreateRequest();
         request.setTravel(travel);
         request.setStatus(Status.WAITING);
         request.setCreateTime(LocalDateTime.now());
-        requestToCreateRepository.save(request);
+        createRequestRepository.save(request);
 
         log.info("Request to creat the travel (id={}) is created", travel.getId());
     }

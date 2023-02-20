@@ -8,7 +8,7 @@ import lombok.ToString;
 
 import java.time.LocalDate;
 
-@Entity(name = "_travel")
+@Entity(name = "_travels")
 @Getter
 @Setter
 @ToString

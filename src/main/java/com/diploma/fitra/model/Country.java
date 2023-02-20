@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-@Entity(name = "_country")
+@Entity(name = "_countries")
 @Getter
 @Setter
 @ToString

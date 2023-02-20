@@ -12,6 +12,6 @@ import java.util.List;
 @Repository
 public interface CityRepository extends JpaRepository<City, Long> {
 
-    @Query("select c from _city c where c.country = ?1 and upper(c.titleEn) like upper(concat(?2, '%'))")
+    @Query("select c from _cities c where c.country = ?1 and upper(c.titleEn) like upper(concat(?2, '%'))")
     List<City> findAllByCountryAndTitleEnContainingIgnoreCase(Country country, String search, Sort sort);
 }

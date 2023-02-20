@@ -11,7 +11,7 @@ import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
 
-@Entity(name = "_invitation")
+@Entity(name = "_invitations")
 @Getter
 @Setter
 @ToString
