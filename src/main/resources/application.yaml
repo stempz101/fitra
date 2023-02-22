@@ -14,3 +14,5 @@ spring:
     url: jdbc:postgresql://localhost:5432/fitra
 server:
   port: 8081
+google-places-api:
+  key: AIzaSyDbQ9eS0j9SdcawPhIhjcU8_q97UkopYBI

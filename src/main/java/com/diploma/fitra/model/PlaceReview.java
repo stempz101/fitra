@@ -25,10 +25,15 @@ public class PlaceReview {
     private String title;
 
     @Column(nullable = false)
+    private String placeId;
+
+    @Column(nullable = false)
     private String placeName;
 
     @Column(nullable = false)
     private String placeAddress;
+
+    private String placePhotoReference;
 
     @Column(nullable = false)
     private String review;

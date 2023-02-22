@@ -1,7 +1,9 @@
 package com.diploma.fitra.mapper;
 
+import com.diploma.fitra.dto.placereview.PlaceReviewSaveDto;
 import com.diploma.fitra.dto.travel.TravelSaveDto;
 import com.diploma.fitra.dto.type.TypeSaveDto;
+import com.diploma.fitra.model.PlaceReview;
 import com.diploma.fitra.model.Travel;
 import com.diploma.fitra.model.Type;
 
@@ -27,5 +29,16 @@ public interface UpdateMapper {
         type.setNameUa(typeSaveDto.getNameUa());
 
         return type;
+    }
+
+    static PlaceReview updatePlaceReviewWithPresentPlaceReviewSaveDtoFields(PlaceReview placeReview, PlaceReviewSaveDto placeReviewSaveDto) {
+        if (placeReview == null)
+            return null;
+
+        placeReview.setTitle(placeReviewSaveDto.getTitle());
+        placeReview.setReview(placeReviewSaveDto.getReview());
+        placeReview.setRating(placeReviewSaveDto.getRating());
+
+        return placeReview;
     }
 }
