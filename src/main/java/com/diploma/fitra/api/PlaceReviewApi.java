@@ -26,22 +26,20 @@ public interface PlaceReviewApi {
                                      Authentication auth);
 
     @GetMapping
+    @SecurityRequirement(name = "Bearer Authentication")
     List<PlaceReviewDto> getPlaceReviews(@PageableDefault(sort = "createDate", size = 6, direction = Sort.Direction.DESC)
-                                         Pageable pageable);
+                                         Pageable pageable,
+                                         Authentication auth);
 
     @GetMapping("/{reviewId}")
-    PlaceReviewDto getPlaceReview(@PathVariable Long reviewId);
+    @SecurityRequirement(name = "Bearer Authentication")
+    PlaceReviewDto getPlaceReview(@PathVariable Long reviewId,
+                                  Authentication auth);
 
     @PostMapping("/{reviewId}/like")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
     ResponseEntity<Void> setLike(@PathVariable Long reviewId,
-                                 Authentication auth);
-
-    @PostMapping("/{reviewId}/dislike")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    @SecurityRequirement(name = "Bearer Authentication")
-    ResponseEntity<Void> setDislike(@PathVariable Long reviewId,
                                  Authentication auth);
 
     @PutMapping("/{reviewId}")

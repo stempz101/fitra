@@ -11,13 +11,11 @@ public interface PlaceReviewService {
 
     PlaceReviewDto createPlaceReview(PlaceReviewSaveDto placeReviewSaveDto, Authentication auth);
 
-    List<PlaceReviewDto> getPlaceReviews(Pageable pageable);
+    List<PlaceReviewDto> getPlaceReviews(Pageable pageable, Authentication auth);
 
-    PlaceReviewDto getPlaceReview(Long reviewId);
+    PlaceReviewDto getPlaceReview(Long reviewId, Authentication auth);
 
     void setLike(Long reviewId, Authentication auth);
-
-    void setDislike(Long reviewId, Authentication auth);
 
     PlaceReviewDto updatePlaceReview(PlaceReviewSaveDto placeReviewSaveDto, Long reviewId, Authentication auth);
 

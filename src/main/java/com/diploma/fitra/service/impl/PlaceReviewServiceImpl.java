@@ -23,7 +23,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.LocalDateTime;
@@ -60,30 +59,31 @@ public class PlaceReviewServiceImpl implements PlaceReviewService {
         PlaceReview placeReview = placeReviewRepository.save(toPlaceReview(placeReviewSaveDto, user, jsonNode));
 
         log.info("Place review of the user (id={}) was created successfully", user.getId());
-        return PlaceReviewMapper.INSTANCE.toPlaceReviewDto(placeReview);
+        return toPlaceReviewDto(placeReview);
     }
 
     @Override
-    public List<PlaceReviewDto> getPlaceReviews(Pageable pageable) {
+    public List<PlaceReviewDto> getPlaceReviews(Pageable pageable, Authentication auth) {
         log.info("Getting place reviews");
 
         return placeReviewRepository.findAll(pageable).stream()
-                .map(PlaceReviewMapper.INSTANCE::toPlaceReviewDto)
+                .map(placeReview -> auth == null ? toPlaceReviewDto(placeReview) :
+                        toPlaceReviewDto(placeReview, auth))
                 .collect(Collectors.toList());
     }
 
     @Override
-    public PlaceReviewDto getPlaceReview(Long reviewId) {
+    public PlaceReviewDto getPlaceReview(Long reviewId, Authentication auth) {
         log.info("Getting place review (id={})", reviewId);
 
         PlaceReview placeReview = placeReviewRepository.findById(reviewId)
                 .orElseThrow(() -> new NotFoundException(Error.PLACE_NOT_FOUND.getMessage()));
 
-        return PlaceReviewMapper.INSTANCE.toPlaceReviewDto(placeReview);
+        return auth == null ? toPlaceReviewDto(placeReview) :
+                toPlaceReviewDto(placeReview, auth);
     }
 
     @Override
-    @Transactional
     public void setLike(Long reviewId, Authentication auth) {
         log.info("Setting like to the place review (id={})", reviewId);
 
@@ -98,79 +98,14 @@ public class PlaceReviewServiceImpl implements PlaceReviewService {
         PlaceReviewLike placeReviewLike;
         if (optPlaceReviewLike.isPresent()) {
             placeReviewLike = optPlaceReviewLike.get();
-            if (!placeReviewLike.isLike()) {
-                placeReview.setDislikes(placeReview.getDislikes() - 1);
-                placeReview.setLikes(placeReview.getLikes() + 1);
+            placeReviewLikeRepository.delete(placeReviewLike);
 
-                placeReviewLike.setLike(true);
-
-                placeReviewRepository.save(placeReview);
-                placeReviewLikeRepository.save(placeReviewLike);
-
-                log.info("Like (value={}) is set to the place review (id={})", true, reviewId);
-            } else {
-                placeReview.setLikes(placeReview.getLikes() - 1);
-
-                placeReviewRepository.save(placeReview);
-                placeReviewLikeRepository.delete(placeReviewLike);
-
-                log.info("Like (value={}) is set to the place review (id={})", false, reviewId);
-            }
+            log.info("Place review (id={}) is unliked by user (id={})", reviewId, user.getId());
         } else {
-            placeReviewLike = setPlaceReviewLike(placeReview, user, true);
-
-            placeReview.setLikes(placeReview.getLikes() + 1);
-
-            placeReviewRepository.save(placeReview);
+            placeReviewLike = setPlaceReviewLike(placeReview, user);
             placeReviewLikeRepository.save(placeReviewLike);
 
-            log.info("Like (value={}) is set to the place review (id={})", true, reviewId);
-        }
-    }
-
-    @Override
-    @Transactional
-    public void setDislike(Long reviewId, Authentication auth) {
-        log.info("Setting dislike to the place review (id={})", reviewId);
-
-        PlaceReview placeReview = placeReviewRepository.findById(reviewId)
-                .orElseThrow(() -> new NotFoundException(Error.PLACE_NOT_FOUND.getMessage()));
-        UserDetails userDetails = (UserDetails) auth.getPrincipal();
-        User user = userRepository.findByEmail(userDetails.getUsername())
-                .orElseThrow(() -> new NotFoundException(Error.USER_NOT_FOUND.getMessage()));
-        Optional<PlaceReviewLike> optPlaceReviewLike = placeReviewLikeRepository
-                .findById(new PlaceReviewLikeKey(placeReview.getId(), user.getId()));
-
-        PlaceReviewLike placeReviewLike;
-        if (optPlaceReviewLike.isPresent()) {
-            placeReviewLike = optPlaceReviewLike.get();
-            if (placeReviewLike.isLike()) {
-                placeReview.setLikes(placeReview.getLikes() - 1);
-                placeReview.setDislikes(placeReview.getDislikes() + 1);
-
-                placeReviewLike.setLike(false);
-
-                placeReviewRepository.save(placeReview);
-                placeReviewLikeRepository.save(placeReviewLike);
-
-                log.info("Dislike (value={}) is set to the place review (id={})", true, reviewId);
-            } else {
-                placeReview.setDislikes(placeReview.getDislikes() - 1);
-
-                placeReviewRepository.save(placeReview);
-                placeReviewLikeRepository.delete(placeReviewLike);
-
-                log.info("Dislike (value={}) is set to the place review (id={})", false, reviewId);
-            }
-        } else {
-            placeReviewLike = setPlaceReviewLike(placeReview, user, false);
-
-            placeReview.setDislikes(placeReview.getDislikes() + 1);
-
-            placeReviewRepository.save(placeReview);
-            placeReviewLikeRepository.save(placeReviewLike);
-
-            log.info("Dislike (value={}) is set to the place review (id={})", true, reviewId);
+            log.info("Place review (id={}) is liked by user (id={})", reviewId, user.getId());
         }
     }
 
@@ -192,7 +127,7 @@ public class PlaceReviewServiceImpl implements PlaceReviewService {
         placeReview = placeReviewRepository.save(placeReview);
 
         log.info("Place review of the user (id={}) was edited successfully", placeReview.getAuthor().getId());
-        return PlaceReviewMapper.INSTANCE.toPlaceReviewDto(placeReview);
+        return toPlaceReviewDto(placeReview);
     }
 
     @Override
@@ -226,6 +161,25 @@ public class PlaceReviewServiceImpl implements PlaceReviewService {
         return jsonNode;
     }
 
+    private PlaceReviewDto toPlaceReviewDto(PlaceReview placeReview) {
+        PlaceReviewDto placeReviewDto = PlaceReviewMapper.INSTANCE.toPlaceReviewDto(placeReview);
+        placeReviewDto.setLikes(placeReviewLikeRepository.countByPlaceReview(placeReview));
+
+        return placeReviewDto;
+    }
+
+    private PlaceReviewDto toPlaceReviewDto(PlaceReview placeReview, Authentication auth) {
+        UserDetails userDetails = (UserDetails) auth.getPrincipal();
+        User user = userRepository.findByEmail(userDetails.getUsername())
+                .orElseThrow(() -> new NotFoundException(Error.USER_NOT_FOUND.getMessage()));
+
+        PlaceReviewDto placeReviewDto = PlaceReviewMapper.INSTANCE.toPlaceReviewDto(placeReview);
+        placeReviewDto.setLikes(placeReviewLikeRepository.countByPlaceReview(placeReview));
+        placeReviewDto.setLiked(placeReviewLikeRepository.existsByPlaceReviewAndUser(placeReview, user));
+
+        return placeReviewDto;
+    }
+
     private static PlaceReview toPlaceReview(PlaceReviewSaveDto placeReviewSaveDto, User user, JsonNode jsonNode) {
         PlaceReview placeReview = PlaceReviewMapper.INSTANCE.fromPlaceReviewSaveDto(placeReviewSaveDto);
         placeReview.setPlaceName(jsonNode.get("result").get("name").asText());
@@ -238,11 +192,10 @@ public class PlaceReviewServiceImpl implements PlaceReviewService {
         return placeReview;
     }
 
-    private PlaceReviewLike setPlaceReviewLike(PlaceReview placeReview, User user, boolean isLike) {
+    private PlaceReviewLike setPlaceReviewLike(PlaceReview placeReview, User user) {
         PlaceReviewLike placeReviewLike = new PlaceReviewLike();
         placeReviewLike.setPlaceReview(placeReview);
         placeReviewLike.setUser(user);
-        placeReviewLike.setLike(isLike);
         return placeReviewLike;
     }
 }

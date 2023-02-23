@@ -45,10 +45,6 @@ public class PlaceReview {
 
     private double rating;
 
-    private long likes;
-
-    private long dislikes;
-
     private boolean isEdited;
 
     @Column(nullable = false)

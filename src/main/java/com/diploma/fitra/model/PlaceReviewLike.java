@@ -30,6 +30,4 @@ public class PlaceReviewLike {
     @MapsId("userId")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
-
-    private boolean isLike;
 }

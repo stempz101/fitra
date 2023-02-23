@@ -15,7 +15,7 @@ public class PlaceReviewDto {
     private UserShortDto author;
     private double rating;
     private long likes;
-    private long dislikes;
+    private boolean isLiked;
     private boolean isEdited;
     private LocalDateTime createDate;
 }

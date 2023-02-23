@@ -24,24 +24,18 @@ public class PlaceReviewController implements PlaceReviewApi {
     }
 
     @Override
-    public List<PlaceReviewDto> getPlaceReviews(Pageable pageable) {
-        return placeReviewService.getPlaceReviews(pageable);
+    public List<PlaceReviewDto> getPlaceReviews(Pageable pageable, Authentication auth) {
+        return placeReviewService.getPlaceReviews(pageable, auth);
     }
 
     @Override
-    public PlaceReviewDto getPlaceReview(Long reviewId) {
-        return placeReviewService.getPlaceReview(reviewId);
+    public PlaceReviewDto getPlaceReview(Long reviewId, Authentication auth) {
+        return placeReviewService.getPlaceReview(reviewId, auth);
     }
 
     @Override
     public ResponseEntity<Void> setLike(Long reviewId, Authentication auth) {
         placeReviewService.setLike(reviewId, auth);
-        return ResponseEntity.noContent().build();
-    }
-
-    @Override
-    public ResponseEntity<Void> setDislike(Long reviewId, Authentication auth) {
-        placeReviewService.setDislike(reviewId, auth);
         return ResponseEntity.noContent().build();
     }
 
