@@ -1,16 +1,22 @@
 package com.diploma.fitra.service.impl;
 
+import com.diploma.fitra.dto.comment.CommentDto;
+import com.diploma.fitra.dto.comment.CommentSaveDto;
 import com.diploma.fitra.dto.placereview.PlaceReviewDto;
 import com.diploma.fitra.dto.placereview.PlaceReviewSaveDto;
+import com.diploma.fitra.exception.BadRequestException;
 import com.diploma.fitra.exception.ForbiddenException;
 import com.diploma.fitra.exception.NotFoundException;
+import com.diploma.fitra.mapper.CommentMapper;
 import com.diploma.fitra.mapper.PlaceReviewMapper;
 import com.diploma.fitra.mapper.UpdateMapper;
 import com.diploma.fitra.model.PlaceReview;
+import com.diploma.fitra.model.PlaceReviewComment;
 import com.diploma.fitra.model.PlaceReviewLike;
 import com.diploma.fitra.model.User;
 import com.diploma.fitra.model.error.Error;
 import com.diploma.fitra.model.key.PlaceReviewLikeKey;
+import com.diploma.fitra.repo.PlaceReviewCommentRepository;
 import com.diploma.fitra.repo.PlaceReviewLikeRepository;
 import com.diploma.fitra.repo.PlaceReviewRepository;
 import com.diploma.fitra.repo.UserRepository;
@@ -39,6 +45,7 @@ public class PlaceReviewServiceImpl implements PlaceReviewService {
 
     private final PlaceReviewRepository placeReviewRepository;
     private final PlaceReviewLikeRepository placeReviewLikeRepository;
+    private final PlaceReviewCommentRepository placeReviewCommentRepository;
     private final UserRepository userRepository;
 
     @Value("${google-places-api.key}")
@@ -107,6 +114,96 @@ public class PlaceReviewServiceImpl implements PlaceReviewService {
 
             log.info("Place review (id={}) is liked by user (id={})", reviewId, user.getId());
         }
+    }
+
+    @Override
+    public CommentDto createComment(CommentSaveDto commentSaveDto, Long reviewId, Authentication auth) {
+        log.info("Commenting review (id={})", reviewId);
+
+        if (auth == null) {
+            throw new ForbiddenException(Error.ACCESS_DENIED.getMessage());
+        }
+        PlaceReview placeReview = placeReviewRepository.findById(reviewId)
+                .orElseThrow(() -> new NotFoundException(Error.PLACE_REVIEW_NOT_FOUND.getMessage()));
+        UserDetails userDetails = (UserDetails) auth.getPrincipal();
+        User user = userRepository.findByEmail(userDetails.getUsername())
+                .orElseThrow(() -> new NotFoundException(Error.USER_NOT_FOUND.getMessage()));
+
+        PlaceReviewComment comment = placeReviewCommentRepository
+                .save(toPlaceReviewComment(commentSaveDto, placeReview, user));
+
+        log.info("Comment (id={}) is created to the place review (id={}) by the user (id={})",
+                comment.getId(), placeReview.getId(), user.getId());
+        return CommentMapper.INSTANCE.toCommentDto(comment);
+    }
+
+    @Override
+    public List<CommentDto> getComments(Long reviewId, Pageable pageable) {
+        log.info("Getting comments for place review (id={})", reviewId);
+
+        return placeReviewCommentRepository.findAllByPlaceReviewIdAndParentCommentIsNullOrderByCreateDateAsc(reviewId, pageable)
+                .stream()
+                .map(this::toCommentDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public CommentDto createReply(CommentSaveDto commentSaveDto, Long reviewId, Long commentId, Authentication auth) {
+        log.info("Replying to the comment (id={}) for the place review (id={})", commentId, reviewId);
+
+        if (auth == null) {
+            throw new ForbiddenException(Error.ACCESS_DENIED.getMessage());
+        }
+        PlaceReview placeReview = placeReviewRepository.findById(reviewId)
+                .orElseThrow(() -> new NotFoundException(Error.PLACE_REVIEW_NOT_FOUND.getMessage()));
+        PlaceReviewComment comment = placeReviewCommentRepository.findById(commentId)
+                .orElseThrow(() -> new NotFoundException(Error.COMMENT_NOT_FOUND.getMessage()));
+        if (!comment.getPlaceReview().getId().equals(placeReview.getId())) {
+            throw new BadRequestException(Error.COMMENT_IS_NOT_FOR_SPECIFIED_REVIEW.getMessage());
+        }
+        UserDetails userDetails = (UserDetails) auth.getPrincipal();
+        User user = userRepository.findByEmail(userDetails.getUsername())
+                .orElseThrow(() -> new NotFoundException(Error.USER_NOT_FOUND.getMessage()));
+
+        PlaceReviewComment commentReply = placeReviewCommentRepository
+                .save(toPlaceReviewComment(commentSaveDto, placeReview, user, comment));
+
+        log.info("Reply (id={}) to the comment (id={}) for the place review (id={}) " +
+                        "is created successfully by the user (id={})", commentReply.getId(), comment.getId(),
+                placeReview.getId(), user.getId());
+        return CommentMapper.INSTANCE.toCommentDto(commentReply);
+    }
+
+    @Override
+    public List<CommentDto> getReplies(Long reviewId, Long commentId, Pageable pageable) {
+        log.info("Getting replies for the comment (id={}) in place review (id={})", commentId, reviewId);
+
+        return placeReviewCommentRepository.findAllByPlaceReviewIdAndParentCommentIdOrderByCreateDateAsc(reviewId, commentId, pageable)
+                .stream()
+                .map(CommentMapper.INSTANCE::toCommentDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void deleteComment(Long reviewId, Long commentId, UserDetails userDetails) {
+        log.info("Deleting the comment (id={}) in place review (id={})", commentId, reviewId);
+
+        PlaceReview placeReview = placeReviewRepository.findById(reviewId)
+                .orElseThrow(() -> new NotFoundException(Error.PLACE_NOT_FOUND.getMessage()));
+        PlaceReviewComment comment = placeReviewCommentRepository.findById(commentId)
+                .orElseThrow(() -> new NotFoundException(Error.COMMENT_NOT_FOUND.getMessage()));
+
+        if (!comment.getPlaceReview().getId().equals(placeReview.getId())) {
+            throw new BadRequestException(Error.COMMENT_IS_NOT_FOR_SPECIFIED_REVIEW.getMessage());
+        } else if (!comment.getUser().getEmail().equals(userDetails.getUsername())) {
+            if (!placeReview.getAuthor().getEmail().equals(userDetails.getUsername())) {
+                throw new ForbiddenException(Error.ACCESS_DENIED.getMessage());
+            }
+        }
+
+        placeReviewCommentRepository.delete(comment);
+
+        log.info("The comment (id={}) is deleted successfully from place review (id={})", commentId, reviewId);
     }
 
     @Override
@@ -180,6 +277,13 @@ public class PlaceReviewServiceImpl implements PlaceReviewService {
         return placeReviewDto;
     }
 
+    private CommentDto toCommentDto(PlaceReviewComment comment) {
+        CommentDto commentDto = CommentMapper.INSTANCE.toCommentDto(comment);
+        commentDto.setReplies(placeReviewCommentRepository.countByParentCommentId(comment.getId()));
+
+        return commentDto;
+    }
+
     private static PlaceReview toPlaceReview(PlaceReviewSaveDto placeReviewSaveDto, User user, JsonNode jsonNode) {
         PlaceReview placeReview = PlaceReviewMapper.INSTANCE.fromPlaceReviewSaveDto(placeReviewSaveDto);
         placeReview.setPlaceName(jsonNode.get("result").get("name").asText());
@@ -197,5 +301,21 @@ public class PlaceReviewServiceImpl implements PlaceReviewService {
         placeReviewLike.setPlaceReview(placeReview);
         placeReviewLike.setUser(user);
         return placeReviewLike;
+    }
+
+    private PlaceReviewComment toPlaceReviewComment(CommentSaveDto commentSaveDto, PlaceReview placeReview, User user) {
+        PlaceReviewComment comment = new PlaceReviewComment();
+        comment.setPlaceReview(placeReview);
+        comment.setUser(user);
+        comment.setText(commentSaveDto.getText());
+        comment.setCreateDate(LocalDateTime.now());
+        return comment;
+    }
+
+    private PlaceReviewComment toPlaceReviewComment(CommentSaveDto commentSaveDto, PlaceReview placeReview,
+                                                    User user, PlaceReviewComment parentComment) {
+        PlaceReviewComment comment = toPlaceReviewComment(commentSaveDto, placeReview, user);
+        comment.setParentComment(parentComment);
+        return comment;
     }
 }

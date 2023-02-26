@@ -12,6 +12,7 @@ public enum Error {
     REQUEST_NOT_FOUND("Request is not found!"),
     PLACE_NOT_FOUND("Place is not found!"),
     PLACE_REVIEW_NOT_FOUND("Place review is not found!"),
+    COMMENT_NOT_FOUND("Comment is not found!"),
 
     // BadRequestException messages
     CITY_NOT_IN_COUNTRY("City is not part of specified country!"),
@@ -26,6 +27,7 @@ public enum Error {
     REQUEST_IS_CONFIRMED("Request is already confirmed!"),
     REQUEST_IS_REJECTED("Request is already rejected!"),
     REQUEST_IS_CONFIRMED_OR_REJECTED("Request is already confirmed or rejected!"),
+    COMMENT_IS_NOT_FOR_SPECIFIED_REVIEW("The specified comment is not for the specified place review!"),
 
     // ExistenceException messages
     USER_EXISTS_WITH_EMAIL("User with specified email already exists!"),
