@@ -1,7 +1,6 @@
 package com.diploma.fitra.mapper;
 
 import com.diploma.fitra.dto.request.RequestDto;
-import com.diploma.fitra.model.CreateRequest;
 import com.diploma.fitra.model.JoinRequest;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -14,6 +13,4 @@ public interface RequestMapper {
 
     @Mapping(source = "user", target = "sender")
     RequestDto toRequestDto(JoinRequest request);
-
-    RequestDto toRequestDto(CreateRequest request);
 }

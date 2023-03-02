@@ -33,8 +33,8 @@ public class InvitationController implements InvitationApi {
     }
 
     @Override
-    public ResponseEntity<Void> confirmInvitation(Long invitationId, Authentication auth) {
-        invitationService.confirmInvitation(invitationId, auth);
+    public ResponseEntity<Void> approveInvitation(Long invitationId, Authentication auth) {
+        invitationService.approveInvitation(invitationId, auth);
         return ResponseEntity.ok().build();
     }
 

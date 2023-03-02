@@ -13,5 +13,5 @@ public interface ParticipantRepository extends JpaRepository<Participant, Partic
 
     List<Participant> findAllByTravel(Travel travel);
 
-    long countByTravel(Travel travel);
+    long countByTravelId(Long travelId);
 }

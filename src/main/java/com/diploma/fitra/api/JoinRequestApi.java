@@ -27,17 +27,17 @@ public interface JoinRequestApi {
     @SecurityRequirement(name = "Bearer Authentication")
     List<RequestDto> getRequestsForUser(@PathVariable Long userId, Authentication auth);
 
-    @PostMapping("/{requestId}")
+    @PostMapping("/{requestId}/approve")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
-    ResponseEntity<Void> confirmRequest(@PathVariable Long requestId, Authentication auth);
+    ResponseEntity<Void> approveRequest(@PathVariable Long requestId, Authentication auth);
 
-    @PutMapping("/{requestId}")
+    @PostMapping("/{requestId}/reject")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
     ResponseEntity<Void> rejectRequest(@PathVariable Long requestId, Authentication auth);
 
-    @DeleteMapping("/{requestId}")
+    @DeleteMapping("/{requestId}/cancel")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
     ResponseEntity<Void> cancelRequest(@PathVariable Long requestId, Authentication auth);

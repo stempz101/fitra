@@ -60,14 +60,14 @@ public class JoinRequestServiceImpl implements JoinRequestService {
 
         List<JoinRequest> requests = requestRepository
                 .findAllByTravelAndUser(travel, user, Sort.by("createTime").descending());
-        if (requests.size() != 0 && requests.get(0).getStatus().equals(Status.WAITING)) {
-            throw new ExistenceException(Error.REQUEST_IS_WAITING.getMessage());
+        if (requests.size() != 0 && requests.get(0).getStatus().equals(Status.PENDING)) {
+            throw new ExistenceException(Error.REQUEST_IS_PENDING.getMessage());
         }
 
         JoinRequest request = new JoinRequest();
         request.setTravel(travel);
         request.setUser(user);
-        request.setStatus(Status.WAITING);
+        request.setStatus(Status.PENDING);
         request.setCreateTime(LocalDateTime.now());
         requestRepository.save(request);
 
@@ -108,7 +108,7 @@ public class JoinRequestServiceImpl implements JoinRequestService {
 
     @Override
     @Transactional
-    public void confirmRequest(Long requestId, Authentication auth) {
+    public void approveRequest(Long requestId, Authentication auth) {
         log.info("Request (id={}) confirmation", requestId);
 
         JoinRequest request = requestRepository.findById(requestId)
@@ -116,8 +116,8 @@ public class JoinRequestServiceImpl implements JoinRequestService {
         UserDetails userDetails = (UserDetails) auth.getPrincipal();
         if (!request.getTravel().getCreator().getEmail().equals(userDetails.getUsername())) {
             throw new ForbiddenException(Error.ACCESS_DENIED.getMessage());
-        } else if (request.getStatus().equals(Status.CONFIRMED)) {
-            throw new BadRequestException(Error.REQUEST_IS_CONFIRMED.getMessage());
+        } else if (request.getStatus().equals(Status.APPROVED)) {
+            throw new BadRequestException(Error.REQUEST_IS_APPROVED.getMessage());
         } else if (request.getStatus().equals(Status.REJECTED)) {
             throw new BadRequestException(Error.REQUEST_IS_REJECTED.getMessage());
         }
@@ -127,7 +127,7 @@ public class JoinRequestServiceImpl implements JoinRequestService {
         participant.setUser(request.getUser());
         participantRepository.save(participant);
 
-        request.setStatus(Status.CONFIRMED);
+        request.setStatus(Status.APPROVED);
         requestRepository.save(request);
 
         log.info("Request (id={}) to join into the travel (id={}) is confirmed successfully by the creator (id={})",
@@ -145,8 +145,8 @@ public class JoinRequestServiceImpl implements JoinRequestService {
             throw new ForbiddenException(Error.ACCESS_DENIED.getMessage());
         } else if (request.getStatus().equals(Status.REJECTED)) {
             throw new BadRequestException(Error.REQUEST_IS_REJECTED.getMessage());
-        } else if (request.getStatus().equals(Status.CONFIRMED)) {
-            throw new BadRequestException(Error.REQUEST_IS_CONFIRMED.getMessage());
+        } else if (request.getStatus().equals(Status.APPROVED)) {
+            throw new BadRequestException(Error.REQUEST_IS_APPROVED.getMessage());
         }
 
         request.setStatus(Status.REJECTED);
@@ -165,9 +165,9 @@ public class JoinRequestServiceImpl implements JoinRequestService {
         UserDetails userDetails = (UserDetails) auth.getPrincipal();
         if (!request.getUser().getEmail().equals(userDetails.getUsername())) {
             throw new ForbiddenException(Error.ACCESS_DENIED.getMessage());
-        } else if (request.getStatus().equals(Status.CONFIRMED) ||
+        } else if (request.getStatus().equals(Status.APPROVED) ||
                 request.getStatus().equals(Status.REJECTED)) {
-            throw new BadRequestException(Error.REQUEST_IS_CONFIRMED_OR_REJECTED.getMessage());
+            throw new BadRequestException(Error.REQUEST_IS_APPROVED_OR_REJECTED.getMessage());
         }
 
         requestRepository.delete(request);

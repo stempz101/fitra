@@ -7,6 +7,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity(name = "_travels")
 @Getter
@@ -20,18 +21,10 @@ public class Travel {
     private Long id;
 
     @Column(nullable = false)
-    private String title;
+    private String name;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String description;
-
-    @Column(nullable = false)
-    private Integer peopleLimit;
-
-    @Column(nullable = false)
-    private LocalDate startDate;
-
-    private boolean isConfirmed;
 
     @JoinColumn(nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
@@ -42,4 +35,31 @@ public class Travel {
     @ManyToOne(fetch = FetchType.LAZY)
     @ToString.Exclude
     private User creator;
+
+    @Column(nullable = false)
+    private LocalDate startDate;
+
+    @Column(nullable = false)
+    private LocalDate endDate;
+
+    @Column(nullable = false)
+    private double budget;
+
+    @Column(nullable = false)
+    private int peopleLimit;
+
+    @Column(nullable = false)
+    private int ageFrom;
+
+    @Column(nullable = false)
+    private int ageTo;
+
+    @Column(nullable = false)
+    private boolean withChildren;
+
+    @Column(nullable = false)
+    private LocalDateTime createdTime;
+
+    private boolean blocked;
+
 }

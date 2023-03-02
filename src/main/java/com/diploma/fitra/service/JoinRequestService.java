@@ -13,7 +13,7 @@ public interface JoinRequestService {
 
     List<RequestDto> getRequestsForUser(Long userId, Authentication auth);
 
-    void confirmRequest(Long requestId, Authentication auth);
+    void approveRequest(Long requestId, Authentication auth);
 
     void rejectRequest(Long requestId, Authentication auth);
 

@@ -13,7 +13,7 @@ public interface InvitationService {
 
     List<InvitationDto> getInvitationsForCreator(Long creatorId, Authentication auth);
 
-    void confirmInvitation(Long invitationId, Authentication auth);
+    void approveInvitation(Long invitationId, Authentication auth);
 
     void rejectInvitation(Long invitationId, Authentication auth);
 

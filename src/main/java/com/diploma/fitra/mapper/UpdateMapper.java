@@ -13,10 +13,15 @@ public interface UpdateMapper {
         if (travel == null)
             return null;
 
-        travel.setTitle(travelSaveDto.getTitle());
+        travel.setName(travelSaveDto.getName());
         travel.setDescription(travelSaveDto.getDescription());
-        travel.setPeopleLimit(travelSaveDto.getLimit());
         travel.setStartDate(travelSaveDto.getStartDate());
+        travel.setEndDate(travelSaveDto.getEndDate());
+        travel.setBudget(travelSaveDto.getBudget());
+        travel.setPeopleLimit(travelSaveDto.getLimit());
+        travel.setAgeFrom(travelSaveDto.getAgeFrom());
+        travel.setAgeTo(travelSaveDto.getAgeTo());
+        travel.setWithChildren(travelSaveDto.isWithChildren());
 
         return travel;
     }

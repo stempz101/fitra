@@ -15,18 +15,22 @@ public enum Error {
     COMMENT_NOT_FOUND("Comment is not found!"),
 
     // BadRequestException messages
+    TRAVEL_IS_APPROVED("Travel is already approved!"),
+    TRAVEL_IS_REJECTED("Travel is already rejected!"),
     CITY_NOT_IN_COUNTRY("City is not part of specified country!"),
     NOT_SUPPORTED_LANGUAGE("The specified language is not supported!"),
     LIMIT_IS_LOWER_THAN_CURRENT_COUNT("The specified limit is lower than the current count of participants in the travel!"),
+    END_DATE_MUST_BE_AFTER_START_DATE("End date must be after start date!"),
+    AGE_FROM_MUST_BE_LOWER_THAN_OR_EQUAL_TO_AGE_TO("Age from must be lower than or equal to age to!"),
     CREATOR_CANT_REMOVE_HIMSELF("Creator can't remove himself!"),
     ADMIN_CANT_BE_ADDED_TO_TRAVEL("Admin can't be added to a travel!"),
     ADMIN_CANT_DELETE_HIMSELF("Admin can't delete himself!"),
-    INVITATION_IS_CONFIRMED("Invitation is already confirmed!"),
+    INVITATION_IS_APPROVED("Invitation is already approved!"),
     INVITATION_IS_REJECTED("Invitation is already rejected!"),
-    INVITATION_IS_CONFIRMED_OR_REJECTED("Invitation is already confirmed or rejected!"),
-    REQUEST_IS_CONFIRMED("Request is already confirmed!"),
+    INVITATION_IS_APPROVED_OR_REJECTED("Invitation is already approved or rejected!"),
+    REQUEST_IS_APPROVED("Request is already approved!"),
     REQUEST_IS_REJECTED("Request is already rejected!"),
-    REQUEST_IS_CONFIRMED_OR_REJECTED("Request is already confirmed or rejected!"),
+    REQUEST_IS_APPROVED_OR_REJECTED("Request is already approved or rejected!"),
     COMMENT_IS_NOT_FOR_SPECIFIED_REVIEW("The specified comment is not for the specified place review!"),
 
     // ExistenceException messages
@@ -35,8 +39,8 @@ public enum Error {
     USER_DOES_NOT_EXIST_IN_TRAVEL("User with specified id doesn't exist in the travel!"),
     TYPE_EXISTS_WITH_NAME_EN("Type with specified name (EN) already exists!"),
     TYPE_EXISTS_WITH_NAME_UA("Type with specified name (UA) already exists!"),
-    INVITATION_IS_WAITING("Invitation is already waiting!"),
-    REQUEST_IS_WAITING("Request is already waiting!"),
+    INVITATION_IS_PENDING("Invitation is already pending!"),
+    REQUEST_IS_PENDING("Request is already pending!"),
 
     // VerificationException messages
     PASSWORD_CONFIRMATION_IS_FAILED("Password confirmation is failed!"),

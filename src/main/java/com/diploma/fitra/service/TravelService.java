@@ -1,25 +1,28 @@
 package com.diploma.fitra.service;
 
-import com.diploma.fitra.dto.travel.ParticipantDto;
-import com.diploma.fitra.dto.travel.TravelDto;
-import com.diploma.fitra.dto.travel.TravelSaveDto;
-import org.springframework.security.core.Authentication;
+import com.diploma.fitra.dto.travel.*;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.List;
 
 public interface TravelService {
 
-    TravelDto createTravel(TravelSaveDto travelSaveDto, Authentication auth);
+    TravelDto createTravel(TravelSaveDto travelSaveDto, UserDetails userDetails);
 
-    List<TravelDto> getTravels();
+    List<TravelDto> getTravels(Pageable pageable);
+
+    List<TravelDto> getTravelsForUser(Pageable pageable, UserDetails userDetails);
 
     List<ParticipantDto> getUsers(Long travelId);
 
-    void removeUser(Long travelId, Long userId, Authentication auth);
+    void removeUser(Long travelId, Long userId, UserDetails userDetails);
 
-    void leaveTravel(Long travelId, Long userId, Authentication auth);
+    void leaveTravel(Long travelId, UserDetails userDetails);
 
-    TravelDto updateTravel(Long travelId, TravelSaveDto travelSaveDto, Authentication auth);
+    TravelDto updateTravel(Long travelId, TravelSaveDto travelSaveDto, UserDetails userDetails);
 
-    void deleteTravel(Long travelId, Authentication auth);
+    List<RouteDto> updateRoute(Long travelId, RouteSaveDto routeSaveDto, UserDetails userDetails);
+
+    void deleteTravel(Long travelId, UserDetails userDetails);
 }

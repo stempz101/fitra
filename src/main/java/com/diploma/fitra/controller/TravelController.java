@@ -1,13 +1,12 @@
 package com.diploma.fitra.controller;
 
 import com.diploma.fitra.api.TravelApi;
-import com.diploma.fitra.dto.travel.ParticipantDto;
-import com.diploma.fitra.dto.travel.TravelDto;
-import com.diploma.fitra.dto.travel.TravelSaveDto;
+import com.diploma.fitra.dto.travel.*;
 import com.diploma.fitra.service.TravelService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -18,13 +17,18 @@ public class TravelController implements TravelApi {
     private final TravelService travelService;
 
     @Override
-    public TravelDto createTravel(TravelSaveDto travelSaveDto, Authentication auth) {
-        return travelService.createTravel(travelSaveDto, auth);
+    public TravelDto createTravel(TravelSaveDto travelSaveDto, UserDetails userDetails) {
+        return travelService.createTravel(travelSaveDto, userDetails);
     }
 
     @Override
-    public List<TravelDto> getTravels() {
-        return travelService.getTravels();
+    public List<TravelDto> getTravels(Pageable pageable) {
+        return travelService.getTravels(pageable);
+    }
+
+    @Override
+    public List<TravelDto> getTravelsForUser(Pageable pageable, UserDetails userDetails) {
+        return travelService.getTravelsForUser(pageable, userDetails);
     }
 
     @Override
@@ -33,25 +37,30 @@ public class TravelController implements TravelApi {
     }
 
     @Override
-    public ResponseEntity<Void> removeUser(Long travelId, Long userId, Authentication auth) {
-        travelService.removeUser(travelId, userId, auth);
+    public ResponseEntity<Void> removeUser(Long travelId, Long userId, UserDetails userDetails) {
+        travelService.removeUser(travelId, userId, userDetails);
         return ResponseEntity.noContent().build();
     }
 
     @Override
-    public ResponseEntity<Void> leaveTravel(Long travelId, Long userId, Authentication auth) {
-        travelService.leaveTravel(travelId, userId, auth);
+    public ResponseEntity<Void> leaveTravel(Long travelId, UserDetails userDetails) {
+        travelService.leaveTravel(travelId, userDetails);
         return ResponseEntity.noContent().build();
     }
 
     @Override
-    public TravelDto updateTravel(Long travelId, TravelSaveDto travelSaveDto, Authentication auth) {
-        return travelService.updateTravel(travelId, travelSaveDto, auth);
+    public TravelDto updateTravel(Long travelId, TravelSaveDto travelSaveDto, UserDetails userDetails) {
+        return travelService.updateTravel(travelId, travelSaveDto, userDetails);
     }
 
     @Override
-    public ResponseEntity<Void> deleteTravel(Long travelId, Authentication auth) {
-        travelService.deleteTravel(travelId, auth);
+    public List<RouteDto> updateRoute(Long travelId, RouteSaveDto routeSaveDto, UserDetails userDetails) {
+        return travelService.updateRoute(travelId, routeSaveDto, userDetails);
+    }
+
+    @Override
+    public ResponseEntity<Void> deleteTravel(Long travelId, UserDetails userDetails) {
+        travelService.deleteTravel(travelId, userDetails);
         return ResponseEntity.noContent().build();
     }
 }

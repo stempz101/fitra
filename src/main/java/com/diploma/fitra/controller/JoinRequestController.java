@@ -33,8 +33,8 @@ public class JoinRequestController implements JoinRequestApi {
     }
 
     @Override
-    public ResponseEntity<Void> confirmRequest(Long requestId, Authentication auth) {
-        requestService.confirmRequest(requestId, auth);
+    public ResponseEntity<Void> approveRequest(Long requestId, Authentication auth) {
+        requestService.approveRequest(requestId, auth);
         return ResponseEntity.noContent().build();
     }
 

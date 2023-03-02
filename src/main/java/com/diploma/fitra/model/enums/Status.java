@@ -2,7 +2,7 @@ package com.diploma.fitra.model.enums;
 
 public enum Status {
 
-    WAITING,
-    CONFIRMED,
+    PENDING,
+    APPROVED,
     REJECTED
 }

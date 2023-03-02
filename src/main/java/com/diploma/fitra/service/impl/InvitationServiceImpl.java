@@ -21,7 +21,6 @@ import com.diploma.fitra.repo.UserRepository;
 import com.diploma.fitra.service.InvitationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -59,15 +58,15 @@ public class InvitationServiceImpl implements InvitationService {
         }
 
         List<Invitation> invitations = invitationRepository
-                .findAllByTravelAndUser(travel, user, Sort.by("createTime").descending());
-        if (invitations.size() != 0 && invitations.get(0).getStatus().equals(Status.WAITING)) {
-            throw new ExistenceException(Error.INVITATION_IS_WAITING.getMessage());
+                .findAllByTravelIdAndUserIdOrderByCreateTimeDesc(travel.getId(), user.getId());
+        if (invitations.size() != 0 && invitations.get(0).getStatus().equals(Status.PENDING)) {
+            throw new ExistenceException(Error.INVITATION_IS_PENDING.getMessage());
         }
 
         Invitation invitation = new Invitation();
         invitation.setTravel(travel);
         invitation.setUser(user);
-        invitation.setStatus(Status.WAITING);
+        invitation.setStatus(Status.PENDING);
         invitation.setCreateTime(LocalDateTime.now());
         invitationRepository.save(invitation);
 
@@ -85,7 +84,7 @@ public class InvitationServiceImpl implements InvitationService {
             throw new ForbiddenException(Error.ACCESS_DENIED.getMessage());
         }
 
-        return invitationRepository.findAllByUser(user).stream()
+        return invitationRepository.findAllByUserIdOrderByCreateTimeDesc(user.getId()).stream()
                 .map(InvitationMapper.INSTANCE::toInvitationDto)
                 .collect(Collectors.toList());
     }
@@ -101,14 +100,14 @@ public class InvitationServiceImpl implements InvitationService {
             throw new ForbiddenException(Error.ACCESS_DENIED.getMessage());
         }
 
-        return invitationRepository.findAllByTravel_Creator(creator).stream()
+        return invitationRepository.findAllByTravel_CreatorIdOrderByCreateTimeDesc(creator.getId()).stream()
                 .map(InvitationMapper.INSTANCE::toInvitationDto)
                 .collect(Collectors.toList());
     }
 
     @Override
     @Transactional
-    public void confirmInvitation(Long invitationId, Authentication auth) {
+    public void approveInvitation(Long invitationId, Authentication auth) {
         log.info("Invitation (id={}) confirmation", invitationId);
 
         Invitation invitation = invitationRepository.findById(invitationId)
@@ -116,8 +115,8 @@ public class InvitationServiceImpl implements InvitationService {
         UserDetails userDetails = (UserDetails) auth.getPrincipal();
         if (!invitation.getUser().getEmail().equals(userDetails.getUsername())) {
             throw new ForbiddenException(Error.ACCESS_DENIED.getMessage());
-        } else if (invitation.getStatus().equals(Status.CONFIRMED)) {
-            throw new BadRequestException(Error.INVITATION_IS_CONFIRMED.getMessage());
+        } else if (invitation.getStatus().equals(Status.APPROVED)) {
+            throw new BadRequestException(Error.INVITATION_IS_APPROVED.getMessage());
         } else if (invitation.getStatus().equals(Status.REJECTED)) {
             throw new BadRequestException(Error.INVITATION_IS_REJECTED.getMessage());
         }
@@ -127,7 +126,7 @@ public class InvitationServiceImpl implements InvitationService {
         participant.setUser(invitation.getUser());
         participantRepository.save(participant);
 
-        invitation.setStatus(Status.CONFIRMED);
+        invitation.setStatus(Status.APPROVED);
         invitationRepository.save(invitation);
 
         log.info("Invitation (id={}) to the travel (id={}) is confirmed successfully by the user with id={}",
@@ -145,8 +144,8 @@ public class InvitationServiceImpl implements InvitationService {
             throw new ForbiddenException(Error.ACCESS_DENIED.getMessage());
         } else if (invitation.getStatus().equals(Status.REJECTED)) {
             throw new BadRequestException(Error.INVITATION_IS_REJECTED.getMessage());
-        } else if (invitation.getStatus().equals(Status.CONFIRMED)) {
-            throw new BadRequestException(Error.INVITATION_IS_CONFIRMED.getMessage());
+        } else if (invitation.getStatus().equals(Status.APPROVED)) {
+            throw new BadRequestException(Error.INVITATION_IS_APPROVED.getMessage());
         }
 
         invitation.setStatus(Status.REJECTED);
@@ -165,9 +164,9 @@ public class InvitationServiceImpl implements InvitationService {
         UserDetails userDetails = (UserDetails) auth.getPrincipal();
         if (!invitation.getTravel().getCreator().getEmail().equals(userDetails.getUsername())) {
             throw new ForbiddenException(Error.ACCESS_DENIED.getMessage());
-        } else if (invitation.getStatus().equals(Status.CONFIRMED) ||
+        } else if (invitation.getStatus().equals(Status.APPROVED) ||
                 invitation.getStatus().equals(Status.REJECTED)) {
-            throw new BadRequestException(Error.INVITATION_IS_CONFIRMED_OR_REJECTED.getMessage());
+            throw new BadRequestException(Error.INVITATION_IS_APPROVED_OR_REJECTED.getMessage());
         }
 
         invitationRepository.delete(invitation);

@@ -27,17 +27,17 @@ public interface InvitationApi {
     @SecurityRequirement(name = "Bearer Authentication")
     List<InvitationDto> getInvitationsForCreator(@PathVariable Long creatorId, Authentication auth);
 
-    @PostMapping("/{invitationId}")
+    @PostMapping("/{invitationId}/approve")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
-    ResponseEntity<Void> confirmInvitation(@PathVariable Long invitationId, Authentication auth);
+    ResponseEntity<Void> approveInvitation(@PathVariable Long invitationId, Authentication auth);
 
-    @PutMapping("/{invitationId}")
+    @PostMapping("/{invitationId}/reject")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
     ResponseEntity<Void> rejectInvitation(@PathVariable Long invitationId, Authentication auth);
 
-    @DeleteMapping("/{invitationId}")
+    @DeleteMapping("/{invitationId}/cancel")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
     ResponseEntity<Void> cancelInvitation(@PathVariable Long invitationId, Authentication auth);
