@@ -14,15 +14,14 @@ import com.diploma.fitra.model.enums.Role;
 import com.diploma.fitra.model.enums.Status;
 import com.diploma.fitra.model.error.Error;
 import com.diploma.fitra.model.key.ParticipantKey;
-import com.diploma.fitra.repo.ParticipantRepository;
 import com.diploma.fitra.repo.JoinRequestRepository;
+import com.diploma.fitra.repo.ParticipantRepository;
 import com.diploma.fitra.repo.TravelRepository;
 import com.diploma.fitra.repo.UserRepository;
 import com.diploma.fitra.service.JoinRequestService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,14 +41,13 @@ public class JoinRequestServiceImpl implements JoinRequestService {
     private final ParticipantRepository participantRepository;
 
     @Override
-    public void createRequest(Long travelId, Long userId, Authentication auth) {
+    public void createRequest(Long travelId, Long userId, UserDetails userDetails) {
         log.info("Creating request to join into the travel (id={}) by user (id={})", travelId, userId);
 
         Travel travel = travelRepository.findById(travelId)
                 .orElseThrow(() -> new NotFoundException(Error.TRAVEL_NOT_FOUND.getMessage()));
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(Error.USER_NOT_FOUND.getMessage()));
-        UserDetails userDetails = (UserDetails) auth.getPrincipal();
         if (!user.getEmail().equals(userDetails.getUsername())) {
             throw new ForbiddenException(Error.ACCESS_DENIED.getMessage());
         } else if (user.getRole().equals(Role.ADMIN)) {
@@ -75,12 +73,11 @@ public class JoinRequestServiceImpl implements JoinRequestService {
     }
 
     @Override
-    public List<RequestDto> getRequests(Long creatorId, Authentication auth) {
+    public List<RequestDto> getRequests(Long creatorId, UserDetails userDetails) {
         log.info("Getting requests for creator (id={})", creatorId);
 
         User creator = userRepository.findById(creatorId)
                 .orElseThrow(() -> new NotFoundException(Error.USER_NOT_FOUND.getMessage()));
-        UserDetails userDetails = (UserDetails) auth.getPrincipal();
         if (!creator.getEmail().equals(userDetails.getUsername())) {
             throw new ForbiddenException(Error.ACCESS_DENIED.getMessage());
         }
@@ -91,12 +88,11 @@ public class JoinRequestServiceImpl implements JoinRequestService {
     }
 
     @Override
-    public List<RequestDto> getRequestsForUser(Long userId, Authentication auth) {
+    public List<RequestDto> getRequestsForUser(Long userId, UserDetails userDetails) {
         log.info("Getting requests for user (id={})", userId);
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(Error.USER_NOT_FOUND.getMessage()));
-        UserDetails userDetails = (UserDetails) auth.getPrincipal();
         if (!user.getEmail().equals(userDetails.getUsername())) {
             throw new ForbiddenException(Error.ACCESS_DENIED.getMessage());
         }
@@ -108,12 +104,11 @@ public class JoinRequestServiceImpl implements JoinRequestService {
 
     @Override
     @Transactional
-    public void approveRequest(Long requestId, Authentication auth) {
+    public void approveRequest(Long requestId, UserDetails userDetails) {
         log.info("Request (id={}) confirmation", requestId);
 
         JoinRequest request = requestRepository.findById(requestId)
                 .orElseThrow(() -> new NotFoundException(Error.REQUEST_NOT_FOUND.getMessage()));
-        UserDetails userDetails = (UserDetails) auth.getPrincipal();
         if (!request.getTravel().getCreator().getEmail().equals(userDetails.getUsername())) {
             throw new ForbiddenException(Error.ACCESS_DENIED.getMessage());
         } else if (request.getStatus().equals(Status.APPROVED)) {
@@ -135,12 +130,11 @@ public class JoinRequestServiceImpl implements JoinRequestService {
     }
 
     @Override
-    public void rejectRequest(Long requestId, Authentication auth) {
+    public void rejectRequest(Long requestId, UserDetails userDetails) {
         log.info("Request (id={}) rejection", requestId);
 
         JoinRequest request = requestRepository.findById(requestId)
                 .orElseThrow(() -> new NotFoundException(Error.REQUEST_NOT_FOUND.getMessage()));
-        UserDetails userDetails = (UserDetails) auth.getPrincipal();
         if (!request.getTravel().getCreator().getEmail().equals(userDetails.getUsername())) {
             throw new ForbiddenException(Error.ACCESS_DENIED.getMessage());
         } else if (request.getStatus().equals(Status.REJECTED)) {
@@ -157,12 +151,11 @@ public class JoinRequestServiceImpl implements JoinRequestService {
     }
 
     @Override
-    public void cancelRequest(Long requestId, Authentication auth) {
+    public void cancelRequest(Long requestId, UserDetails userDetails) {
         log.info("Request (id={}) cancellation", requestId);
 
         JoinRequest request = requestRepository.findById(requestId)
                 .orElseThrow(() -> new NotFoundException(Error.REQUEST_NOT_FOUND.getMessage()));
-        UserDetails userDetails = (UserDetails) auth.getPrincipal();
         if (!request.getUser().getEmail().equals(userDetails.getUsername())) {
             throw new ForbiddenException(Error.ACCESS_DENIED.getMessage());
         } else if (request.getStatus().equals(Status.APPROVED) ||

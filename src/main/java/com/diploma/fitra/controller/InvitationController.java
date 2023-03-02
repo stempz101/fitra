@@ -5,7 +5,7 @@ import com.diploma.fitra.dto.invitation.InvitationDto;
 import com.diploma.fitra.service.InvitationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -17,36 +17,36 @@ public class InvitationController implements InvitationApi {
     private final InvitationService invitationService;
 
     @Override
-    public ResponseEntity<Void> createInvitation(Long travelId, Long userId, Authentication auth) {
-        invitationService.createInvitation(travelId, userId, auth);
+    public ResponseEntity<Void> createInvitation(Long travelId, Long userId, UserDetails userDetails) {
+        invitationService.createInvitation(travelId, userId, userDetails);
         return ResponseEntity.noContent().build();
     }
 
     @Override
-    public List<InvitationDto> getInvitations(Long userId, Authentication auth) {
-        return invitationService.getInvitations(userId, auth);
+    public List<InvitationDto> getInvitations(Long userId, UserDetails userDetails) {
+        return invitationService.getInvitations(userId, userDetails);
     }
 
     @Override
-    public List<InvitationDto> getInvitationsForCreator(Long creatorId, Authentication auth) {
-        return invitationService.getInvitationsForCreator(creatorId, auth);
+    public List<InvitationDto> getInvitationsForCreator(Long creatorId, UserDetails userDetails) {
+        return invitationService.getInvitationsForCreator(creatorId, userDetails);
     }
 
     @Override
-    public ResponseEntity<Void> approveInvitation(Long invitationId, Authentication auth) {
-        invitationService.approveInvitation(invitationId, auth);
+    public ResponseEntity<Void> approveInvitation(Long invitationId, UserDetails userDetails) {
+        invitationService.approveInvitation(invitationId, userDetails);
         return ResponseEntity.ok().build();
     }
 
     @Override
-    public ResponseEntity<Void> rejectInvitation(Long invitationId, Authentication auth) {
-        invitationService.rejectInvitation(invitationId, auth);
+    public ResponseEntity<Void> rejectInvitation(Long invitationId, UserDetails userDetails) {
+        invitationService.rejectInvitation(invitationId, userDetails);
         return ResponseEntity.noContent().build();
     }
 
     @Override
-    public ResponseEntity<Void> cancelInvitation(Long invitationId, Authentication auth) {
-        invitationService.cancelInvitation(invitationId, auth);
+    public ResponseEntity<Void> cancelInvitation(Long invitationId, UserDetails userDetails) {
+        invitationService.cancelInvitation(invitationId, userDetails);
         return ResponseEntity.noContent().build();
     }
 }

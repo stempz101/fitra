@@ -4,7 +4,7 @@ import com.diploma.fitra.api.UserApi;
 import com.diploma.fitra.dto.user.UserDto;
 import com.diploma.fitra.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -12,6 +12,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 public class UserController implements UserApi {
+
     private final UserService userService;
 
     @Override
@@ -25,7 +26,7 @@ public class UserController implements UserApi {
     }
 
     @Override
-    public void deleteUser(Long userId, Authentication auth) {
-        userService.deleteUser(userId, auth);
+    public void deleteUser(Long userId, UserDetails userDetails) {
+        userService.deleteUser(userId, userDetails);
     }
 }

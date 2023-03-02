@@ -5,11 +5,10 @@ import com.diploma.fitra.dto.comment.CommentDto;
 import com.diploma.fitra.dto.comment.CommentSaveDto;
 import com.diploma.fitra.dto.placereview.PlaceReviewDto;
 import com.diploma.fitra.dto.placereview.PlaceReviewSaveDto;
-import com.diploma.fitra.service.impl.PlaceReviewServiceImpl;
+import com.diploma.fitra.service.PlaceReviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -19,26 +18,26 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PlaceReviewController implements PlaceReviewApi {
 
-    private final PlaceReviewServiceImpl placeReviewService;
+    private final PlaceReviewService placeReviewService;
 
     @Override
-    public PlaceReviewDto createPlaceReview(PlaceReviewSaveDto placeReviewSaveDto, Authentication auth) {
-        return placeReviewService.createPlaceReview(placeReviewSaveDto, auth);
+    public PlaceReviewDto createPlaceReview(PlaceReviewSaveDto placeReviewSaveDto, UserDetails userDetails) {
+        return placeReviewService.createPlaceReview(placeReviewSaveDto, userDetails);
     }
 
     @Override
-    public List<PlaceReviewDto> getPlaceReviews(Pageable pageable, Authentication auth) {
-        return placeReviewService.getPlaceReviews(pageable, auth);
+    public List<PlaceReviewDto> getPlaceReviews(Pageable pageable, UserDetails userDetails) {
+        return placeReviewService.getPlaceReviews(pageable, userDetails);
     }
 
     @Override
-    public PlaceReviewDto getPlaceReview(Long reviewId, Authentication auth) {
-        return placeReviewService.getPlaceReview(reviewId, auth);
+    public PlaceReviewDto getPlaceReview(Long reviewId, UserDetails userDetails) {
+        return placeReviewService.getPlaceReview(reviewId, userDetails);
     }
 
     @Override
-    public ResponseEntity<Void> setLike(Long reviewId, Authentication auth) {
-        placeReviewService.setLike(reviewId, auth);
+    public ResponseEntity<Void> setLike(Long reviewId, UserDetails userDetails) {
+        placeReviewService.setLike(reviewId, userDetails);
         return ResponseEntity.noContent().build();
     }
 
@@ -48,8 +47,8 @@ public class PlaceReviewController implements PlaceReviewApi {
     }
 
     @Override
-    public CommentDto createComment(CommentSaveDto commentSaveDto, Long reviewId, Authentication auth) {
-        return placeReviewService.createComment(commentSaveDto, reviewId, auth);
+    public CommentDto createComment(CommentSaveDto commentSaveDto, Long reviewId, UserDetails userDetails) {
+        return placeReviewService.createComment(commentSaveDto, reviewId, userDetails);
     }
 
     @Override
@@ -58,8 +57,8 @@ public class PlaceReviewController implements PlaceReviewApi {
     }
 
     @Override
-    public CommentDto createReply(CommentSaveDto commentSaveDto, Long reviewId, Long commentId, Authentication auth) {
-        return placeReviewService.createReply(commentSaveDto, reviewId, commentId, auth);
+    public CommentDto createReply(CommentSaveDto commentSaveDto, Long reviewId, Long commentId, UserDetails userDetails) {
+        return placeReviewService.createReply(commentSaveDto, reviewId, commentId, userDetails);
     }
 
     @Override
@@ -69,13 +68,13 @@ public class PlaceReviewController implements PlaceReviewApi {
     }
 
     @Override
-    public PlaceReviewDto updatePlaceReview(PlaceReviewSaveDto placeReviewSaveDto, Long reviewId, Authentication auth) {
-        return placeReviewService.updatePlaceReview(placeReviewSaveDto, reviewId, auth);
+    public PlaceReviewDto updatePlaceReview(PlaceReviewSaveDto placeReviewSaveDto, Long reviewId, UserDetails userDetails) {
+        return placeReviewService.updatePlaceReview(placeReviewSaveDto, reviewId, userDetails);
     }
 
     @Override
-    public ResponseEntity<Void> deletePlaceReview(Long reviewId, Authentication auth) {
-        placeReviewService.deletePlaceReview(reviewId, auth);
+    public ResponseEntity<Void> deletePlaceReview(Long reviewId, UserDetails userDetails) {
+        placeReviewService.deletePlaceReview(reviewId, userDetails);
         return ResponseEntity.noContent().build();
     }
 }

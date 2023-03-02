@@ -1,7 +1,7 @@
 package com.diploma.fitra.service;
 
 import com.diploma.fitra.dto.user.UserDto;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.List;
 
@@ -11,5 +11,5 @@ public interface UserService {
 
     UserDto getUser(Long userId);
 
-    void deleteUser(Long userId, Authentication auth);
+    void deleteUser(Long userId, UserDetails userDetails);
 }

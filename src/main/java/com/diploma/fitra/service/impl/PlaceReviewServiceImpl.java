@@ -26,7 +26,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -52,12 +51,11 @@ public class PlaceReviewServiceImpl implements PlaceReviewService {
     private String apiKey;
 
     @Override
-    public PlaceReviewDto createPlaceReview(PlaceReviewSaveDto placeReviewSaveDto, Authentication auth) {
+    public PlaceReviewDto createPlaceReview(PlaceReviewSaveDto placeReviewSaveDto, UserDetails userDetails) {
         log.info("Creating place review");
 
         User user = userRepository.findById(placeReviewSaveDto.getAuthorId()).
                 orElseThrow(() -> new NotFoundException(Error.USER_NOT_FOUND.getMessage()));
-        UserDetails userDetails = (UserDetails) auth.getPrincipal();
         if (!user.getEmail().equals(userDetails.getUsername())) {
             throw new ForbiddenException(Error.ACCESS_DENIED.getMessage());
         }
@@ -70,33 +68,32 @@ public class PlaceReviewServiceImpl implements PlaceReviewService {
     }
 
     @Override
-    public List<PlaceReviewDto> getPlaceReviews(Pageable pageable, Authentication auth) {
+    public List<PlaceReviewDto> getPlaceReviews(Pageable pageable, UserDetails userDetails) {
         log.info("Getting place reviews");
 
         return placeReviewRepository.findAll(pageable).stream()
-                .map(placeReview -> auth == null ? toPlaceReviewDto(placeReview) :
-                        toPlaceReviewDto(placeReview, auth))
+                .map(placeReview -> userDetails == null ? toPlaceReviewDto(placeReview) :
+                        toPlaceReviewDto(placeReview, userDetails))
                 .collect(Collectors.toList());
     }
 
     @Override
-    public PlaceReviewDto getPlaceReview(Long reviewId, Authentication auth) {
+    public PlaceReviewDto getPlaceReview(Long reviewId, UserDetails userDetails) {
         log.info("Getting place review (id={})", reviewId);
 
         PlaceReview placeReview = placeReviewRepository.findById(reviewId)
                 .orElseThrow(() -> new NotFoundException(Error.PLACE_NOT_FOUND.getMessage()));
 
-        return auth == null ? toPlaceReviewDto(placeReview) :
-                toPlaceReviewDto(placeReview, auth);
+        return userDetails == null ? toPlaceReviewDto(placeReview) :
+                toPlaceReviewDto(placeReview, userDetails);
     }
 
     @Override
-    public void setLike(Long reviewId, Authentication auth) {
+    public void setLike(Long reviewId, UserDetails userDetails) {
         log.info("Setting like to the place review (id={})", reviewId);
 
         PlaceReview placeReview = placeReviewRepository.findById(reviewId)
                 .orElseThrow(() -> new NotFoundException(Error.PLACE_NOT_FOUND.getMessage()));
-        UserDetails userDetails = (UserDetails) auth.getPrincipal();
         User user = userRepository.findByEmail(userDetails.getUsername())
                 .orElseThrow(() -> new NotFoundException(Error.USER_NOT_FOUND.getMessage()));
         Optional<PlaceReviewLike> optPlaceReviewLike = placeReviewLikeRepository
@@ -117,15 +114,11 @@ public class PlaceReviewServiceImpl implements PlaceReviewService {
     }
 
     @Override
-    public CommentDto createComment(CommentSaveDto commentSaveDto, Long reviewId, Authentication auth) {
+    public CommentDto createComment(CommentSaveDto commentSaveDto, Long reviewId, UserDetails userDetails) {
         log.info("Commenting review (id={})", reviewId);
 
-        if (auth == null) {
-            throw new ForbiddenException(Error.ACCESS_DENIED.getMessage());
-        }
         PlaceReview placeReview = placeReviewRepository.findById(reviewId)
                 .orElseThrow(() -> new NotFoundException(Error.PLACE_REVIEW_NOT_FOUND.getMessage()));
-        UserDetails userDetails = (UserDetails) auth.getPrincipal();
         User user = userRepository.findByEmail(userDetails.getUsername())
                 .orElseThrow(() -> new NotFoundException(Error.USER_NOT_FOUND.getMessage()));
 
@@ -148,12 +141,9 @@ public class PlaceReviewServiceImpl implements PlaceReviewService {
     }
 
     @Override
-    public CommentDto createReply(CommentSaveDto commentSaveDto, Long reviewId, Long commentId, Authentication auth) {
+    public CommentDto createReply(CommentSaveDto commentSaveDto, Long reviewId, Long commentId, UserDetails userDetails) {
         log.info("Replying to the comment (id={}) for the place review (id={})", commentId, reviewId);
 
-        if (auth == null) {
-            throw new ForbiddenException(Error.ACCESS_DENIED.getMessage());
-        }
         PlaceReview placeReview = placeReviewRepository.findById(reviewId)
                 .orElseThrow(() -> new NotFoundException(Error.PLACE_REVIEW_NOT_FOUND.getMessage()));
         PlaceReviewComment comment = placeReviewCommentRepository.findById(commentId)
@@ -161,7 +151,6 @@ public class PlaceReviewServiceImpl implements PlaceReviewService {
         if (!comment.getPlaceReview().getId().equals(placeReview.getId())) {
             throw new BadRequestException(Error.COMMENT_IS_NOT_FOR_SPECIFIED_REVIEW.getMessage());
         }
-        UserDetails userDetails = (UserDetails) auth.getPrincipal();
         User user = userRepository.findByEmail(userDetails.getUsername())
                 .orElseThrow(() -> new NotFoundException(Error.USER_NOT_FOUND.getMessage()));
 
@@ -202,17 +191,15 @@ public class PlaceReviewServiceImpl implements PlaceReviewService {
         }
 
         placeReviewCommentRepository.delete(comment);
-
         log.info("The comment (id={}) is deleted successfully from place review (id={})", commentId, reviewId);
     }
 
     @Override
-    public PlaceReviewDto updatePlaceReview(PlaceReviewSaveDto placeReviewSaveDto, Long reviewId, Authentication auth) {
+    public PlaceReviewDto updatePlaceReview(PlaceReviewSaveDto placeReviewSaveDto, Long reviewId, UserDetails userDetails) {
         log.info("Updating place review (id={})", reviewId);
 
         PlaceReview placeReview = placeReviewRepository.findById(reviewId)
                 .orElseThrow(() -> new NotFoundException(Error.PLACE_NOT_FOUND.getMessage()));
-        UserDetails userDetails = (UserDetails) auth.getPrincipal();
         if (!placeReview.getAuthor().getEmail().equals(userDetails.getUsername())) {
             throw new ForbiddenException(Error.ACCESS_DENIED.getMessage());
         }
@@ -228,12 +215,11 @@ public class PlaceReviewServiceImpl implements PlaceReviewService {
     }
 
     @Override
-    public void deletePlaceReview(Long reviewId, Authentication auth) {
+    public void deletePlaceReview(Long reviewId, UserDetails userDetails) {
         log.info("Deleting place review (id={})", reviewId);
 
         PlaceReview placeReview = placeReviewRepository.findById(reviewId)
                 .orElseThrow(() -> new NotFoundException(Error.PLACE_NOT_FOUND.getMessage()));
-        UserDetails userDetails = (UserDetails) auth.getPrincipal();
         if (!placeReview.getAuthor().getEmail().equals(userDetails.getUsername())) {
             throw new ForbiddenException(Error.ACCESS_DENIED.getMessage());
         }
@@ -265,8 +251,7 @@ public class PlaceReviewServiceImpl implements PlaceReviewService {
         return placeReviewDto;
     }
 
-    private PlaceReviewDto toPlaceReviewDto(PlaceReview placeReview, Authentication auth) {
-        UserDetails userDetails = (UserDetails) auth.getPrincipal();
+    private PlaceReviewDto toPlaceReviewDto(PlaceReview placeReview, UserDetails userDetails) {
         User user = userRepository.findByEmail(userDetails.getUsername())
                 .orElseThrow(() -> new NotFoundException(Error.USER_NOT_FOUND.getMessage()));
 

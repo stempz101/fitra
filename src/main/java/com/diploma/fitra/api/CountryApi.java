@@ -20,5 +20,6 @@ public interface CountryApi {
     Country getCountry(@PathVariable Long countryId);
 
     @GetMapping("/{countryId}/city")
-    List<CityDto> getCities(@PathVariable Long countryId, @RequestParam(defaultValue = "") String search);
+    List<CityDto> getCities(@PathVariable Long countryId,
+                            @RequestParam(defaultValue = "") String search);
 }

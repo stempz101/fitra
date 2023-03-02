@@ -10,8 +10,8 @@ import com.diploma.fitra.model.Invitation;
 import com.diploma.fitra.model.Participant;
 import com.diploma.fitra.model.Travel;
 import com.diploma.fitra.model.User;
-import com.diploma.fitra.model.enums.Status;
 import com.diploma.fitra.model.enums.Role;
+import com.diploma.fitra.model.enums.Status;
 import com.diploma.fitra.model.error.Error;
 import com.diploma.fitra.model.key.ParticipantKey;
 import com.diploma.fitra.repo.InvitationRepository;
@@ -21,7 +21,6 @@ import com.diploma.fitra.repo.UserRepository;
 import com.diploma.fitra.service.InvitationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,14 +40,13 @@ public class InvitationServiceImpl implements InvitationService {
     private final ParticipantRepository participantRepository;
 
     @Override
-    public void createInvitation(Long travelId, Long userId, Authentication auth) {
+    public void createInvitation(Long travelId, Long userId, UserDetails userDetails) {
         log.info("Creating travel (id={}) invitation to the user (id={})", travelId, userId);
 
         Travel travel = travelRepository.findById(travelId)
                 .orElseThrow(() -> new NotFoundException(Error.TRAVEL_NOT_FOUND.getMessage()));
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(Error.USER_NOT_FOUND.getMessage()));
-        UserDetails userDetails = (UserDetails) auth.getPrincipal();
         if (!travel.getCreator().getEmail().equals(userDetails.getUsername())) {
             throw new ForbiddenException(Error.ACCESS_DENIED.getMessage());
         } else if (user.getRole().equals(Role.ADMIN)) {
@@ -74,12 +72,11 @@ public class InvitationServiceImpl implements InvitationService {
     }
 
     @Override
-    public List<InvitationDto> getInvitations(Long userId, Authentication auth) {
+    public List<InvitationDto> getInvitations(Long userId, UserDetails userDetails) {
         log.info("Getting invitations for user (id={})", userId);
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(Error.USER_NOT_FOUND.getMessage()));
-        UserDetails userDetails = (UserDetails) auth.getPrincipal();
         if (!user.getEmail().equals(userDetails.getUsername())) {
             throw new ForbiddenException(Error.ACCESS_DENIED.getMessage());
         }
@@ -90,12 +87,11 @@ public class InvitationServiceImpl implements InvitationService {
     }
 
     @Override
-    public List<InvitationDto> getInvitationsForCreator(Long creatorId, Authentication auth) {
+    public List<InvitationDto> getInvitationsForCreator(Long creatorId, UserDetails userDetails) {
         log.info("Getting invitations for creator (id={})", creatorId);
 
         User creator = userRepository.findById(creatorId)
                 .orElseThrow(() -> new NotFoundException(Error.USER_NOT_FOUND.getMessage()));
-        UserDetails userDetails = (UserDetails) auth.getPrincipal();
         if (!creator.getEmail().equals(userDetails.getUsername())) {
             throw new ForbiddenException(Error.ACCESS_DENIED.getMessage());
         }
@@ -107,12 +103,11 @@ public class InvitationServiceImpl implements InvitationService {
 
     @Override
     @Transactional
-    public void approveInvitation(Long invitationId, Authentication auth) {
+    public void approveInvitation(Long invitationId, UserDetails userDetails) {
         log.info("Invitation (id={}) confirmation", invitationId);
 
         Invitation invitation = invitationRepository.findById(invitationId)
                 .orElseThrow(() -> new NotFoundException(Error.INVITATION_NOT_FOUND.getMessage()));
-        UserDetails userDetails = (UserDetails) auth.getPrincipal();
         if (!invitation.getUser().getEmail().equals(userDetails.getUsername())) {
             throw new ForbiddenException(Error.ACCESS_DENIED.getMessage());
         } else if (invitation.getStatus().equals(Status.APPROVED)) {
@@ -134,12 +129,11 @@ public class InvitationServiceImpl implements InvitationService {
     }
 
     @Override
-    public void rejectInvitation(Long invitationId, Authentication auth) {
+    public void rejectInvitation(Long invitationId, UserDetails userDetails) {
         log.info("Invitation (id={}) rejection", invitationId);
 
         Invitation invitation = invitationRepository.findById(invitationId)
                 .orElseThrow(() -> new NotFoundException(Error.INVITATION_NOT_FOUND.getMessage()));
-        UserDetails userDetails = (UserDetails) auth.getPrincipal();
         if (!invitation.getUser().getEmail().equals(userDetails.getUsername())) {
             throw new ForbiddenException(Error.ACCESS_DENIED.getMessage());
         } else if (invitation.getStatus().equals(Status.REJECTED)) {
@@ -156,12 +150,11 @@ public class InvitationServiceImpl implements InvitationService {
     }
 
     @Override
-    public void cancelInvitation(Long invitationId, Authentication auth) {
+    public void cancelInvitation(Long invitationId, UserDetails userDetails) {
         log.info("Invitation (id={}) cancellation", invitationId);
 
         Invitation invitation = invitationRepository.findById(invitationId)
                 .orElseThrow(() -> new NotFoundException(Error.INVITATION_NOT_FOUND.getMessage()));
-        UserDetails userDetails = (UserDetails) auth.getPrincipal();
         if (!invitation.getTravel().getCreator().getEmail().equals(userDetails.getUsername())) {
             throw new ForbiddenException(Error.ACCESS_DENIED.getMessage());
         } else if (invitation.getStatus().equals(Status.APPROVED) ||

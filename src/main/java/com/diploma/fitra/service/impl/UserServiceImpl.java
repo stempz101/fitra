@@ -8,12 +8,11 @@ import com.diploma.fitra.mapper.CityMapper;
 import com.diploma.fitra.mapper.CountryMapper;
 import com.diploma.fitra.mapper.UserMapper;
 import com.diploma.fitra.model.User;
-import com.diploma.fitra.model.error.Error;
 import com.diploma.fitra.model.enums.Role;
+import com.diploma.fitra.model.error.Error;
 import com.diploma.fitra.repo.UserRepository;
 import com.diploma.fitra.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -43,8 +42,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void deleteUser(Long userId, Authentication auth) {
-        UserDetails userDetails = (UserDetails) auth.getPrincipal();
+    public void deleteUser(Long userId, UserDetails userDetails) {
         if (userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_USER"))) {
             throw new ForbiddenException(Error.ACCESS_DENIED.getMessage());
         }

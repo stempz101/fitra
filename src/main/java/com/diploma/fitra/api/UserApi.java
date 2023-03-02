@@ -3,7 +3,8 @@ package com.diploma.fitra.api;
 import com.diploma.fitra.dto.user.UserDto;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,5 +24,6 @@ public interface UserApi {
     @DeleteMapping("/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
-    void deleteUser(@PathVariable Long userId, Authentication auth);
+    void deleteUser(@PathVariable Long userId,
+                    @AuthenticationPrincipal UserDetails userDetails);
 }
