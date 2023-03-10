@@ -14,4 +14,6 @@ public interface ParticipantRepository extends JpaRepository<Participant, Partic
     List<Participant> findAllByTravel(Travel travel);
 
     long countByTravelId(Long travelId);
+
+    boolean existsByTravelIdAndUserId(Long travelId, Long userId);
 }

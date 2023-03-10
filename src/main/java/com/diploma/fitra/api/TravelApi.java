@@ -33,6 +33,11 @@ public interface TravelApi {
     List<TravelDto> getTravelsForUser(@PageableDefault Pageable pageable,
                                       @AuthenticationPrincipal UserDetails userDetails);
 
+    @GetMapping("/{travelId}")
+    @SecurityRequirement(name = "Bearer Authentication")
+    TravelDto getTravel(@PathVariable Long travelId,
+                        @AuthenticationPrincipal UserDetails userDetails);
+
     @GetMapping("/{travelId}/users")
     List<ParticipantDto> getUsers(@PathVariable Long travelId);
 
@@ -47,6 +52,28 @@ public interface TravelApi {
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
     ResponseEntity<Void> leaveTravel(@PathVariable Long travelId,
+                                     @AuthenticationPrincipal UserDetails userDetails);
+
+    @PostMapping("/{travelId}/events")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @SecurityRequirement(name = "Bearer Authentication")
+    EventDto createEvent(@PathVariable Long travelId,
+                         @RequestBody @Validated(OnCreate.class) EventSaveDto eventSaveDto,
+                         @AuthenticationPrincipal UserDetails userDetails);
+
+    @PutMapping("/{travelId}/events/{eventId}")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @SecurityRequirement(name = "Bearer Authentication")
+    EventDto updateEvent(@PathVariable Long travelId,
+                         @PathVariable Long eventId,
+                         @RequestBody @Validated(OnUpdate.class) EventSaveDto eventSaveDto,
+                         @AuthenticationPrincipal UserDetails userDetails);
+
+    @DeleteMapping("/{travelId}/events/{eventId}")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @SecurityRequirement(name = "Bearer Authentication")
+    ResponseEntity<Void> deleteEvent(@PathVariable Long travelId,
+                                     @PathVariable Long eventId,
                                      @AuthenticationPrincipal UserDetails userDetails);
 
     @PutMapping("/{travelId}")

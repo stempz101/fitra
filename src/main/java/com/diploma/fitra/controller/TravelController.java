@@ -1,6 +1,7 @@
 package com.diploma.fitra.controller;
 
 import com.diploma.fitra.api.TravelApi;
+import com.diploma.fitra.dto.travel.ParticipantDto;
 import com.diploma.fitra.dto.travel.*;
 import com.diploma.fitra.service.TravelService;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,11 @@ public class TravelController implements TravelApi {
     }
 
     @Override
+    public TravelDto getTravel(Long travelId, UserDetails userDetails) {
+        return travelService.getTravel(travelId, userDetails);
+    }
+
+    @Override
     public List<ParticipantDto> getUsers(Long travelId) {
         return travelService.getUsers(travelId);
     }
@@ -45,6 +51,22 @@ public class TravelController implements TravelApi {
     @Override
     public ResponseEntity<Void> leaveTravel(Long travelId, UserDetails userDetails) {
         travelService.leaveTravel(travelId, userDetails);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Override
+    public EventDto createEvent(Long travelId, EventSaveDto eventSaveDto, UserDetails userDetails) {
+        return travelService.createEvent(travelId, eventSaveDto, userDetails);
+    }
+
+    @Override
+    public EventDto updateEvent(Long travelId, Long eventId, EventSaveDto eventSaveDto, UserDetails userDetails) {
+        return travelService.updateEvent(travelId, eventId, eventSaveDto, userDetails);
+    }
+
+    @Override
+    public ResponseEntity<Void> deleteEvent(Long travelId, Long eventId, UserDetails userDetails) {
+        travelService.deleteEvent(travelId, eventId, userDetails);
         return ResponseEntity.noContent().build();
     }
 

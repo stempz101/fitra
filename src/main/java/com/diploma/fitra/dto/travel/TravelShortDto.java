@@ -7,6 +7,6 @@ import lombok.Data;
 public class TravelShortDto {
 
     private Long id;
-    private String title;
+    private String name;
     private UserShortDto creator;
 }

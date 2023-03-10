@@ -1,8 +1,10 @@
 package com.diploma.fitra.mapper;
 
 import com.diploma.fitra.dto.placereview.PlaceReviewSaveDto;
+import com.diploma.fitra.dto.travel.EventSaveDto;
 import com.diploma.fitra.dto.travel.TravelSaveDto;
 import com.diploma.fitra.dto.type.TypeSaveDto;
+import com.diploma.fitra.model.Event;
 import com.diploma.fitra.model.PlaceReview;
 import com.diploma.fitra.model.Travel;
 import com.diploma.fitra.model.Type;
@@ -24,6 +26,17 @@ public interface UpdateMapper {
         travel.setWithChildren(travelSaveDto.isWithChildren());
 
         return travel;
+    }
+
+    static Event updateEventWithPresentEventSaveDtoFields(Event event, EventSaveDto eventSaveDto) {
+        if (event == null)
+            return null;
+
+        event.setName(eventSaveDto.getName());
+        event.setStartTime(eventSaveDto.getStartTime());
+        event.setEndTime(eventSaveDto.getEndTime());
+
+        return event;
     }
 
     static Type updateTypeWithPresentTypeSaveDtoFields(Type type, TypeSaveDto typeSaveDto) {

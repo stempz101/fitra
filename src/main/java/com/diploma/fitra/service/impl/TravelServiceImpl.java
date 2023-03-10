@@ -1,5 +1,6 @@
 package com.diploma.fitra.service.impl;
 
+import com.diploma.fitra.dto.travel.ParticipantDto;
 import com.diploma.fitra.dto.travel.*;
 import com.diploma.fitra.exception.BadRequestException;
 import com.diploma.fitra.exception.ExistenceException;
@@ -36,6 +37,7 @@ public class TravelServiceImpl implements TravelService {
     private final CityRepository cityRepository;
     private final RouteRepository routeRepository;
     private final ParticipantRepository participantRepository;
+    private final EventRepository eventRepository;
 
     @Override
     @Transactional
@@ -49,6 +51,8 @@ public class TravelServiceImpl implements TravelService {
         if (travelSaveDto.getEndDate().isBefore(travelSaveDto.getStartDate())
                 || travelSaveDto.getEndDate().isEqual(travelSaveDto.getStartDate())) {
             throw new BadRequestException(Error.END_DATE_MUST_BE_AFTER_START_DATE.getMessage());
+        } else if (travelSaveDto.getRoute().size() < 1) {
+            throw new BadRequestException(Error.ROUTE_SIZE_MUST_BE_GREATER_THAN_ZERO.getMessage());
         } else if (travelSaveDto.getAgeFrom() > travelSaveDto.getAgeTo()) {
             throw new BadRequestException(Error.AGE_FROM_MUST_BE_LOWER_THAN_OR_EQUAL_TO_AGE_TO.getMessage());
         }
@@ -59,11 +63,12 @@ public class TravelServiceImpl implements TravelService {
         travel.setCreatedTime(LocalDateTime.now());
         travel = travelRepository.save(travel);
 
-        saveRouteList(travel, travelSaveDto.getRoute());
         saveParticipant(creator, travel, creator.equals(travel.getCreator()));
+        saveRouteList(travel, travelSaveDto.getRoute());
+        saveEvents(travel, travelSaveDto);
 
         log.info("Travel is created: {}", travel);
-        return toTravelDto(travel);
+        return toTravelDto(travel, true);
     }
 
     @Override
@@ -72,7 +77,7 @@ public class TravelServiceImpl implements TravelService {
 
         return travelRepository.findAllByBlockedIsFalseOrderByCreatedTimeDesc(pageable)
                 .stream()
-                .map(this::toTravelDto)
+                .map(travel -> toTravelDto(travel, false))
                 .collect(Collectors.toList());
     }
 
@@ -85,8 +90,26 @@ public class TravelServiceImpl implements TravelService {
 
         return travelRepository.findAllForUser(user, pageable)
                 .stream()
-                .map(this::toTravelDto)
+                .map(travel -> toTravelDto(travel, false))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public TravelDto getTravel(Long travelId, UserDetails userDetails) {
+        log.info("Getting travel (id={})", travelId);
+
+        Travel travel = travelRepository.findById(travelId)
+                .orElseThrow(() -> new NotFoundException(Error.TRAVEL_NOT_FOUND.getMessage()));
+
+        if (userDetails != null) {
+            User user = (User) userDetails;
+            boolean userExistsInTravel = participantRepository.existsByTravelIdAndUserId(travel.getId(), user.getId());
+            if (userExistsInTravel) {
+                return toTravelDto(travel, true);
+            }
+        }
+
+        return toTravelDto(travel, false);
     }
 
     @Override
@@ -144,6 +167,67 @@ public class TravelServiceImpl implements TravelService {
     }
 
     @Override
+    public EventDto createEvent(Long travelId, EventSaveDto eventSaveDto, UserDetails userDetails) {
+        log.info("Creating event in the travel (id={})", travelId);
+
+        Travel travel = travelRepository.findById(travelId)
+                .orElseThrow(() -> new NotFoundException(Error.TRAVEL_NOT_FOUND.getMessage()));
+        if (!travel.getCreator().getEmail().equals(userDetails.getUsername())) {
+            if (!userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
+                throw new ForbiddenException(Error.ACCESS_DENIED.getMessage());
+            }
+        } else if (eventSaveDto.getEndTime().isBefore(eventSaveDto.getStartTime())) {
+            throw new BadRequestException(Error.END_TIME_MUST_BE_EQUAL_TO_OR_GREATER_THAN_START_TIME.getMessage());
+        }
+
+        Event event = saveEvent(travel, eventSaveDto);
+
+        log.info("Event (id={}) in the travel (id={}) is created successfully", event.getId(), event.getTravel().getId());
+        return EventMapper.INSTANCE.toEventDto(event);
+    }
+
+    @Override
+    public EventDto updateEvent(Long travelId, Long eventId, EventSaveDto eventSaveDto, UserDetails userDetails) {
+        log.info("Updating event (id={}) in the travel (id={})", eventId, travelId);
+
+        Travel travel = travelRepository.findById(travelId)
+                .orElseThrow(() -> new NotFoundException(Error.TRAVEL_NOT_FOUND.getMessage()));
+        if (!travel.getCreator().getEmail().equals(userDetails.getUsername())) {
+            if (!userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
+                throw new ForbiddenException(Error.ACCESS_DENIED.getMessage());
+            }
+        } else if (eventSaveDto.getEndTime().isBefore(eventSaveDto.getStartTime())) {
+            throw new BadRequestException(Error.END_TIME_MUST_BE_EQUAL_TO_OR_GREATER_THAN_START_TIME.getMessage());
+        }
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new NotFoundException(Error.EVENT_NOT_FOUND.getMessage()));
+
+        event = UpdateMapper.updateEventWithPresentEventSaveDtoFields(event, eventSaveDto);
+        event = eventRepository.save(event);
+
+        log.info("Event (id={}) in the travel (id={}) is updated successfully!", event.getId(), event.getTravel().getId());
+        return EventMapper.INSTANCE.toEventDto(event);
+    }
+
+    @Override
+    public void deleteEvent(Long travelId, Long eventId, UserDetails userDetails) {
+        log.info("Deleting event (id={}) in the travel (id={})", eventId, travelId);
+
+        Travel travel = travelRepository.findById(travelId)
+                .orElseThrow(() -> new NotFoundException(Error.TRAVEL_NOT_FOUND.getMessage()));
+        if (!travel.getCreator().getEmail().equals(userDetails.getUsername())) {
+            if (!userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
+                throw new ForbiddenException(Error.ACCESS_DENIED.getMessage());
+            }
+        }
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new NotFoundException(Error.EVENT_NOT_FOUND.getMessage()));
+
+        eventRepository.delete(event);
+        log.info("Event (id={}) in the travel (id={}) is deleted successfully!", event.getId(), event.getTravel().getId());
+    }
+
+    @Override
     public TravelDto updateTravel(Long travelId, TravelSaveDto travelSaveDto, UserDetails userDetails) {
         log.info("Updating travel (id={})", travelId);
 
@@ -172,7 +256,7 @@ public class TravelServiceImpl implements TravelService {
         travel = travelRepository.save(travel);
 
         log.info("Travel (id={}) is updated: {}", travel.getId(), travel);
-        return toTravelDto(travel);
+        return toTravelDto(travel, true);
     }
 
     @Override
@@ -185,6 +269,8 @@ public class TravelServiceImpl implements TravelService {
             if (!userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
                 throw new ForbiddenException(Error.ACCESS_DENIED.getMessage());
             }
+        } else if (routeSaveDto.getRoute().size() < 1) {
+            throw new BadRequestException(Error.ROUTE_SIZE_MUST_BE_GREATER_THAN_ZERO.getMessage());
         }
 
         List<Route> routeList = checkAndMapRouteDtoList(routeSaveDto.getRoute());
@@ -229,10 +315,34 @@ public class TravelServiceImpl implements TravelService {
         log.info("Route for the travel (id={}) is built: {}", travel.getId(), routeList);
     }
 
+    private void saveEvents(Travel travel, TravelSaveDto travelSaveDto) {
+        if (travelSaveDto.getEvents() != null && !travelSaveDto.getEvents().isEmpty()) {
+            for (EventSaveDto eventSaveDto : travelSaveDto.getEvents()) {
+                if (eventSaveDto.getEndTime().isBefore(eventSaveDto.getStartTime())) {
+                    throw new BadRequestException(Error.END_TIME_MUST_BE_EQUAL_TO_OR_GREATER_THAN_START_TIME.getMessage());
+                }
+                saveEvent(travel, eventSaveDto);
+            }
+        }
+    }
+
+    private Event saveEvent(Travel travel, EventSaveDto eventSaveDto) {
+        Event event = EventMapper.INSTANCE.fromEventSaveDto(eventSaveDto);
+        event.setTravel(travel);
+        return eventRepository.save(event);
+    }
+
     private List<RouteDto> getRouteDtoList(Travel travel) {
         return routeRepository.findAllByTravelIdOrderByPositionAsc(travel.getId())
                 .stream()
                 .map(RouteMapper.INSTANCE::toRouteDto)
+                .collect(Collectors.toList());
+    }
+
+    private List<EventDto> getEventDtoList(Travel travel) {
+        return eventRepository.findAllByTravelIdOrderByStartTimeAsc(travel.getId())
+                .stream()
+                .map(EventMapper.INSTANCE::toEventDto)
                 .collect(Collectors.toList());
     }
 
@@ -251,13 +361,16 @@ public class TravelServiceImpl implements TravelService {
         List<Route> routeList = new ArrayList<>();
         Route route;
         Country country;
-        City city;
+        City city = null;
         for (RouteDto routeDto : routeDtoList) {
             country = countryRepository.findById(routeDto.getCountryId())
                     .orElseThrow(() -> new NotFoundException(Error.COUNTRY_NOT_FOUND.getMessage()));
-            city = cityRepository.findById(routeDto.getCityId()).orElse(null);
-            if (city != null && !city.getCountry().getId().equals(country.getId())) {
-                throw new BadRequestException(Error.CITY_NOT_IN_COUNTRY.getMessage());
+            if (routeDto.getCityId() != null) {
+                city = cityRepository.findById(routeDto.getCityId())
+                        .orElseThrow(() -> new NotFoundException(Error.CITY_NOT_FOUND.getMessage()));
+                if (!city.getCountry().getId().equals(country.getId())) {
+                    throw new BadRequestException(Error.CITY_NOT_IN_COUNTRY.getMessage());
+                }
             }
             route = new Route();
             route.setCountry(country);
@@ -268,7 +381,7 @@ public class TravelServiceImpl implements TravelService {
         return routeList;
     }
 
-    private TravelDto toTravelDto(Travel travel) {
+    private TravelDto toTravelDto(Travel travel, boolean showEvents) {
         TravelDto travelDto = TravelMapper.INSTANCE.toTravelDto(travel);
         travelDto.setType(TypeMapper.INSTANCE.toTypeDto(travel.getType()));
         travelDto.setCreator(UserMapper.INSTANCE.toUserShortDto(travel.getCreator()));
@@ -276,6 +389,9 @@ public class TravelServiceImpl implements TravelService {
             travelDto.getCreator().setIsAdmin(true);
         }
         travelDto.setRoute(getRouteDtoList(travel));
+        if (showEvents) {
+            travelDto.setEvents(getEventDtoList(travel));
+        }
         return travelDto;
     }
 

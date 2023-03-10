@@ -56,4 +56,7 @@ public class TravelSaveDto {
     @NotNull(message = "{validation.not_null.route}", groups = OnCreate.class)
     @Null(message = "{validation.null.route}", groups = OnUpdate.class)
     private List<RouteDto> route;
+
+    @Null(message = "{validation.null.events}", groups = OnUpdate.class)
+    private List<EventSaveDto> events;
 }

@@ -27,4 +27,5 @@ public class TravelDto {
     private boolean withChildren;
     private LocalDateTime createdTime;
     private List<RouteDto> route;
+    private List<EventDto> events;
 }

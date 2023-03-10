@@ -6,6 +6,7 @@ public enum Error {
     USER_NOT_FOUND("User is not found!"),
     TRAVEL_NOT_FOUND("Travel is not found!"),
     COUNTRY_NOT_FOUND("Country is not found!"),
+    CITY_NOT_FOUND("City is not found!"),
     TYPE_NOT_FOUND("Type is not found!"),
     INVITATION_NOT_FOUND("Invitation is not found!"),
     PARTICIPANT_NOT_FOUND("Participant is not found!"),
@@ -13,6 +14,8 @@ public enum Error {
     PLACE_NOT_FOUND("Place is not found!"),
     PLACE_REVIEW_NOT_FOUND("Place review is not found!"),
     COMMENT_NOT_FOUND("Comment is not found!"),
+    ROUTE_NOT_FOUND("Route is not found!"),
+    EVENT_NOT_FOUND("Event is not found!"),
 
     // BadRequestException messages
     TRAVEL_IS_APPROVED("Travel is already approved!"),
@@ -32,6 +35,8 @@ public enum Error {
     REQUEST_IS_REJECTED("Request is already rejected!"),
     REQUEST_IS_APPROVED_OR_REJECTED("Request is already approved or rejected!"),
     COMMENT_IS_NOT_FOR_SPECIFIED_REVIEW("The specified comment is not for the specified place review!"),
+    END_TIME_MUST_BE_EQUAL_TO_OR_GREATER_THAN_START_TIME("The end time must be equal to or greater than start time!"),
+    ROUTE_SIZE_MUST_BE_GREATER_THAN_ZERO("Route size must be greater than 0!"),
 
     // ExistenceException messages
     USER_EXISTS_WITH_EMAIL("User with specified email already exists!"),
