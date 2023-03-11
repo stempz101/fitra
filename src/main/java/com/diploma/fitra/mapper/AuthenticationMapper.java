@@ -1,7 +1,6 @@
 package com.diploma.fitra.mapper;
 
-import com.diploma.fitra.dto.auth.AuthenticationDto;
-import com.diploma.fitra.dto.auth.RegisterDto;
+import com.diploma.fitra.dto.user.UserSaveDto;
 import com.diploma.fitra.model.User;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
@@ -19,5 +18,5 @@ public interface AuthenticationMapper {
     @Mapping(source = "email", target = "email")
     @Mapping(source = "birthday", target = "birthday")
     @Mapping(source = "about", target = "about")
-    User fromRegisterDto(RegisterDto registerDto);
+    User fromRegisterDto(UserSaveDto userSaveDto);
 }

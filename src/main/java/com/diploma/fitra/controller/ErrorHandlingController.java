@@ -4,6 +4,7 @@ import com.diploma.fitra.dto.error.ErrorDto;
 import com.diploma.fitra.exception.BadRequestException;
 import com.diploma.fitra.exception.ForbiddenException;
 import com.diploma.fitra.exception.NotFoundException;
+import com.diploma.fitra.exception.UnauthorizedException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -46,6 +47,13 @@ public class ErrorHandlingController {
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public ErrorDto handleForbiddenException(Exception ex) {
         log.error("handleForbiddenException: exception {}", ex.getMessage(), ex);
+        return new ErrorDto(ex.getMessage(), LocalDateTime.now());
+    }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ErrorDto handleUnauthorizedException(Exception ex) {
+        log.error("handleUnauthorizedException: exception {}", ex.getMessage(), ex);
         return new ErrorDto(ex.getMessage(), LocalDateTime.now());
     }
 }

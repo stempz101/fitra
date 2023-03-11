@@ -12,6 +12,20 @@ spring:
     username: postgres
     password: ENC(TJFVF/dGBxpi2FyQPtQCGo8CK7lpiZacv7HN3IeXHI+/evGSNfZtczANF9QMA/Uk)
     url: jdbc:postgresql://localhost:5432/fitra
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: fitra.sender@gmail.com
+    password: ENC(vFlEkvKhmjRYcHdKOHDZuMQ5lAo25wtt/i8Tc7PS/8imPOzoBk/YMWcKc6mlRlwbxw8WgQDpcbsQs3J+6k16qQ==)
+    test-connection: true
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+    sender:
+      name: Fitra
 server:
   port: 8081
 google-places-api:

@@ -37,6 +37,7 @@ public enum Error {
     COMMENT_IS_NOT_FOR_SPECIFIED_REVIEW("The specified comment is not for the specified place review!"),
     END_TIME_MUST_BE_EQUAL_TO_OR_GREATER_THAN_START_TIME("The end time must be equal to or greater than start time!"),
     ROUTE_SIZE_MUST_BE_GREATER_THAN_ZERO("Route size must be greater than 0!"),
+    OTP_DOES_NOT_MATCH("Otp does not match to the sent one!"),
 
     // ExistenceException messages
     USER_EXISTS_WITH_EMAIL("User with specified email already exists!"),
@@ -51,7 +52,14 @@ public enum Error {
     PASSWORD_CONFIRMATION_IS_FAILED("Password confirmation is failed!"),
 
     // ForbiddenException messages
-    ACCESS_DENIED("Access denied!");
+    ACCESS_DENIED("Access denied!"),
+    EMAIL_NOT_VERIFIED("Email is not verified yet!"),
+
+    // UnauthorizedException
+    UNAUTHORIZED("User is not authorized!"),
+
+    // EmailException
+    FAILED_TO_SEND_OTP("Failed to send OTP email!");
 
     private final String message;
 

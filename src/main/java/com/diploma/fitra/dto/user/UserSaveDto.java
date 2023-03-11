@@ -1,4 +1,4 @@
-package com.diploma.fitra.dto.auth;
+package com.diploma.fitra.dto.user;
 
 import com.diploma.fitra.dto.group.OnCreate;
 import com.diploma.fitra.dto.validation.Password;
@@ -12,7 +12,7 @@ import lombok.Data;
 import java.time.LocalDate;
 
 @Data
-public class RegisterDto {
+public class UserSaveDto {
 
     @NotBlank(message = "{validation.not_blank.first_name}", groups = OnCreate.class)
     private String firstName;
@@ -40,7 +40,7 @@ public class RegisterDto {
     @NotNull(message = "{validation.not_null.country_id}", groups = OnCreate.class)
     private Long countryId;
 
-    private long cityId;
+    private Long cityId;
 
     private String about;
 }

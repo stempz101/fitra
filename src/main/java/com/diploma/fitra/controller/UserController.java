@@ -1,9 +1,10 @@
 package com.diploma.fitra.controller;
 
 import com.diploma.fitra.api.UserApi;
-import com.diploma.fitra.dto.user.UserDto;
+import com.diploma.fitra.dto.user.*;
 import com.diploma.fitra.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -16,13 +17,33 @@ public class UserController implements UserApi {
     private final UserService userService;
 
     @Override
-    public List<UserDto> getUsers() {
-        return userService.getUsers();
+    public UserDto register(UserSaveDto userSaveDto) {
+        return userService.register(userSaveDto);
+    }
+
+    @Override
+    public JwtDto verifyEmail(EmailVerifyDto emailVerifyDto) {
+        return userService.verifyEmail(emailVerifyDto);
+    }
+
+    @Override
+    public JwtDto authenticate(UserAuthDto authDto) {
+        return userService.authenticate(authDto);
+    }
+
+    @Override
+    public List<UserDto> getUsers(Pageable pageable, UserDetails userDetails) {
+        return userService.getUsers(pageable, userDetails);
     }
 
     @Override
     public UserDto getUser(Long userId) {
         return userService.getUser(userId);
+    }
+
+    @Override
+    public UserDto updateUserInfo(Long userId, UserInfoSaveDto userInfoSaveDto, UserDetails userDetails) {
+        return userService.updateUserInfo(userId, userInfoSaveDto, userDetails);
     }
 
     @Override

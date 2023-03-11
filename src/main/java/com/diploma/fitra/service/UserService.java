@@ -1,15 +1,24 @@
 package com.diploma.fitra.service;
 
-import com.diploma.fitra.dto.user.UserDto;
+import com.diploma.fitra.dto.user.*;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.List;
 
 public interface UserService {
 
-    List<UserDto> getUsers();
+    UserDto register(UserSaveDto userSaveDto);
+
+    JwtDto verifyEmail(EmailVerifyDto emailVerifyDto);
+
+    JwtDto authenticate(UserAuthDto authDto);
+
+    List<UserDto> getUsers(Pageable pageable, UserDetails userDetails);
 
     UserDto getUser(Long userId);
+
+    UserDto updateUserInfo(Long userId, UserInfoSaveDto userInfoSaveDto, UserDetails userDetails);
 
     void deleteUser(Long userId, UserDetails userDetails);
 }
