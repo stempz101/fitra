@@ -24,5 +24,7 @@ public interface UserService {
 
     void confirmEmail(String token);
 
+    void updateUserPassword(Long userId, UserPasswordSaveDto userPasswordSaveDto, UserDetails userDetails);
+
     void deleteUser(Long userId, UserDetails userDetails);
 }

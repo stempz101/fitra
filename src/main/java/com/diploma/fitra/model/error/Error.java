@@ -66,7 +66,8 @@ public enum Error {
     FAILED_TO_SEND_REGISTRATION_CONFIRMATION_LINK("Failed to send registration confirmation link to the specified email!"),
 
     // ConflictException
-    EMAIL_CAN_NOT_BE_UPDATED("Email can not be updated because confirmation link is still valid and has not yet been clicked.");
+    EMAIL_CAN_NOT_BE_UPDATED("Email can not be updated because confirmation link is still valid and has not yet been clicked!"),
+    PASSWORD_PREVIOUSLY_USED("Entered new password was previously used!");
 
     private final String message;
 

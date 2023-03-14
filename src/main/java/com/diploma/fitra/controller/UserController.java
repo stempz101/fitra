@@ -60,6 +60,12 @@ public class UserController implements UserApi {
     }
 
     @Override
+    public ResponseEntity<Void> updateUserPassword(Long userId, UserPasswordSaveDto userPasswordSaveDto, UserDetails userDetails) {
+        userService.updateUserPassword(userId, userPasswordSaveDto, userDetails);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Override
     public void deleteUser(Long userId, UserDetails userDetails) {
         userService.deleteUser(userId, userDetails);
     }

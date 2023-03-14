@@ -5,16 +5,10 @@ import com.diploma.fitra.config.security.JwtService;
 import com.diploma.fitra.dto.user.*;
 import com.diploma.fitra.exception.*;
 import com.diploma.fitra.mapper.*;
-import com.diploma.fitra.model.City;
-import com.diploma.fitra.model.Country;
-import com.diploma.fitra.model.EmailUpdate;
-import com.diploma.fitra.model.User;
+import com.diploma.fitra.model.*;
 import com.diploma.fitra.model.enums.Role;
 import com.diploma.fitra.model.error.Error;
-import com.diploma.fitra.repo.CityRepository;
-import com.diploma.fitra.repo.CountryRepository;
-import com.diploma.fitra.repo.EmailUpdateRepository;
-import com.diploma.fitra.repo.UserRepository;
+import com.diploma.fitra.repo.*;
 import com.diploma.fitra.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,11 +35,13 @@ public class UserServiceImpl implements UserService {
     private final CountryRepository countryRepository;
     private final CityRepository cityRepository;
     private final EmailUpdateRepository emailUpdateRepository;
+    private final UsedPasswordRepository usedPasswordRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
     private final JwtService jwtService;
 
     @Override
+    @Transactional
     public UserDto register(UserSaveDto userSaveDto) {
         if (userRepository.existsByEmail(userSaveDto.getEmail())) {
             throw new ExistenceException(Error.USER_EXISTS_WITH_EMAIL.getMessage());
@@ -65,13 +61,15 @@ public class UserServiceImpl implements UserService {
         }
 
         User user = UserMapper.INSTANCE.fromUserSaveDto(userSaveDto);
-        user.setPassword(passwordEncoder.encode(userSaveDto.getPassword()));
+        user.setPassword(passwordEncoder.encode(userSaveDto.getPassword()).toCharArray());
         user.setCountry(country);
         user.setCity(city);
         user.setRole(Role.USER);
         user.setConfirmToken(UUID.randomUUID().toString());
         user.setConfirmTokenExpiration(LocalDateTime.now().plusHours(1L));
         user = userRepository.save(user);
+
+        addPasswordToHistory(user);
 
         emailService.sendRegistrationConfirmationLink(user);
 
@@ -101,7 +99,7 @@ public class UserServiceImpl implements UserService {
         try {
             User user = userRepository.findByEmail(authDto.getEmail())
                     .orElseThrow(() -> new UnauthorizedException(Error.UNAUTHORIZED.getMessage()));
-            if (!passwordEncoder.matches(authDto.getPassword(), user.getPassword())) {
+            if (!passwordEncoder.matches(authDto.getPassword(), String.valueOf(user.getPassword()))) {
                 throw new UnauthorizedException(Error.UNAUTHORIZED.getMessage());
             }
 
@@ -228,6 +226,31 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public void updateUserPassword(Long userId, UserPasswordSaveDto userPasswordSaveDto, UserDetails userDetails) {
+        log.info("Updating user (id={}) password", userId);
+
+        User user = (User) userDetails;
+        if (!userId.equals(user.getId())) {
+            if (!userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
+                throw new ForbiddenException(Error.ACCESS_DENIED.getMessage());
+            }
+        } else if (!passwordEncoder.matches(userPasswordSaveDto.getCurrentPassword(), String.valueOf(user.getPassword()))) {
+            throw new UnauthorizedException(Error.UNAUTHORIZED.getMessage());
+        } else if (!userPasswordSaveDto.getNewPassword().equals(userPasswordSaveDto.getRepeatPassword())) {
+            throw new VerificationException(Error.PASSWORD_CONFIRMATION_IS_FAILED.getMessage());
+        } else if (isPasswordPreviouslyUsed(user.getId(), userPasswordSaveDto.getNewPassword())) {
+            throw new ConflictException(Error.PASSWORD_PREVIOUSLY_USED.getMessage());
+        }
+
+        user.setPassword(passwordEncoder.encode(userPasswordSaveDto.getNewPassword()).toCharArray());
+        user = userRepository.save(user);
+
+        addPasswordToHistory(user);
+
+        log.info("User (id={}) password is updated successfully!", userId);
+    }
+
+    @Override
     public void deleteUser(Long userId, UserDetails userDetails) {
         log.info("Deleting user (id={})", userId);
 
@@ -249,5 +272,17 @@ public class UserServiceImpl implements UserService {
             userDto.setIsAdmin(true);
         }
         return userDto;
+    }
+
+    private void addPasswordToHistory(User user) {
+        UsedPassword usedPassword = new UsedPassword();
+        usedPassword.setUser(user);
+        usedPassword.setPassword(user.getPassword().toCharArray());
+        usedPasswordRepository.save(usedPassword);
+    }
+
+    private boolean isPasswordPreviouslyUsed(Long userId, String newPassword) {
+        return usedPasswordRepository.findAllByUserId(userId).stream()
+                .anyMatch(usedPassword -> passwordEncoder.matches(newPassword, String.valueOf(usedPassword.getPassword())));
     }
 }

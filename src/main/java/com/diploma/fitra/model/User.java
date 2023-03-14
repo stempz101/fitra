@@ -41,7 +41,7 @@ public class User implements UserDetails {
     private String email;
 
     @Column(nullable = false)
-    private String password;
+    private char[] password;
 
     @Column(nullable = false)
     private LocalDate birthday;
@@ -78,6 +78,11 @@ public class User implements UserDetails {
     @Override
     public String getUsername() {
         return this.email;
+    }
+
+    @Override
+    public String getPassword() {
+        return String.valueOf(this.password);
     }
 
     @Override

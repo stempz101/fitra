@@ -53,6 +53,13 @@ public interface UserApi {
     @PostMapping("/confirm-email")
     ResponseEntity<Void> confirmEmail(@RequestParam String token);
 
+    @PutMapping("/{userId}/password")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @SecurityRequirement(name = "Bearer Authentication")
+    ResponseEntity<Void> updateUserPassword(@PathVariable Long userId,
+                                            @RequestBody @Valid UserPasswordSaveDto userPasswordSaveDto,
+                                            @AuthenticationPrincipal UserDetails userDetails);
+
     @DeleteMapping("/{userId}")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
