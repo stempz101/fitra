@@ -1,6 +1,8 @@
 package com.diploma.fitra.config.email;
 
 import com.diploma.fitra.exception.EmailException;
+import com.diploma.fitra.model.EmailUpdate;
+import com.diploma.fitra.model.User;
 import com.diploma.fitra.model.error.Error;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.InternetAddress;
@@ -13,7 +15,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.UnsupportedEncodingException;
-import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
@@ -27,24 +28,38 @@ public class EmailService {
     @Value("${spring.mail.sender.name}")
     private String senderName;
 
+//    @Value("${spring.mail.verification-link}")
+//    private String registrationConfirmationLink;
+
     @Async
-    public void sendOtpEmail(String receiver, String otp) {
+    public void sendRegistrationConfirmationLink(User user) {
         try {
             MimeMessage message = javaMailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message);
             helper.setFrom(new InternetAddress(senderEmail, senderName));
-            helper.setTo(receiver);
-            helper.setSubject("Email confirmation");
-            helper.setText("Your confirmation code is " + otp + ". Please enter this code to confirm your registration.");
+            helper.setTo(user.getEmail());
+            helper.setSubject("Registration");
+            helper.setText("Hello, " + user.getFirstName() + "!\n" +
+                    "Your confirmation link is " + user.getConfirmToken() + ". Please click on this link to confirm your registration.");
             javaMailSender.send(message);
         } catch (MessagingException | UnsupportedEncodingException e) {
-            throw new EmailException(Error.FAILED_TO_SEND_OTP.getMessage());
+            throw new EmailException(Error.FAILED_TO_SEND_REGISTRATION_CONFIRMATION_LINK.getMessage());
         }
     }
 
-    public String generateOtp() {
-        Random random = new Random();
-        int otp = 100000 + random.nextInt(900000);
-        return String.valueOf(otp);
+    @Async
+    public void sendNewEmailConfirmationLink(User user, EmailUpdate emailUpdate) {
+        try {
+            MimeMessage message = javaMailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message);
+            helper.setFrom(new InternetAddress(senderEmail, senderName));
+            helper.setTo(emailUpdate.getEmail());
+            helper.setSubject("Confirm your email change");
+            helper.setText("Hello, " + user.getFirstName() + "!\n" +
+                    "Your confirmation link is " + emailUpdate.getConfirmToken() + ". Please click on this link to confirm your new email.");
+            javaMailSender.send(message);
+        } catch (MessagingException | UnsupportedEncodingException e) {
+            throw new EmailException(Error.FAILED_TO_SEND_REGISTRATION_CONFIRMATION_LINK.getMessage());
+        }
     }
 }

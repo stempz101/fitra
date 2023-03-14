@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,8 +21,8 @@ public interface UserApi {
     @PostMapping("/register")
     UserDto register(@RequestBody @Validated(OnCreate.class) UserSaveDto userSaveDto);
 
-    @PostMapping("/verify-email")
-    JwtDto verifyEmail(@RequestBody @Valid EmailVerifyDto emailVerifyDto);
+    @PostMapping("/confirm-registration")
+    JwtDto confirmRegistration(@RequestParam String token);
 
     @PostMapping("/authenticate")
     JwtDto authenticate(@RequestBody @Valid UserAuthDto authDto);
@@ -43,6 +44,14 @@ public interface UserApi {
                            @AuthenticationPrincipal UserDetails userDetails);
 
     @PutMapping("/{userId}/email")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @SecurityRequirement(name = "Bearer Authentication")
+    ResponseEntity<Void> updateUserEmail(@PathVariable Long userId,
+                                         @RequestBody @Valid UserEmailSaveDto userEmailSaveDto,
+                                         @AuthenticationPrincipal UserDetails userDetails);
+
+    @PostMapping("/confirm-email")
+    ResponseEntity<Void> confirmEmail(@RequestParam String token);
 
     @DeleteMapping("/{userId}")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")

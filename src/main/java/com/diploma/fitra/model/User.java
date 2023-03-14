@@ -2,13 +2,17 @@ package com.diploma.fitra.model;
 
 import com.diploma.fitra.model.enums.Role;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.Hibernate;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -29,6 +33,9 @@ public class User implements UserDetails {
 
     @Column(nullable = false)
     private String lastName;
+
+    @Column(nullable = false, length = 550)
+    private String fullName;
 
     @Column(nullable = false, unique = true)
     private String email;
@@ -55,7 +62,9 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    private String otp;
+    private String confirmToken;
+
+    private LocalDateTime confirmTokenExpiration;
 
     private boolean enabled;
 

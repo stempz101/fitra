@@ -26,6 +26,7 @@ spring:
             enable: true
     sender:
       name: Fitra
+#    verification-link: https://localhost:8081/api/v1/users/verify-email?token=
 server:
   port: 8081
 google-places-api:

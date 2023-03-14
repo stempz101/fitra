@@ -16,6 +16,7 @@ public enum Error {
     COMMENT_NOT_FOUND("Comment is not found!"),
     ROUTE_NOT_FOUND("Route is not found!"),
     EVENT_NOT_FOUND("Event is not found!"),
+    EMAIL_UPDATE_NOT_FOUND("Email update is not found!"),
 
     // BadRequestException messages
     TRAVEL_IS_APPROVED("Travel is already approved!"),
@@ -38,6 +39,8 @@ public enum Error {
     END_TIME_MUST_BE_EQUAL_TO_OR_GREATER_THAN_START_TIME("The end time must be equal to or greater than start time!"),
     ROUTE_SIZE_MUST_BE_GREATER_THAN_ZERO("Route size must be greater than 0!"),
     OTP_DOES_NOT_MATCH("Otp does not match to the sent one!"),
+    EMAIL_CONFIRMED("Email is already confirmed!"),
+    EMAIL_IS_CURRENT("Entered email is current!"),
 
     // ExistenceException messages
     USER_EXISTS_WITH_EMAIL("User with specified email already exists!"),
@@ -53,13 +56,17 @@ public enum Error {
 
     // ForbiddenException messages
     ACCESS_DENIED("Access denied!"),
-    EMAIL_NOT_VERIFIED("Email is not verified yet!"),
+    EMAIL_NOT_CONFIRMED("Email is not confirmed yet!"),
 
     // UnauthorizedException
     UNAUTHORIZED("User is not authorized!"),
+    EMAIL_CONFIRMATION_EXPIRED("Email confirmation link has expired!"),
 
     // EmailException
-    FAILED_TO_SEND_OTP("Failed to send OTP email!");
+    FAILED_TO_SEND_REGISTRATION_CONFIRMATION_LINK("Failed to send registration confirmation link to the specified email!"),
+
+    // ConflictException
+    EMAIL_CAN_NOT_BE_UPDATED("Email can not be updated because confirmation link is still valid and has not yet been clicked.");
 
     private final String message;
 

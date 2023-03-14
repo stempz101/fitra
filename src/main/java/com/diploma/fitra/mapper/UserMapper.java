@@ -1,6 +1,7 @@
 package com.diploma.fitra.mapper;
 
 import com.diploma.fitra.dto.user.UserDto;
+import com.diploma.fitra.dto.user.UserSaveDto;
 import com.diploma.fitra.dto.user.UserShortDto;
 import com.diploma.fitra.model.User;
 import org.mapstruct.BeanMapping;
@@ -15,14 +16,22 @@ public interface UserMapper {
 
     @BeanMapping(ignoreByDefault = true)
     @Mapping(source = "id", target = "id")
-    @Mapping(source = "firstName", target = "firstName")
-    @Mapping(source = "lastName", target = "lastName")
+    @Mapping(source = "fullName", target = "name")
+    @Mapping(source = "birthday", target = "birthday")
     @Mapping(source = "about", target = "about")
     UserDto toUserDto(User user);
 
     @BeanMapping(ignoreByDefault = true)
     @Mapping(source = "id", target = "id")
+    @Mapping(source = "fullName", target = "name")
+    UserShortDto toUserShortDto(User user);
+
+    @BeanMapping(ignoreByDefault = true)
     @Mapping(source = "firstName", target = "firstName")
     @Mapping(source = "lastName", target = "lastName")
-    UserShortDto toUserShortDto(User user);
+    @Mapping(target = "fullName", expression = "java(userSaveDto.getFirstName() + \" \" + userSaveDto.getLastName())")
+    @Mapping(source = "email", target = "email")
+    @Mapping(source = "birthday", target = "birthday")
+    @Mapping(source = "about", target = "about")
+    User fromUserSaveDto(UserSaveDto userSaveDto);
 }

@@ -10,7 +10,7 @@ public interface UserService {
 
     UserDto register(UserSaveDto userSaveDto);
 
-    JwtDto verifyEmail(EmailVerifyDto emailVerifyDto);
+    JwtDto confirmRegistration(String token);
 
     JwtDto authenticate(UserAuthDto authDto);
 
@@ -19,6 +19,10 @@ public interface UserService {
     UserDto getUser(Long userId);
 
     UserDto updateUserInfo(Long userId, UserInfoSaveDto userInfoSaveDto, UserDetails userDetails);
+
+    void updateUserEmail(Long userId, UserEmailSaveDto userEmailSaveDto, UserDetails userDetails);
+
+    void confirmEmail(String token);
 
     void deleteUser(Long userId, UserDetails userDetails);
 }

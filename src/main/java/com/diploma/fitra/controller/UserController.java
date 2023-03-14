@@ -5,6 +5,7 @@ import com.diploma.fitra.dto.user.*;
 import com.diploma.fitra.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -22,8 +23,8 @@ public class UserController implements UserApi {
     }
 
     @Override
-    public JwtDto verifyEmail(EmailVerifyDto emailVerifyDto) {
-        return userService.verifyEmail(emailVerifyDto);
+    public JwtDto confirmRegistration(String token) {
+        return userService.confirmRegistration(token);
     }
 
     @Override
@@ -44,6 +45,18 @@ public class UserController implements UserApi {
     @Override
     public UserDto updateUserInfo(Long userId, UserInfoSaveDto userInfoSaveDto, UserDetails userDetails) {
         return userService.updateUserInfo(userId, userInfoSaveDto, userDetails);
+    }
+
+    @Override
+    public ResponseEntity<Void> updateUserEmail(Long userId, UserEmailSaveDto userEmailSaveDto, UserDetails userDetails) {
+        userService.updateUserEmail(userId, userEmailSaveDto, userDetails);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Override
+    public ResponseEntity<Void> confirmEmail(String token) {
+        userService.confirmEmail(token);
+        return ResponseEntity.noContent().build();
     }
 
     @Override

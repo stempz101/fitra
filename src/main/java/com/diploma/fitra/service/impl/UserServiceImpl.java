@@ -7,11 +7,13 @@ import com.diploma.fitra.exception.*;
 import com.diploma.fitra.mapper.*;
 import com.diploma.fitra.model.City;
 import com.diploma.fitra.model.Country;
+import com.diploma.fitra.model.EmailUpdate;
 import com.diploma.fitra.model.User;
 import com.diploma.fitra.model.enums.Role;
 import com.diploma.fitra.model.error.Error;
 import com.diploma.fitra.repo.CityRepository;
 import com.diploma.fitra.repo.CountryRepository;
+import com.diploma.fitra.repo.EmailUpdateRepository;
 import com.diploma.fitra.repo.UserRepository;
 import com.diploma.fitra.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -22,8 +24,12 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -34,6 +40,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final CountryRepository countryRepository;
     private final CityRepository cityRepository;
+    private final EmailUpdateRepository emailUpdateRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
     private final JwtService jwtService;
@@ -57,25 +64,29 @@ public class UserServiceImpl implements UserService {
             }
         }
 
-        User user = AuthenticationMapper.INSTANCE.fromRegisterDto(userSaveDto);
+        User user = UserMapper.INSTANCE.fromUserSaveDto(userSaveDto);
         user.setPassword(passwordEncoder.encode(userSaveDto.getPassword()));
         user.setCountry(country);
         user.setCity(city);
         user.setRole(Role.USER);
-        user.setOtp(emailService.generateOtp());
+        user.setConfirmToken(UUID.randomUUID().toString());
+        user.setConfirmTokenExpiration(LocalDateTime.now().plusHours(1L));
         user = userRepository.save(user);
 
-        emailService.sendOtpEmail(user.getEmail(), user.getOtp());
+        emailService.sendRegistrationConfirmationLink(user);
 
         return toUserDto(user);
     }
 
     @Override
-    public JwtDto verifyEmail(EmailVerifyDto emailVerifyDto) {
-        User user = userRepository.findByEmail(emailVerifyDto.getEmail())
+    public JwtDto confirmRegistration(String token) {
+        User user = userRepository.findByConfirmToken(token)
                 .orElseThrow(() -> new NotFoundException(Error.USER_NOT_FOUND.getMessage()));
-        if (!emailVerifyDto.getOtp().equals(user.getOtp())) {
-            throw new BadRequestException(Error.OTP_DOES_NOT_MATCH.getMessage());
+
+        if (user.isEnabled()) {
+            throw new BadRequestException(Error.EMAIL_CONFIRMED.getMessage());
+        } else if (LocalDateTime.now().isAfter(user.getConfirmTokenExpiration())) {
+            throw new UnauthorizedException(Error.EMAIL_CONFIRMATION_EXPIRED.getMessage());
         }
 
         user.setEnabled(true);
@@ -88,24 +99,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public JwtDto authenticate(UserAuthDto authDto) {
         try {
-//            UserDetails userDetails = (UserDetails) authenticationManager.authenticate(
-//                    new UsernamePasswordAuthenticationToken(
-//                            authDto.getEmail(),
-//                            authDto.getPassword()
-//                    )
-//            ).getPrincipal();
-//
-//            if (!userDetails.isEnabled()) {
-//                throw new ForbiddenException(Error.EMAIL_NOT_VERIFIED.getMessage());
-//            }
             User user = userRepository.findByEmail(authDto.getEmail())
                     .orElseThrow(() -> new UnauthorizedException(Error.UNAUTHORIZED.getMessage()));
             if (!passwordEncoder.matches(authDto.getPassword(), user.getPassword())) {
                 throw new UnauthorizedException(Error.UNAUTHORIZED.getMessage());
-            }
-
-            if (!user.isEnabled()) {
-                throw new ForbiddenException(Error.EMAIL_NOT_VERIFIED.getMessage());
             }
 
             String jwtToken = jwtService.generateToken(user);
@@ -166,6 +163,68 @@ public class UserServiceImpl implements UserService {
 
         log.info("User (id={}) information is updated successfully!", user.getId());
         return toUserDto(user);
+    }
+
+    @Override
+    public void updateUserEmail(Long userId, UserEmailSaveDto userEmailSaveDto, UserDetails userDetails) {
+        log.info("Updating user (id={}) email", userId);
+
+        User user = (User) userDetails;
+        if (!userId.equals(user.getId())) {
+            if (!userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
+                throw new ForbiddenException(Error.ACCESS_DENIED.getMessage());
+            }
+        } else if (user.getEmail().equals(userEmailSaveDto.getEmail())) {
+            throw new BadRequestException(Error.EMAIL_IS_CURRENT.getMessage());
+        } else if (userRepository.existsByEmail(userEmailSaveDto.getEmail())) {
+            throw new BadRequestException(Error.USER_EXISTS_WITH_EMAIL.getMessage());
+        }
+
+        Optional<EmailUpdate> emailUpdateOpt = emailUpdateRepository.findByUser(user);
+        EmailUpdate emailUpdate;
+        LocalDateTime currentTime = LocalDateTime.now();
+        if (emailUpdateOpt.isPresent()) {
+            emailUpdate = emailUpdateOpt.get();
+            if (!currentTime.isAfter(emailUpdate.getConfirmTokenExpiration())) {
+                throw new ConflictException(Error.EMAIL_CAN_NOT_BE_UPDATED.getMessage());
+            }
+            emailUpdate.setEmail(userEmailSaveDto.getEmail());
+            emailUpdate.setConfirmToken(UUID.randomUUID().toString());
+            emailUpdate.setConfirmTokenExpiration(currentTime.plusHours(1L));
+        } else {
+            emailUpdate = new EmailUpdate();
+            emailUpdate.setUser(user);
+            emailUpdate.setEmail(userEmailSaveDto.getEmail());
+            emailUpdate.setConfirmToken(UUID.randomUUID().toString());
+            emailUpdate.setConfirmTokenExpiration(LocalDateTime.now().plusHours(1L));
+        }
+
+        emailUpdate = emailUpdateRepository.save(emailUpdate);
+
+        emailService.sendNewEmailConfirmationLink(user, emailUpdate);
+
+        log.info("User (id={}) email verification is sent to the new specified email", user.getId());
+    }
+
+    @Override
+    @Transactional
+    public void confirmEmail(String token) {
+        log.info("Confirming new email");
+
+        EmailUpdate emailUpdate = emailUpdateRepository.findByConfirmToken(token)
+                .orElseThrow(() -> new NotFoundException(Error.EMAIL_UPDATE_NOT_FOUND.getMessage()));
+
+        if (LocalDateTime.now().isAfter(emailUpdate.getConfirmTokenExpiration())) {
+            throw new UnauthorizedException(Error.EMAIL_CONFIRMATION_EXPIRED.getMessage());
+        }
+
+        User user = emailUpdate.getUser();
+        user.setEmail(emailUpdate.getEmail());
+        userRepository.save(user);
+
+        emailUpdateRepository.delete(emailUpdate);
+
+        log.info("User (id={}) email is updated successfully!", user.getId());
     }
 
     @Override
