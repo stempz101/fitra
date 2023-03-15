@@ -1,6 +1,7 @@
 package com.diploma.fitra.api;
 
-import com.diploma.fitra.dto.group.OnCreate;
+import com.diploma.fitra.dto.group.OnRecover;
+import com.diploma.fitra.dto.group.OnUpdate;
 import com.diploma.fitra.dto.user.*;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
@@ -19,7 +20,7 @@ import java.util.List;
 public interface UserApi {
 
     @PostMapping("/register")
-    UserDto register(@RequestBody @Validated(OnCreate.class) UserSaveDto userSaveDto);
+    UserDto register(@RequestBody @Valid UserSaveDto userSaveDto);
 
     @PostMapping("/confirm-registration")
     JwtDto confirmRegistration(@RequestParam String token);
@@ -35,6 +36,13 @@ public interface UserApi {
 
     @GetMapping("/{userId}")
     UserDto getUser(@PathVariable Long userId);
+
+    @PostMapping("/send-recover-password-mail")
+    ResponseEntity<Void> sendRecoverPasswordMail(@RequestBody @Valid UserEmailSaveDto userEmailDto);
+
+    @PostMapping("/recover-password")
+    ResponseEntity<Void> recoverPassword(@RequestParam String token,
+                                         @RequestBody @Validated(OnRecover.class) UserPasswordSaveDto userPasswordSaveDto);
 
     @PutMapping("/{userId}/info")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
@@ -57,7 +65,7 @@ public interface UserApi {
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
     ResponseEntity<Void> updateUserPassword(@PathVariable Long userId,
-                                            @RequestBody @Valid UserPasswordSaveDto userPasswordSaveDto,
+                                            @RequestBody @Validated(OnUpdate.class) UserPasswordSaveDto userPasswordSaveDto,
                                             @AuthenticationPrincipal UserDetails userDetails);
 
     @DeleteMapping("/{userId}")

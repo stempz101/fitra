@@ -2,6 +2,7 @@ package com.diploma.fitra.config.email;
 
 import com.diploma.fitra.exception.EmailException;
 import com.diploma.fitra.model.EmailUpdate;
+import com.diploma.fitra.model.PasswordRecoveryToken;
 import com.diploma.fitra.model.User;
 import com.diploma.fitra.model.error.Error;
 import jakarta.mail.MessagingException;
@@ -57,6 +58,22 @@ public class EmailService {
             helper.setSubject("Confirm your email change");
             helper.setText("Hello, " + user.getFirstName() + "!\n" +
                     "Your confirmation link is " + emailUpdate.getConfirmToken() + ". Please click on this link to confirm your new email.");
+            javaMailSender.send(message);
+        } catch (MessagingException | UnsupportedEncodingException e) {
+            throw new EmailException(Error.FAILED_TO_SEND_REGISTRATION_CONFIRMATION_LINK.getMessage());
+        }
+    }
+
+    @Async
+    public void sendPasswordRecoveryLink(User user, PasswordRecoveryToken passwordRecoveryToken) {
+        try {
+            MimeMessage message = javaMailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message);
+            helper.setFrom(new InternetAddress(senderEmail, senderName));
+            helper.setTo(user.getEmail());
+            helper.setSubject("Password reset request");
+            helper.setText("Hello, " + user.getFirstName() + "!\n" +
+                    "To reset your password, please click on the following link: " + passwordRecoveryToken.getToken());
             javaMailSender.send(message);
         } catch (MessagingException | UnsupportedEncodingException e) {
             throw new EmailException(Error.FAILED_TO_SEND_REGISTRATION_CONFIRMATION_LINK.getMessage());

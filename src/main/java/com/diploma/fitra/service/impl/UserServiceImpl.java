@@ -36,6 +36,7 @@ public class UserServiceImpl implements UserService {
     private final CityRepository cityRepository;
     private final EmailUpdateRepository emailUpdateRepository;
     private final UsedPasswordRepository usedPasswordRepository;
+    private final PasswordRecoveryTokenRepository passwordRecoveryTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
     private final JwtService jwtService;
@@ -84,7 +85,7 @@ public class UserServiceImpl implements UserService {
         if (user.isEnabled()) {
             throw new BadRequestException(Error.EMAIL_CONFIRMED.getMessage());
         } else if (LocalDateTime.now().isAfter(user.getConfirmTokenExpiration())) {
-            throw new UnauthorizedException(Error.EMAIL_CONFIRMATION_EXPIRED.getMessage());
+            throw new GoneException(Error.EMAIL_CONFIRMATION_EXPIRED.getMessage());
         }
 
         user.setEnabled(true);
@@ -130,6 +131,61 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(Error.USER_NOT_FOUND.getMessage()));
         return toUserDto(user);
+    }
+
+    @Override
+    public void sendRecoverPasswordMail(UserEmailSaveDto userEmailDto) {
+        log.info("Sending recover password mail to the user (email={})", userEmailDto.getEmail());
+
+        User user = userRepository.findByEmail(userEmailDto.getEmail())
+                .orElseThrow(() -> new NotFoundException(Error.USER_NOT_FOUND.getMessage()));
+
+        Optional<PasswordRecoveryToken> passwordRecoveryTokenOpt = passwordRecoveryTokenRepository
+                .findByUserEmail(user.getEmail());
+        PasswordRecoveryToken passwordRecoveryToken;
+        LocalDateTime currentTime = LocalDateTime.now();
+        if (passwordRecoveryTokenOpt.isPresent()) {
+            passwordRecoveryToken = passwordRecoveryTokenOpt.get();
+            if (!currentTime.isAfter(passwordRecoveryToken.getTokenExpiration())) {
+                throw new ConflictException(Error.PASSWORD_RECOVERY_CAN_NOT_BE_SENT.getMessage());
+            }
+        } else {
+            passwordRecoveryToken = new PasswordRecoveryToken();
+            passwordRecoveryToken.setUser(user);
+        }
+        passwordRecoveryToken.setToken(UUID.randomUUID().toString());
+        passwordRecoveryToken.setTokenExpiration(currentTime.plusHours(1L));
+
+        passwordRecoveryToken = passwordRecoveryTokenRepository.save(passwordRecoveryToken);
+
+        emailService.sendPasswordRecoveryLink(user, passwordRecoveryToken);
+    }
+
+    @Override
+    @Transactional
+    public void recoverPassword(String token, UserPasswordSaveDto userPasswordSaveDto) {
+        log.info("Password recovery (token={}) is proceeding", token);
+
+        PasswordRecoveryToken passwordRecoveryToken = passwordRecoveryTokenRepository.findByToken(token)
+                .orElseThrow(() -> new NotFoundException(Error.PASSWORD_RECOVERY_TOKEN_NOT_FOUND.getMessage()));
+        User user = passwordRecoveryToken.getUser();
+
+        if (LocalDateTime.now().isAfter(passwordRecoveryToken.getTokenExpiration())) {
+            throw new GoneException(Error.PASSWORD_RECOVERY_EXPIRED.getMessage());
+        } else if (!userPasswordSaveDto.getNewPassword().equals(userPasswordSaveDto.getRepeatPassword())) {
+            throw new VerificationException(Error.PASSWORD_CONFIRMATION_IS_FAILED.getMessage());
+        } else if (isPasswordPreviouslyUsed(user.getId(), userPasswordSaveDto.getNewPassword())) {
+            throw new ConflictException(Error.PASSWORD_PREVIOUSLY_USED.getMessage());
+        }
+
+        user.setPassword(userPasswordSaveDto.getNewPassword().toCharArray());
+        user = userRepository.save(user);
+
+        addPasswordToHistory(user);
+
+        passwordRecoveryTokenRepository.delete(passwordRecoveryToken);
+
+        log.info("Password recovery for user (id={}) is proceeded successfully!", user.getId());
     }
 
     @Override
@@ -186,16 +242,13 @@ public class UserServiceImpl implements UserService {
             if (!currentTime.isAfter(emailUpdate.getConfirmTokenExpiration())) {
                 throw new ConflictException(Error.EMAIL_CAN_NOT_BE_UPDATED.getMessage());
             }
-            emailUpdate.setEmail(userEmailSaveDto.getEmail());
-            emailUpdate.setConfirmToken(UUID.randomUUID().toString());
-            emailUpdate.setConfirmTokenExpiration(currentTime.plusHours(1L));
         } else {
             emailUpdate = new EmailUpdate();
             emailUpdate.setUser(user);
-            emailUpdate.setEmail(userEmailSaveDto.getEmail());
-            emailUpdate.setConfirmToken(UUID.randomUUID().toString());
-            emailUpdate.setConfirmTokenExpiration(LocalDateTime.now().plusHours(1L));
         }
+        emailUpdate.setEmail(userEmailSaveDto.getEmail());
+        emailUpdate.setConfirmToken(UUID.randomUUID().toString());
+        emailUpdate.setConfirmTokenExpiration(currentTime.plusHours(1L));
 
         emailUpdate = emailUpdateRepository.save(emailUpdate);
 
@@ -213,7 +266,7 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new NotFoundException(Error.EMAIL_UPDATE_NOT_FOUND.getMessage()));
 
         if (LocalDateTime.now().isAfter(emailUpdate.getConfirmTokenExpiration())) {
-            throw new UnauthorizedException(Error.EMAIL_CONFIRMATION_EXPIRED.getMessage());
+            throw new GoneException(Error.EMAIL_CONFIRMATION_EXPIRED.getMessage());
         }
 
         User user = emailUpdate.getUser();

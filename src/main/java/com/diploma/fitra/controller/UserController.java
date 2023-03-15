@@ -43,6 +43,18 @@ public class UserController implements UserApi {
     }
 
     @Override
+    public ResponseEntity<Void> sendRecoverPasswordMail(UserEmailSaveDto userEmailDto) {
+        userService.sendRecoverPasswordMail(userEmailDto);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Override
+    public ResponseEntity<Void> recoverPassword(String token, UserPasswordSaveDto userPasswordSaveDto) {
+        userService.recoverPassword(token, userPasswordSaveDto);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Override
     public UserDto updateUserInfo(Long userId, UserInfoSaveDto userInfoSaveDto, UserDetails userDetails) {
         return userService.updateUserInfo(userId, userInfoSaveDto, userDetails);
     }

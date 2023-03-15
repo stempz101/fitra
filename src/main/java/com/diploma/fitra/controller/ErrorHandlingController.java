@@ -60,4 +60,11 @@ public class ErrorHandlingController {
         log.error("handleConflictException: exception {}", ex.getMessage(), ex);
         return new ErrorDto(ex.getMessage(), LocalDateTime.now());
     }
+
+    @ExceptionHandler(GoneException.class)
+    @ResponseStatus(HttpStatus.GONE)
+    public ErrorDto handleGoneException(Exception ex) {
+        log.error("handleGoneException: exception {}", ex.getMessage(), ex);
+        return new ErrorDto(ex.getMessage(), LocalDateTime.now());
+    }
 }

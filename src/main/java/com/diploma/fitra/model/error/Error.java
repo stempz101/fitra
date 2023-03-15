@@ -17,6 +17,7 @@ public enum Error {
     ROUTE_NOT_FOUND("Route is not found!"),
     EVENT_NOT_FOUND("Event is not found!"),
     EMAIL_UPDATE_NOT_FOUND("Email update is not found!"),
+    PASSWORD_RECOVERY_TOKEN_NOT_FOUND("Password recovery token is not found!"),
 
     // BadRequestException messages
     TRAVEL_IS_APPROVED("Travel is already approved!"),
@@ -60,14 +61,18 @@ public enum Error {
 
     // UnauthorizedException
     UNAUTHORIZED("User is not authorized!"),
-    EMAIL_CONFIRMATION_EXPIRED("Email confirmation link has expired!"),
 
     // EmailException
     FAILED_TO_SEND_REGISTRATION_CONFIRMATION_LINK("Failed to send registration confirmation link to the specified email!"),
 
     // ConflictException
     EMAIL_CAN_NOT_BE_UPDATED("Email can not be updated because confirmation link is still valid and has not yet been clicked!"),
-    PASSWORD_PREVIOUSLY_USED("Entered new password was previously used!");
+    PASSWORD_RECOVERY_CAN_NOT_BE_SENT("Password recovery can not be sent because recover link is still valid!"),
+    PASSWORD_PREVIOUSLY_USED("Entered new password was previously used!"),
+
+    // GoneException
+    EMAIL_CONFIRMATION_EXPIRED("Email confirmation link has expired!"),
+    PASSWORD_RECOVERY_EXPIRED("Password recovery link has expired!");
 
     private final String message;
 

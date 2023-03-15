@@ -18,6 +18,10 @@ public interface UserService {
 
     UserDto getUser(Long userId);
 
+    void sendRecoverPasswordMail(UserEmailSaveDto userEmailDto);
+
+    void recoverPassword(String token, UserPasswordSaveDto userPasswordSaveDto);
+
     UserDto updateUserInfo(Long userId, UserInfoSaveDto userInfoSaveDto, UserDetails userDetails);
 
     void updateUserEmail(Long userId, UserEmailSaveDto userEmailSaveDto, UserDetails userDetails);
