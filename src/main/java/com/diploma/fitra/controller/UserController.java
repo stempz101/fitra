@@ -1,6 +1,8 @@
 package com.diploma.fitra.controller;
 
 import com.diploma.fitra.api.UserApi;
+import com.diploma.fitra.dto.comment.CommentDto;
+import com.diploma.fitra.dto.comment.CommentSaveDto;
 import com.diploma.fitra.dto.user.*;
 import com.diploma.fitra.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -40,6 +42,38 @@ public class UserController implements UserApi {
     @Override
     public UserDto getUser(Long userId) {
         return userService.getUser(userId);
+    }
+
+    @Override
+    public CommentDto createComment(Long userId, CommentSaveDto commentSaveDto, UserDetails userDetails) {
+        return userService.createComment(userId, commentSaveDto, userDetails);
+    }
+
+    @Override
+    public List<CommentDto> getComments(Long userId, Pageable pageable) {
+        return userService.getComments(userId, pageable);
+    }
+
+    @Override
+    public ResponseEntity<Void> deleteComment(Long commentId, UserDetails userDetails) {
+        userService.deleteComment(commentId, userDetails);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Override
+    public CommentDto createReply(Long commentId, CommentSaveDto commentSaveDto, UserDetails userDetails) {
+        return userService.createReply(commentId, commentSaveDto, userDetails);
+    }
+
+    @Override
+    public List<CommentDto> getReplies(Long commentId, Pageable pageable) {
+        return userService.getReplies(commentId, pageable);
+    }
+
+    @Override
+    public ResponseEntity<Void> deleteReply(Long replyId, UserDetails userDetails) {
+        userService.deleteReply(replyId, userDetails);
+        return ResponseEntity.noContent().build();
     }
 
     @Override

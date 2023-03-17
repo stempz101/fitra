@@ -2,6 +2,8 @@ package com.diploma.fitra.service.impl;
 
 import com.diploma.fitra.config.email.EmailService;
 import com.diploma.fitra.config.security.JwtService;
+import com.diploma.fitra.dto.comment.CommentDto;
+import com.diploma.fitra.dto.comment.CommentSaveDto;
 import com.diploma.fitra.dto.user.*;
 import com.diploma.fitra.exception.*;
 import com.diploma.fitra.mapper.*;
@@ -34,6 +36,8 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final CountryRepository countryRepository;
     private final CityRepository cityRepository;
+    private final UserCommentRepository userCommentRepository;
+    private final UserCommentReplyRepository userCommentReplyRepository;
     private final EmailUpdateRepository emailUpdateRepository;
     private final UsedPasswordRepository usedPasswordRepository;
     private final PasswordRecoveryTokenRepository passwordRecoveryTokenRepository;
@@ -134,6 +138,101 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public CommentDto createComment(Long userId, CommentSaveDto commentSaveDto, UserDetails userDetails) {
+        log.info("Commenting user (id={})", userId);
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException(Error.USER_NOT_FOUND.getMessage()));
+        User author = (User) userDetails;
+        if (userCommentRepository.existsByUserIdAndAuthorId(user.getId(), author.getId())) {
+            throw new ConflictException(Error.USER_COMMENT_IS_EXISTS.getMessage());
+        } else if (user.getId().equals(author.getId())) {
+            throw new BadRequestException(Error.USER_CANT_COMMENT_HIMSELF.getMessage());
+        }
+
+        UserComment comment = userCommentRepository.save(toUserComment(commentSaveDto, user, author));
+
+        log.info("Comment (id={}) is created to the user (id={}) by the user (id={})",
+                comment.getId(), user.getId(), author.getId());
+        return CommentMapper.INSTANCE.toCommentDto(comment);
+    }
+
+    @Override
+    public List<CommentDto> getComments(Long userId, Pageable pageable) {
+        log.info("Getting comments for user (id={})", userId);
+
+        return userCommentRepository.findAllByUserIdOrderByCreateTimeDesc(userId, pageable)
+                .stream()
+                .map(this::toCommentDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void deleteComment(Long commentId, UserDetails userDetails) {
+        log.info("Deleting the comment (id={}) in user profile", commentId);
+
+        UserComment comment = userCommentRepository.findById(commentId)
+                .orElseThrow(() -> new NotFoundException(Error.USER_COMMENT_NOT_FOUND.getMessage()));
+
+        if (!comment.getAuthor().getEmail().equals(userDetails.getUsername())) {
+            if (!comment.getUser().getEmail().equals(userDetails.getUsername())) {
+                if (!userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
+                    throw new ForbiddenException(Error.ACCESS_DENIED.getMessage());
+                }
+            }
+        }
+
+        userCommentRepository.delete(comment);
+        log.info("The comment (id={}) is deleted successfully from user profile", commentId);
+    }
+
+    @Override
+    public CommentDto createReply(Long commentId, CommentSaveDto commentSaveDto, UserDetails userDetails) {
+        log.info("Replying to the comment (id={}) for the user profile", commentId);
+
+        UserComment comment = userCommentRepository.findById(commentId)
+                .orElseThrow(() -> new NotFoundException(Error.USER_COMMENT_NOT_FOUND.getMessage()));
+        User author = (User) userDetails;
+
+        UserCommentReply commentReply = userCommentReplyRepository
+                .save(toUserCommentReply(commentSaveDto, author, comment));
+
+        log.info("Reply (id={}) to the comment (id={}) for the user profile (id={}) " +
+                        "is created successfully by the user (id={})", commentReply.getId(), comment.getId(),
+                comment.getUser().getId(), author.getId());
+        return CommentMapper.INSTANCE.toCommentDto(commentReply);
+    }
+
+    @Override
+    public List<CommentDto> getReplies(Long commentId, Pageable pageable) {
+        log.info("Getting replies for the comment (id={}) in user profile", commentId);
+
+        return userCommentReplyRepository.findAllByCommentIdOrderByCreateTimeAsc(commentId)
+                .stream()
+                .map(CommentMapper.INSTANCE::toCommentDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void deleteReply(Long replyId, UserDetails userDetails) {
+        log.info("Deleting reply (id={}) of the comment from the user profile", replyId);
+
+        UserCommentReply commentReply = userCommentReplyRepository.findById(replyId)
+                .orElseThrow(() -> new NotFoundException(Error.USER_COMMENT_REPLY_NOT_FOUND.getMessage()));
+        if (!commentReply.getAuthor().getEmail().equals(userDetails.getUsername())) {
+            if (!commentReply.getComment().getUser().getEmail().equals(userDetails.getUsername())) {
+                if (!userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
+                    throw new ForbiddenException(Error.ACCESS_DENIED.getMessage());
+                }
+            }
+        }
+
+        userCommentReplyRepository.delete(commentReply);
+
+        log.info("Reply (id={}) of the comment from the user profile is deleted successfully!", replyId);
+    }
+
+    @Override
     public void sendRecoverPasswordMail(UserEmailSaveDto userEmailDto) {
         log.info("Sending recover password mail to the user (email={})", userEmailDto.getEmail());
 
@@ -178,7 +277,7 @@ public class UserServiceImpl implements UserService {
             throw new ConflictException(Error.PASSWORD_PREVIOUSLY_USED.getMessage());
         }
 
-        user.setPassword(userPasswordSaveDto.getNewPassword().toCharArray());
+        user.setPassword(passwordEncoder.encode(userPasswordSaveDto.getNewPassword()).toCharArray());
         user = userRepository.save(user);
 
         addPasswordToHistory(user);
@@ -321,10 +420,38 @@ public class UserServiceImpl implements UserService {
         UserDto userDto = UserMapper.INSTANCE.toUserDto(user);
         userDto.setCountry(CountryMapper.INSTANCE.toCountryDto(user.getCountry()));
         userDto.setCity(CityMapper.INSTANCE.toCityDto(user.getCity()));
+        userDto.setRating(userCommentRepository.avgRatingByUserId(user.getId()));
+        userDto.setCommentCount(userCommentRepository.countByUserId(user.getId()));
         if (user.getRole().equals(Role.ADMIN)) {
             userDto.setIsAdmin(true);
         }
         return userDto;
+    }
+
+    private CommentDto toCommentDto(UserComment comment) {
+        CommentDto commentDto = CommentMapper.INSTANCE.toCommentDto(comment);
+        commentDto.setReplies(userCommentReplyRepository.countByCommentId(comment.getId()));
+
+        return commentDto;
+    }
+
+    private UserComment toUserComment(CommentSaveDto commentSaveDto, User user, User author) {
+        UserComment comment = new UserComment();
+        comment.setUser(user);
+        comment.setAuthor(author);
+        comment.setText(commentSaveDto.getText());
+        comment.setRating(commentSaveDto.getRating());
+        comment.setCreateTime(LocalDateTime.now());
+        return comment;
+    }
+
+    private UserCommentReply toUserCommentReply(CommentSaveDto commentSaveDto, User author, UserComment comment) {
+        UserCommentReply commentReply = new UserCommentReply();
+        commentReply.setComment(comment);
+        commentReply.setAuthor(author);
+        commentReply.setText(commentSaveDto.getText());
+        commentReply.setCreateTime(LocalDateTime.now());
+        return commentReply;
     }
 
     private void addPasswordToHistory(User user) {

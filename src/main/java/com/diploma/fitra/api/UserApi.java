@@ -1,5 +1,9 @@
 package com.diploma.fitra.api;
 
+import com.diploma.fitra.dto.comment.CommentDto;
+import com.diploma.fitra.dto.comment.CommentSaveDto;
+import com.diploma.fitra.dto.group.IsNotUserComment;
+import com.diploma.fitra.dto.group.IsUserComment;
 import com.diploma.fitra.dto.group.OnRecover;
 import com.diploma.fitra.dto.group.OnUpdate;
 import com.diploma.fitra.dto.user.*;
@@ -36,6 +40,40 @@ public interface UserApi {
 
     @GetMapping("/{userId}")
     UserDto getUser(@PathVariable Long userId);
+
+    @PostMapping("/{userId}/comments")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @SecurityRequirement(name = "Bearer Authentication")
+    CommentDto createComment(@PathVariable Long userId,
+                             @RequestBody @Validated(IsUserComment.class) CommentSaveDto commentSaveDto,
+                             @AuthenticationPrincipal UserDetails userDetails);
+
+    @GetMapping("/{userId}/comments")
+    List<CommentDto> getComments(@PathVariable Long userId,
+                                 @PageableDefault Pageable pageable);
+
+    @DeleteMapping("/comments/{commentId}")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @SecurityRequirement(name = "Bearer Authentication")
+    ResponseEntity<Void> deleteComment(@PathVariable Long commentId,
+                                       @AuthenticationPrincipal UserDetails userDetails);
+
+    @PostMapping("/comments/{commentId}")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @SecurityRequirement(name = "Bearer Authentication")
+    CommentDto createReply(@PathVariable Long commentId,
+                           @RequestBody @Validated(IsNotUserComment.class) CommentSaveDto commentSaveDto,
+                           @AuthenticationPrincipal UserDetails userDetails);
+
+    @GetMapping("/comments/{commentId}/replies")
+    List<CommentDto> getReplies(@PathVariable Long commentId,
+                                @PageableDefault Pageable pageable);
+
+    @DeleteMapping("/comments/replies/{replyId}")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @SecurityRequirement(name = "Bearer Authentication")
+    ResponseEntity<Void> deleteReply(@PathVariable Long replyId,
+                                     @AuthenticationPrincipal UserDetails userDetails);
 
     @PostMapping("/send-recover-password-mail")
     ResponseEntity<Void> sendRecoverPasswordMail(@RequestBody @Valid UserEmailSaveDto userEmailDto);

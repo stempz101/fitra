@@ -2,6 +2,7 @@ package com.diploma.fitra.api;
 
 import com.diploma.fitra.dto.comment.CommentDto;
 import com.diploma.fitra.dto.comment.CommentSaveDto;
+import com.diploma.fitra.dto.group.IsNotUserComment;
 import com.diploma.fitra.dto.group.OnCreate;
 import com.diploma.fitra.dto.group.OnUpdate;
 import com.diploma.fitra.dto.placereview.PlaceReviewDto;
@@ -53,7 +54,7 @@ public interface PlaceReviewApi {
     @PostMapping("/{reviewId}/comments")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
-    CommentDto createComment(@RequestBody @Valid CommentSaveDto commentSaveDto,
+    CommentDto createComment(@RequestBody @Validated(IsNotUserComment.class) CommentSaveDto commentSaveDto,
                              @PathVariable Long reviewId,
                              @AuthenticationPrincipal UserDetails userDetails);
 

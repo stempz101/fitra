@@ -18,6 +18,8 @@ public enum Error {
     EVENT_NOT_FOUND("Event is not found!"),
     EMAIL_UPDATE_NOT_FOUND("Email update is not found!"),
     PASSWORD_RECOVERY_TOKEN_NOT_FOUND("Password recovery token is not found!"),
+    USER_COMMENT_NOT_FOUND("User comment is not found!"),
+    USER_COMMENT_REPLY_NOT_FOUND("User comment reply is not found!"),
 
     // BadRequestException messages
     TRAVEL_IS_APPROVED("Travel is already approved!"),
@@ -37,11 +39,13 @@ public enum Error {
     REQUEST_IS_REJECTED("Request is already rejected!"),
     REQUEST_IS_APPROVED_OR_REJECTED("Request is already approved or rejected!"),
     COMMENT_IS_NOT_FOR_SPECIFIED_REVIEW("The specified comment is not for the specified place review!"),
+    COMMENT_IS_NOT_FOR_SPECIFIED_USER("The specified comment is not for the specified user!"),
     END_TIME_MUST_BE_EQUAL_TO_OR_GREATER_THAN_START_TIME("The end time must be equal to or greater than start time!"),
     ROUTE_SIZE_MUST_BE_GREATER_THAN_ZERO("Route size must be greater than 0!"),
     OTP_DOES_NOT_MATCH("Otp does not match to the sent one!"),
     EMAIL_CONFIRMED("Email is already confirmed!"),
     EMAIL_IS_CURRENT("Entered email is current!"),
+    USER_CANT_COMMENT_HIMSELF("User can't comment himself!"),
 
     // ExistenceException messages
     USER_EXISTS_WITH_EMAIL("User with specified email already exists!"),
@@ -57,7 +61,6 @@ public enum Error {
 
     // ForbiddenException messages
     ACCESS_DENIED("Access denied!"),
-    EMAIL_NOT_CONFIRMED("Email is not confirmed yet!"),
 
     // UnauthorizedException
     UNAUTHORIZED("User is not authorized!"),
@@ -69,6 +72,7 @@ public enum Error {
     EMAIL_CAN_NOT_BE_UPDATED("Email can not be updated because confirmation link is still valid and has not yet been clicked!"),
     PASSWORD_RECOVERY_CAN_NOT_BE_SENT("Password recovery can not be sent because recover link is still valid!"),
     PASSWORD_PREVIOUSLY_USED("Entered new password was previously used!"),
+    USER_COMMENT_IS_EXISTS("User review is already exists!"),
 
     // GoneException
     EMAIL_CONFIRMATION_EXPIRED("Email confirmation link has expired!"),

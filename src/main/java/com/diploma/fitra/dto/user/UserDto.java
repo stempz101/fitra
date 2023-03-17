@@ -14,6 +14,8 @@ public class UserDto {
     private String name;
     private LocalDate birthday;
     private String about;
+    private double rating;
+    private long commentCount;
     private CountryDto country;
     private CityDto city;
     private Boolean isAdmin;
