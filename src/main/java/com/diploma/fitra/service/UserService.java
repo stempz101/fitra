@@ -10,15 +10,17 @@ import java.util.List;
 
 public interface UserService {
 
-    UserDto register(UserSaveDto userSaveDto);
+    JwtDto register(UserSaveDto userSaveDto);
 
-    JwtDto confirmRegistration(String token);
+    void confirmRegistration(String token);
 
     JwtDto authenticate(UserAuthDto authDto);
 
     List<UserDto> getUsers(Pageable pageable, UserDetails userDetails);
 
     UserDto getUser(Long userId);
+
+    UserShortDto getAuthorizedUser(UserDetails userDetails);
 
     CommentDto createComment(Long userId, CommentSaveDto commentSaveDto, UserDetails userDetails);
 

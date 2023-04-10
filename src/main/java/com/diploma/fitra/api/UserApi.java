@@ -24,10 +24,10 @@ import java.util.List;
 public interface UserApi {
 
     @PostMapping("/register")
-    UserDto register(@RequestBody @Valid UserSaveDto userSaveDto);
+    JwtDto register(@RequestBody @Valid UserSaveDto userSaveDto);
 
     @PostMapping("/confirm-registration")
-    JwtDto confirmRegistration(@RequestParam String token);
+    ResponseEntity<Void> confirmRegistration(@RequestParam String token);
 
     @PostMapping("/authenticate")
     JwtDto authenticate(@RequestBody @Valid UserAuthDto authDto);
@@ -40,6 +40,11 @@ public interface UserApi {
 
     @GetMapping("/{userId}")
     UserDto getUser(@PathVariable Long userId);
+
+    @GetMapping("/authorized")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @SecurityRequirement(name = "Bearer Authentication")
+    UserShortDto getAuthorizedUser(@AuthenticationPrincipal UserDetails userDetails);
 
     @PostMapping("/{userId}/comments")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")

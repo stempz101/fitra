@@ -20,17 +20,19 @@ public class UserController implements UserApi {
     private final UserService userService;
 
     @Override
-    public UserDto register(UserSaveDto userSaveDto) {
+    public JwtDto register(UserSaveDto userSaveDto) {
         return userService.register(userSaveDto);
     }
 
     @Override
-    public JwtDto confirmRegistration(String token) {
-        return userService.confirmRegistration(token);
+    public ResponseEntity<Void> confirmRegistration(String token) {
+        userService.confirmRegistration(token);
+        return ResponseEntity.noContent().build();
     }
 
     @Override
     public JwtDto authenticate(UserAuthDto authDto) {
+        System.out.println("ADIOS");
         return userService.authenticate(authDto);
     }
 
@@ -42,6 +44,11 @@ public class UserController implements UserApi {
     @Override
     public UserDto getUser(Long userId) {
         return userService.getUser(userId);
+    }
+
+    @Override
+    public UserShortDto getAuthorizedUser(UserDetails userDetails) {
+        return userService.getAuthorizedUser(userDetails);
     }
 
     @Override

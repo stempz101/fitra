@@ -47,7 +47,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public UserDto register(UserSaveDto userSaveDto) {
+    public JwtDto register(UserSaveDto userSaveDto) {
         if (userRepository.existsByEmail(userSaveDto.getEmail())) {
             throw new ExistenceException(Error.USER_EXISTS_WITH_EMAIL.getMessage());
         } else if (!userSaveDto.getPassword().equals(userSaveDto.getRepeatPassword())) {
@@ -78,11 +78,12 @@ public class UserServiceImpl implements UserService {
 
         emailService.sendRegistrationConfirmationLink(user);
 
-        return toUserDto(user);
+        String jwtToken = jwtService.generateToken(user);
+        return JwtDto.builder().token(jwtToken).build();
     }
 
     @Override
-    public JwtDto confirmRegistration(String token) {
+    public void confirmRegistration(String token) {
         User user = userRepository.findByConfirmToken(token)
                 .orElseThrow(() -> new NotFoundException(Error.USER_NOT_FOUND.getMessage()));
 
@@ -93,10 +94,7 @@ public class UserServiceImpl implements UserService {
         }
 
         user.setEnabled(true);
-        user = userRepository.save(user);
-
-        String jwtToken = jwtService.generateToken(user);
-        return JwtDto.builder().token(jwtToken).build();
+        userRepository.save(user);
     }
 
     @Override
@@ -135,6 +133,18 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(Error.USER_NOT_FOUND.getMessage()));
         return toUserDto(user);
+    }
+
+    @Override
+    public UserShortDto getAuthorizedUser(UserDetails userDetails) {
+        log.info("Getting authorized user (email={})", userDetails.getUsername());
+
+        UserShortDto userShortDto = UserMapper.INSTANCE.toUserShortDto((User) userDetails);
+        if (userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
+            userShortDto.setIsAdmin(true);
+        }
+        userShortDto.setIsEnabled(userDetails.isEnabled());
+        return userShortDto;
     }
 
     @Override
