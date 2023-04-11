@@ -11,7 +11,7 @@ import com.diploma.fitra.repo.CityRepository;
 import com.diploma.fitra.repo.CountryRepository;
 import com.diploma.fitra.service.CountryService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,7 +26,7 @@ public class CountryServiceImpl implements CountryService {
     @Override
     public List<CountryDto> getCountries(String search) {
         return countryRepository
-                .findAllByTitleEnContainingIgnoreCase(search, Sort.by("titleEn"))
+                .findAllByTitleEnContainingIgnoreCaseOrderById(search)
                 .stream()
                 .map(country -> {
                     CountryDto countryDto = CountryMapper.INSTANCE.toCountryDto(country);
@@ -43,10 +43,10 @@ public class CountryServiceImpl implements CountryService {
     }
 
     @Override
-    public List<CityDto> getCities(Long countryId, String search) {
+    public List<CityDto> getCities(Long countryId, String search, Pageable pageable) {
         Country country = getCountry(countryId);
         return cityRepository
-                .findAllByCountryAndTitleEnContainingIgnoreCase(country, search, Sort.by("titleEn"))
+                .findAllByCountryAndTitleEnContainingIgnoreCase(country, search, pageable)
                 .stream()
                 .map(CityMapper.INSTANCE::toCityDto)
                 .collect(Collectors.toList());

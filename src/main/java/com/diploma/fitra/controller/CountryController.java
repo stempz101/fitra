@@ -6,6 +6,7 @@ import com.diploma.fitra.dto.country.CountryDto;
 import com.diploma.fitra.model.Country;
 import com.diploma.fitra.service.CountryService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -26,7 +27,8 @@ public class CountryController implements CountryApi {
     }
 
     @Override
-    public List<CityDto> getCities(Long countryId, String search) {
-        return countryService.getCities(countryId, search);
+    public List<CityDto> getCities(Long countryId, String search, Pageable pageable) {
+        System.out.println("AAAAAAAAAAAAAA: " + search);
+        return countryService.getCities(countryId, search, pageable);
     }
 }
