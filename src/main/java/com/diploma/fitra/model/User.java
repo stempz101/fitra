@@ -6,13 +6,13 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.hibernate.Hibernate;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -62,6 +62,8 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    private String avatarUrl;
+
     private String confirmToken;
 
     private LocalDateTime confirmTokenExpiration;
@@ -103,13 +105,15 @@ public class User implements UserDetails {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return id != null && Objects.equals(id, user.id);
+        return enabled == user.enabled && blocked == user.blocked && Objects.equals(id, user.id) && Objects.equals(firstName, user.firstName) && Objects.equals(lastName, user.lastName) && Objects.equals(fullName, user.fullName) && Objects.equals(email, user.email) && Arrays.equals(password, user.password) && Objects.equals(birthday, user.birthday) && Objects.equals(about, user.about) && Objects.equals(country, user.country) && Objects.equals(city, user.city) && role == user.role && Objects.equals(avatarUrl, user.avatarUrl) && Objects.equals(confirmToken, user.confirmToken) && Objects.equals(confirmTokenExpiration, user.confirmTokenExpiration);
     }
 
     @Override
     public int hashCode() {
-        return getClass().hashCode();
+        int result = Objects.hash(id, firstName, lastName, fullName, email, birthday, about, country, city, role, avatarUrl, confirmToken, confirmTokenExpiration, enabled, blocked);
+        result = 31 * result + Arrays.hashCode(password);
+        return result;
     }
 }

@@ -24,7 +24,7 @@ import java.util.List;
 public interface UserApi {
 
     @PostMapping("/register")
-    JwtDto register(@RequestBody @Valid UserSaveDto userSaveDto);
+    JwtDto register(@ModelAttribute @Valid UserSaveDto userSaveDto);
 
     @PostMapping("/confirm-registration")
     ResponseEntity<Void> confirmRegistration(@RequestParam String token);

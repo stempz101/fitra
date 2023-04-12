@@ -29,5 +29,8 @@ spring:
 #    verification-link: https://localhost:8081/api/v1/users/verify-email?token=
 server:
   port: 8081
+photo-storage:
+  user-photos: uploads/user-photos
+  travel-photos: uploads/travel-photos
 google-places-api:
   key: AIzaSyDbQ9eS0j9SdcawPhIhjcU8_q97UkopYBI

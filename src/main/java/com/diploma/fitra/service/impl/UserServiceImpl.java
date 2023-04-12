@@ -14,6 +14,7 @@ import com.diploma.fitra.repo.*;
 import com.diploma.fitra.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -22,6 +23,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -45,6 +52,9 @@ public class UserServiceImpl implements UserService {
     private final EmailService emailService;
     private final JwtService jwtService;
 
+    @Value("${photo-storage.user-photos}")
+    private String userPhotoStoragePath;
+
     @Override
     @Transactional
     public JwtDto register(UserSaveDto userSaveDto) {
@@ -65,11 +75,14 @@ public class UserServiceImpl implements UserService {
             }
         }
 
+        String avatarUrl = saveUserPhoto(userSaveDto);
+
         User user = UserMapper.INSTANCE.fromUserSaveDto(userSaveDto);
         user.setPassword(passwordEncoder.encode(userSaveDto.getPassword()).toCharArray());
         user.setCountry(country);
         user.setCity(city);
         user.setRole(Role.USER);
+        user.setAvatarUrl(avatarUrl);
         user.setConfirmToken(UUID.randomUUID().toString());
         user.setConfirmTokenExpiration(LocalDateTime.now().plusHours(1L));
         user = userRepository.save(user);
@@ -474,5 +487,26 @@ public class UserServiceImpl implements UserService {
     private boolean isPasswordPreviouslyUsed(Long userId, String newPassword) {
         return usedPasswordRepository.findAllByUserId(userId).stream()
                 .anyMatch(usedPassword -> passwordEncoder.matches(newPassword, String.valueOf(usedPassword.getPassword())));
+    }
+
+    private String saveUserPhoto(UserSaveDto userSaveDto) {
+        if (userSaveDto.getAvatar() == null || userSaveDto.getAvatar().isEmpty()) {
+            return null;
+        }
+
+        System.out.println(userSaveDto.getAvatar().getOriginalFilename());
+        String originalFileName = userSaveDto.getAvatar().getOriginalFilename();
+        String[] separatedFileName = originalFileName.split("\\.");
+        String fileName = UUID.randomUUID() + "." + separatedFileName[separatedFileName.length - 1];
+        Path path = Paths.get(userPhotoStoragePath, fileName);
+        try {
+            Files.createDirectories(path.getParent());
+            try (InputStream inputStream = userSaveDto.getAvatar().getInputStream()) {
+                Files.copy(inputStream, path, StandardCopyOption.REPLACE_EXISTING);
+            }
+            return path.toString();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
