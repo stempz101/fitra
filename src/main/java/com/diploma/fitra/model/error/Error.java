@@ -20,6 +20,7 @@ public enum Error {
     PASSWORD_RECOVERY_TOKEN_NOT_FOUND("Password recovery token is not found!"),
     USER_COMMENT_NOT_FOUND("User comment is not found!"),
     USER_COMMENT_REPLY_NOT_FOUND("User comment reply is not found!"),
+    IMAGE_NOT_FOUND("Image is not found!"),
 
     // BadRequestException messages
     TRAVEL_IS_APPROVED("Travel is already approved!"),

@@ -62,8 +62,6 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    private String avatarUrl;
-
     private String confirmToken;
 
     private LocalDateTime confirmTokenExpiration;
@@ -107,12 +105,12 @@ public class User implements UserDetails {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return enabled == user.enabled && blocked == user.blocked && Objects.equals(id, user.id) && Objects.equals(firstName, user.firstName) && Objects.equals(lastName, user.lastName) && Objects.equals(fullName, user.fullName) && Objects.equals(email, user.email) && Arrays.equals(password, user.password) && Objects.equals(birthday, user.birthday) && Objects.equals(about, user.about) && Objects.equals(country, user.country) && Objects.equals(city, user.city) && role == user.role && Objects.equals(avatarUrl, user.avatarUrl) && Objects.equals(confirmToken, user.confirmToken) && Objects.equals(confirmTokenExpiration, user.confirmTokenExpiration);
+        return enabled == user.enabled && blocked == user.blocked && Objects.equals(id, user.id) && Objects.equals(firstName, user.firstName) && Objects.equals(lastName, user.lastName) && Objects.equals(fullName, user.fullName) && Objects.equals(email, user.email) && Arrays.equals(password, user.password) && Objects.equals(birthday, user.birthday) && Objects.equals(about, user.about) && Objects.equals(country, user.country) && Objects.equals(city, user.city) && role == user.role && Objects.equals(confirmToken, user.confirmToken) && Objects.equals(confirmTokenExpiration, user.confirmTokenExpiration);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(id, firstName, lastName, fullName, email, birthday, about, country, city, role, avatarUrl, confirmToken, confirmTokenExpiration, enabled, blocked);
+        int result = Objects.hash(id, firstName, lastName, fullName, email, birthday, about, country, city, role, confirmToken, confirmTokenExpiration, enabled, blocked);
         result = 31 * result + Arrays.hashCode(password);
         return result;
     }

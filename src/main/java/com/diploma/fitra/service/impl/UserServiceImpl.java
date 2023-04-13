@@ -22,6 +22,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -48,6 +49,7 @@ public class UserServiceImpl implements UserService {
     private final EmailUpdateRepository emailUpdateRepository;
     private final UsedPasswordRepository usedPasswordRepository;
     private final PasswordRecoveryTokenRepository passwordRecoveryTokenRepository;
+    private final UserPhotoRepository userPhotoRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
     private final JwtService jwtService;
@@ -75,18 +77,16 @@ public class UserServiceImpl implements UserService {
             }
         }
 
-        String avatarUrl = saveUserPhoto(userSaveDto);
-
         User user = UserMapper.INSTANCE.fromUserSaveDto(userSaveDto);
         user.setPassword(passwordEncoder.encode(userSaveDto.getPassword()).toCharArray());
         user.setCountry(country);
         user.setCity(city);
         user.setRole(Role.USER);
-        user.setAvatarUrl(avatarUrl);
         user.setConfirmToken(UUID.randomUUID().toString());
         user.setConfirmTokenExpiration(LocalDateTime.now().plusHours(1L));
         user = userRepository.save(user);
 
+        saveUserAvatar(user, userSaveDto.getAvatar());
         addPasswordToHistory(user);
 
         emailService.sendRegistrationConfirmationLink(user);
@@ -152,7 +152,11 @@ public class UserServiceImpl implements UserService {
     public UserShortDto getAuthorizedUser(UserDetails userDetails) {
         log.info("Getting authorized user (email={})", userDetails.getUsername());
 
-        UserShortDto userShortDto = UserMapper.INSTANCE.toUserShortDto((User) userDetails);
+        User user = (User) userDetails;
+        UserPhoto avatar = userPhotoRepository.findByUserAndAvatarIsTrue(user);
+
+        UserShortDto userShortDto = UserMapper.INSTANCE.toUserShortDto(user);
+        userShortDto.setAvatar(avatar != null ? avatar.getFileName() : null);
         if (userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
             userShortDto.setIsAdmin(true);
         }
@@ -489,24 +493,31 @@ public class UserServiceImpl implements UserService {
                 .anyMatch(usedPassword -> passwordEncoder.matches(newPassword, String.valueOf(usedPassword.getPassword())));
     }
 
-    private String saveUserPhoto(UserSaveDto userSaveDto) {
-        if (userSaveDto.getAvatar() == null || userSaveDto.getAvatar().isEmpty()) {
-            return null;
+    private void saveUserAvatar(User user, MultipartFile avatar) {
+        if (avatar == null || avatar.isEmpty()) {
+            return;
         }
 
-        System.out.println(userSaveDto.getAvatar().getOriginalFilename());
-        String originalFileName = userSaveDto.getAvatar().getOriginalFilename();
-        String[] separatedFileName = originalFileName.split("\\.");
-        String fileName = UUID.randomUUID() + "." + separatedFileName[separatedFileName.length - 1];
-        Path path = Paths.get(userPhotoStoragePath, fileName);
-        try {
-            Files.createDirectories(path.getParent());
-            try (InputStream inputStream = userSaveDto.getAvatar().getInputStream()) {
-                Files.copy(inputStream, path, StandardCopyOption.REPLACE_EXISTING);
+        String originalFileName = avatar.getOriginalFilename();
+        if (originalFileName != null) {
+            String[] separatedFileName = originalFileName.split("\\.");
+
+            String fileName = UUID.randomUUID() + "." + separatedFileName[separatedFileName.length - 1];
+            Path path = Paths.get(userPhotoStoragePath, fileName);
+            try {
+                Files.createDirectories(path.getParent());
+                try (InputStream inputStream = avatar.getInputStream()) {
+                    Files.copy(inputStream, path, StandardCopyOption.REPLACE_EXISTING);
+                }
+
+                UserPhoto userPhoto = new UserPhoto();
+                userPhoto.setFileName(fileName);
+                userPhoto.setAvatar(true);
+                userPhoto.setUser(user);
+                userPhotoRepository.save(userPhoto);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
-            return path.toString();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         }
     }
 }
