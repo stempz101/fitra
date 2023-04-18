@@ -49,7 +49,7 @@ public class UserServiceImpl implements UserService {
     private final EmailUpdateRepository emailUpdateRepository;
     private final UsedPasswordRepository usedPasswordRepository;
     private final PasswordRecoveryTokenRepository passwordRecoveryTokenRepository;
-    private final UserPhotoRepository userPhotoRepository;
+    private final UserImageRepository userImageRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
     private final JwtService jwtService;
@@ -153,7 +153,7 @@ public class UserServiceImpl implements UserService {
         log.info("Getting authorized user (email={})", userDetails.getUsername());
 
         User user = (User) userDetails;
-        UserPhoto avatar = userPhotoRepository.findByUserAndAvatarIsTrue(user);
+        UserImage avatar = userImageRepository.findByUserAndAvatarIsTrue(user);
 
         UserShortDto userShortDto = UserMapper.INSTANCE.toUserShortDto(user);
         userShortDto.setAvatar(avatar != null ? avatar.getFileName() : null);
@@ -510,11 +510,11 @@ public class UserServiceImpl implements UserService {
                     Files.copy(inputStream, path, StandardCopyOption.REPLACE_EXISTING);
                 }
 
-                UserPhoto userPhoto = new UserPhoto();
-                userPhoto.setFileName(fileName);
-                userPhoto.setAvatar(true);
-                userPhoto.setUser(user);
-                userPhotoRepository.save(userPhoto);
+                UserImage userImage = new UserImage();
+                userImage.setFileName(fileName);
+                userImage.setAvatar(true);
+                userImage.setUser(user);
+                userImageRepository.save(userImage);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

@@ -3,12 +3,12 @@ package com.diploma.fitra.model;
 import jakarta.persistence.*;
 import lombok.*;
 
-@Entity(name = "_user_photos")
+@Entity(name = "_user_images")
 @Getter
 @Setter
 @ToString
 @RequiredArgsConstructor
-public class UserPhoto {
+public class UserImage {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

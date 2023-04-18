@@ -1,9 +1,9 @@
 package com.diploma.fitra.service.impl;
 
 import com.diploma.fitra.exception.NotFoundException;
-import com.diploma.fitra.model.UserPhoto;
+import com.diploma.fitra.model.UserImage;
 import com.diploma.fitra.model.error.Error;
-import com.diploma.fitra.repo.UserPhotoRepository;
+import com.diploma.fitra.repo.UserImageRepository;
 import com.diploma.fitra.service.ImageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +19,7 @@ import java.io.IOException;
 @Slf4j
 public class ImageServiceImpl implements ImageService {
 
-    private final UserPhotoRepository userPhotoRepository;
+    private final UserImageRepository userImageRepository;
 
     @Value("${photo-storage.user-photos}")
     private String userImagePath;
@@ -28,7 +28,7 @@ public class ImageServiceImpl implements ImageService {
     public byte[] getUserAvatar(String fileName) {
         log.info("Getting user avatar (fileName={})", fileName);
 
-        UserPhoto avatar = userPhotoRepository.findByFileNameAndAvatarIsTrue(fileName)
+        UserImage avatar = userImageRepository.findByFileNameAndAvatarIsTrue(fileName)
                 .orElseThrow(() -> new NotFoundException(Error.IMAGE_NOT_FOUND.getMessage()));
 
         File file = new File(userImagePath + avatar.getFileName());
