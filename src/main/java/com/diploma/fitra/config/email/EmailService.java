@@ -29,8 +29,11 @@ public class EmailService {
     @Value("${spring.mail.sender.name}")
     private String senderName;
 
-//    @Value("${spring.mail.verification-link}")
-//    private String registrationConfirmationLink;
+    @Value("${confirmation.registration-link}")
+    private String registrationConfirmationLink;
+
+    @Value("${confirmation.email-update-link}")
+    private String emailConfirmationLink;
 
     @Async
     public void sendRegistrationConfirmationLink(User user) {
@@ -41,7 +44,8 @@ public class EmailService {
             helper.setTo(user.getEmail());
             helper.setSubject("Registration");
             helper.setText("Hello, " + user.getFirstName() + "!\n" +
-                    "Your confirmation link is " + user.getConfirmToken() + ". Please click on this link to confirm your registration.");
+                    "Your confirmation link is " + registrationConfirmationLink +
+                    "?token" + user.getConfirmToken() + ". Please click on this link to confirm your registration.");
             javaMailSender.send(message);
         } catch (MessagingException | UnsupportedEncodingException e) {
             throw new EmailException(Error.FAILED_TO_SEND_REGISTRATION_CONFIRMATION_LINK.getMessage());
@@ -57,7 +61,8 @@ public class EmailService {
             helper.setTo(emailUpdate.getEmail());
             helper.setSubject("Confirm your email change");
             helper.setText("Hello, " + user.getFirstName() + "!\n" +
-                    "Your confirmation link is " + emailUpdate.getConfirmToken() + ". Please click on this link to confirm your new email.");
+                    "Your confirmation link is " + emailConfirmationLink +
+                    "?token=" + emailUpdate.getConfirmToken() + ". Please click on this link to confirm your new email.");
             javaMailSender.send(message);
         } catch (MessagingException | UnsupportedEncodingException e) {
             throw new EmailException(Error.FAILED_TO_SEND_REGISTRATION_CONFIRMATION_LINK.getMessage());

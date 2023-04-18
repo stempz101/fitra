@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.view.RedirectView;
 
 import java.util.List;
 
@@ -25,14 +26,12 @@ public class UserController implements UserApi {
     }
 
     @Override
-    public ResponseEntity<Void> confirmRegistration(String token) {
-        userService.confirmRegistration(token);
-        return ResponseEntity.noContent().build();
+    public RedirectView confirmRegistration(String token) {
+        return userService.confirmRegistration(token);
     }
 
     @Override
     public JwtDto authenticate(UserAuthDto authDto) {
-        System.out.println("ADIOS");
         return userService.authenticate(authDto);
     }
 
@@ -107,9 +106,8 @@ public class UserController implements UserApi {
     }
 
     @Override
-    public ResponseEntity<Void> confirmEmail(String token) {
-        userService.confirmEmail(token);
-        return ResponseEntity.noContent().build();
+    public RedirectView confirmEmail(String token) {
+        return userService.confirmEmail(token);
     }
 
     @Override

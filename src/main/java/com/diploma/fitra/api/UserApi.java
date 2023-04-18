@@ -17,6 +17,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.view.RedirectView;
 
 import java.util.List;
 
@@ -27,7 +28,7 @@ public interface UserApi {
     JwtDto register(@ModelAttribute @Valid UserSaveDto userSaveDto);
 
     @PostMapping("/confirm-registration")
-    ResponseEntity<Void> confirmRegistration(@RequestParam String token);
+    RedirectView confirmRegistration(@RequestParam String token);
 
     @PostMapping("/authenticate")
     JwtDto authenticate(@RequestBody @Valid UserAuthDto authDto);
@@ -102,7 +103,7 @@ public interface UserApi {
                                          @AuthenticationPrincipal UserDetails userDetails);
 
     @PostMapping("/confirm-email")
-    ResponseEntity<Void> confirmEmail(@RequestParam String token);
+    RedirectView confirmEmail(@RequestParam String token);
 
     @PutMapping("/{userId}/password")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")

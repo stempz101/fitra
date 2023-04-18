@@ -5,6 +5,7 @@ import com.diploma.fitra.dto.comment.CommentSaveDto;
 import com.diploma.fitra.dto.user.*;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.servlet.view.RedirectView;
 
 import java.util.List;
 
@@ -12,7 +13,7 @@ public interface UserService {
 
     JwtDto register(UserSaveDto userSaveDto);
 
-    void confirmRegistration(String token);
+    RedirectView confirmRegistration(String token);
 
     JwtDto authenticate(UserAuthDto authDto);
 
@@ -42,7 +43,7 @@ public interface UserService {
 
     void updateUserEmail(Long userId, UserEmailSaveDto userEmailSaveDto, UserDetails userDetails);
 
-    void confirmEmail(String token);
+    RedirectView confirmEmail(String token);
 
     void updateUserPassword(Long userId, UserPasswordSaveDto userPasswordSaveDto, UserDetails userDetails);
 

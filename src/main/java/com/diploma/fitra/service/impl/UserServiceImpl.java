@@ -23,6 +23,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.view.RedirectView;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -53,6 +54,9 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
     private final JwtService jwtService;
+
+    @Value("${frontend.link}")
+    private String frontendLink;
 
     @Value("${photo-storage.user-photos}")
     private String userPhotoStoragePath;
@@ -96,7 +100,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void confirmRegistration(String token) {
+    public RedirectView confirmRegistration(String token) {
         User user = userRepository.findByConfirmToken(token)
                 .orElseThrow(() -> new NotFoundException(Error.USER_NOT_FOUND.getMessage()));
 
@@ -108,6 +112,7 @@ public class UserServiceImpl implements UserService {
 
         user.setEnabled(true);
         userRepository.save(user);
+        return new RedirectView(frontendLink);
     }
 
     @Override
@@ -385,7 +390,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void confirmEmail(String token) {
+    public RedirectView confirmEmail(String token) {
         log.info("Confirming new email");
 
         EmailUpdate emailUpdate = emailUpdateRepository.findByConfirmToken(token)
@@ -402,6 +407,7 @@ public class UserServiceImpl implements UserService {
         emailUpdateRepository.delete(emailUpdate);
 
         log.info("User (id={}) email is updated successfully!", user.getId());
+        return new RedirectView(frontendLink);
     }
 
     @Override

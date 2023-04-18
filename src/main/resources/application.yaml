@@ -1,3 +1,11 @@
+server:
+  port: 8081
+frontend:
+  link: http://localhost:3000
+confirmation:
+  registration-link: http://localhost:8081/api/v1/users/confirm-registration
+  email-update-link: http://localhost:8081/api/v1/users/confirm-email
+#  password-recovery-link: http://localhost:8081/api/v1/users/
 spring:
   application:
     name: Fitra
@@ -26,9 +34,6 @@ spring:
             enable: true
     sender:
       name: Fitra
-#    verification-link: https://localhost:8081/api/v1/users/verify-email?token=
-server:
-  port: 8081
 photo-storage:
   user-photos: uploads/user-photos/
   travel-photos: uploads/travel-photos/
