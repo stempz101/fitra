@@ -17,6 +17,8 @@ public interface UserService {
 
     JwtDto authenticate(UserAuthDto authDto);
 
+    void resendConfirmRegistration(UserDetails userDetails);
+
     List<UserDto> getUsers(Pageable pageable, UserDetails userDetails);
 
     UserDto getUser(Long userId);

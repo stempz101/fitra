@@ -36,6 +36,17 @@ public class UserController implements UserApi {
     }
 
     @Override
+    public boolean isUserEnabled(UserDetails userDetails) {
+        return userDetails.isEnabled();
+    }
+
+    @Override
+    public ResponseEntity<Void> resendConfirmRegistration(UserDetails userDetails) {
+        userService.resendConfirmRegistration(userDetails);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Override
     public List<UserDto> getUsers(Pageable pageable, UserDetails userDetails) {
         return userService.getUsers(pageable, userDetails);
     }

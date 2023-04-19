@@ -27,11 +27,21 @@ public interface UserApi {
     @PostMapping("/register")
     JwtDto register(@ModelAttribute @Valid UserSaveDto userSaveDto);
 
-    @PostMapping("/confirm-registration")
+    @GetMapping("/confirm-registration")
     RedirectView confirmRegistration(@RequestParam String token);
 
     @PostMapping("/authenticate")
     JwtDto authenticate(@RequestBody @Valid UserAuthDto authDto);
+
+    @GetMapping("/enabled")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @SecurityRequirement(name = "Bearer Authentication")
+    boolean isUserEnabled(@AuthenticationPrincipal UserDetails userDetails);
+
+    @PostMapping("/resend-confirm-registration")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @SecurityRequirement(name = "Bearer Authentication")
+    ResponseEntity<Void> resendConfirmRegistration(@AuthenticationPrincipal UserDetails userDetails);
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
@@ -102,7 +112,7 @@ public interface UserApi {
                                          @RequestBody @Valid UserEmailSaveDto userEmailSaveDto,
                                          @AuthenticationPrincipal UserDetails userDetails);
 
-    @PostMapping("/confirm-email")
+    @GetMapping("/confirm-email")
     RedirectView confirmEmail(@RequestParam String token);
 
     @PutMapping("/{userId}/password")

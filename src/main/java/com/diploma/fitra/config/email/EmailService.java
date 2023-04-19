@@ -14,6 +14,8 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 
 import java.io.UnsupportedEncodingException;
 
@@ -22,6 +24,7 @@ import java.io.UnsupportedEncodingException;
 public class EmailService {
 
     private final JavaMailSender javaMailSender;
+    private final TemplateEngine templateEngine;
 
     @Value("${spring.mail.username}")
     private String senderEmail;
@@ -43,9 +46,14 @@ public class EmailService {
             helper.setFrom(new InternetAddress(senderEmail, senderName));
             helper.setTo(user.getEmail());
             helper.setSubject("Registration");
-            helper.setText("Hello, " + user.getFirstName() + "!\n" +
-                    "Your confirmation link is " + registrationConfirmationLink +
-                    "?token" + user.getConfirmToken() + ". Please click on this link to confirm your registration.");
+
+            Context context = new Context();
+            context.setVariable("name", user.getFirstName());
+            context.setVariable("confirmationLink",
+                    registrationConfirmationLink + "?token=" + user.getConfirmToken());
+            String htmlBody = templateEngine.process("registration-confirmation-template", context);
+
+            helper.setText(htmlBody ,true);
             javaMailSender.send(message);
         } catch (MessagingException | UnsupportedEncodingException e) {
             throw new EmailException(Error.FAILED_TO_SEND_REGISTRATION_CONFIRMATION_LINK.getMessage());

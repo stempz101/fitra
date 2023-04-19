@@ -132,6 +132,19 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public void resendConfirmRegistration(UserDetails userDetails) {
+        log.info("Resending registration confirmation link to the user (email={})", userDetails.getUsername());
+
+        User user = (User) userDetails;
+        if (user.getConfirmTokenExpiration().isBefore(LocalDateTime.now())) {
+            user.setConfirmToken(UUID.randomUUID().toString());
+            user.setConfirmTokenExpiration(LocalDateTime.now().plusHours(1L));
+            user = userRepository.save(user);
+        }
+        emailService.sendRegistrationConfirmationLink(user);
+    }
+
+    @Override
     public List<UserDto> getUsers(Pageable pageable, UserDetails userDetails) {
         log.info("Getting users");
 
