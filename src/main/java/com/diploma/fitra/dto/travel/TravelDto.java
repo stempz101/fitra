@@ -11,7 +11,7 @@ import java.util.List;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class TravelDto {
+public class  TravelDto {
 
     private Long id;
     private String name;
@@ -25,6 +25,7 @@ public class TravelDto {
     private int ageFrom;
     private int ageTo;
     private boolean withChildren;
+    private String photo;
     private LocalDateTime createdTime;
     private List<RouteDto> route;
     private List<EventDto> events;

@@ -17,7 +17,10 @@ public interface UserMapper {
     @BeanMapping(ignoreByDefault = true)
     @Mapping(source = "id", target = "id")
     @Mapping(source = "fullName", target = "name")
+    @Mapping(source = "firstName", target = "firstName")
+    @Mapping(source = "lastName", target = "lastName")
     @Mapping(source = "birthday", target = "birthday")
+    @Mapping(source = "email", target = "email")
     @Mapping(source = "about", target = "about")
     UserDto toUserDto(User user);
 

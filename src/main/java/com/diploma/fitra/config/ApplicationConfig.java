@@ -1,6 +1,7 @@
 package com.diploma.fitra.config;
 
 import com.diploma.fitra.repo.UserRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

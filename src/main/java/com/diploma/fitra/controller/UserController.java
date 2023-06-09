@@ -47,8 +47,8 @@ public class UserController implements UserApi {
     }
 
     @Override
-    public List<UserDto> getUsers(Pageable pageable, UserDetails userDetails) {
-        return userService.getUsers(pageable, userDetails);
+    public UserItemsResponse getUsers(String name, Long countryId, Long cityId, Pageable pageable) {
+        return userService.getUsers(name, countryId, cityId, pageable);
     }
 
     @Override
@@ -62,8 +62,9 @@ public class UserController implements UserApi {
     }
 
     @Override
-    public CommentDto createComment(Long userId, CommentSaveDto commentSaveDto, UserDetails userDetails) {
-        return userService.createComment(userId, commentSaveDto, userDetails);
+    public ResponseEntity<Void> createComment(Long userId, CommentSaveDto commentSaveDto, UserDetails userDetails) {
+        userService.createComment(userId, commentSaveDto, userDetails);
+        return ResponseEntity.noContent().build();
     }
 
     @Override
@@ -78,19 +79,8 @@ public class UserController implements UserApi {
     }
 
     @Override
-    public CommentDto createReply(Long commentId, CommentSaveDto commentSaveDto, UserDetails userDetails) {
-        return userService.createReply(commentId, commentSaveDto, userDetails);
-    }
-
-    @Override
-    public List<CommentDto> getReplies(Long commentId, Pageable pageable) {
-        return userService.getReplies(commentId, pageable);
-    }
-
-    @Override
-    public ResponseEntity<Void> deleteReply(Long replyId, UserDetails userDetails) {
-        userService.deleteReply(replyId, userDetails);
-        return ResponseEntity.noContent().build();
+    public RatingDto getUserRating(Long userId) {
+        return userService.getUserRating(userId);
     }
 
     @Override
@@ -106,13 +96,25 @@ public class UserController implements UserApi {
     }
 
     @Override
-    public UserDto updateUserInfo(Long userId, UserInfoSaveDto userInfoSaveDto, UserDetails userDetails) {
-        return userService.updateUserInfo(userId, userInfoSaveDto, userDetails);
+    public ResponseEntity<Void> setUserIsAdmin(Long userId, Boolean newAdmin, UserDetails userDetails) {
+        userService.setUserIsAdmin(userId, newAdmin, userDetails);
+        return ResponseEntity.noContent().build();
     }
 
     @Override
-    public ResponseEntity<Void> updateUserEmail(Long userId, UserEmailSaveDto userEmailSaveDto, UserDetails userDetails) {
-        userService.updateUserEmail(userId, userEmailSaveDto, userDetails);
+    public ResponseEntity<Void> setUserIsBlocked(Long userId, Boolean block, UserDetails userDetails) {
+        userService.setUserIsBlocked(userId, block, userDetails);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Override
+    public UserDto updateUserInfo(UserInfoSaveDto userInfoSaveDto, UserDetails userDetails) {
+        return userService.updateUserInfo(userInfoSaveDto, userDetails);
+    }
+
+    @Override
+    public ResponseEntity<Void> updateUserEmail(UserEmailSaveDto userEmailSaveDto, UserDetails userDetails) {
+        userService.updateUserEmail(userEmailSaveDto, userDetails);
         return ResponseEntity.noContent().build();
     }
 
@@ -122,8 +124,8 @@ public class UserController implements UserApi {
     }
 
     @Override
-    public ResponseEntity<Void> updateUserPassword(Long userId, UserPasswordSaveDto userPasswordSaveDto, UserDetails userDetails) {
-        userService.updateUserPassword(userId, userPasswordSaveDto, userDetails);
+    public ResponseEntity<Void> updateUserPassword(UserPasswordSaveDto userPasswordSaveDto, UserDetails userDetails) {
+        userService.updateUserPassword(userPasswordSaveDto, userDetails);
         return ResponseEntity.noContent().build();
     }
 

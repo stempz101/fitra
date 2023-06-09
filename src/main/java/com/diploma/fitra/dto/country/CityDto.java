@@ -6,4 +6,5 @@ import lombok.Data;
 public class CityDto {
     private Long id;
     private String title;
+    private Long countryId;
 }

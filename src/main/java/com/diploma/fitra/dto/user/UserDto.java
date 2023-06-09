@@ -12,7 +12,10 @@ import java.time.LocalDate;
 public class UserDto {
     private Long id;
     private String name;
+    private String firstName;
+    private String lastName;
     private LocalDate birthday;
+    private String email;
     private String about;
     private double rating;
     private long commentCount;

@@ -1,11 +1,13 @@
 package com.diploma.fitra.mapper;
 
 import com.diploma.fitra.dto.placereview.PlaceReviewSaveDto;
-import com.diploma.fitra.dto.travel.EventSaveDto;
 import com.diploma.fitra.dto.travel.TravelSaveDto;
 import com.diploma.fitra.dto.type.TypeSaveDto;
 import com.diploma.fitra.dto.user.UserInfoSaveDto;
-import com.diploma.fitra.model.*;
+import com.diploma.fitra.model.PlaceReview;
+import com.diploma.fitra.model.Travel;
+import com.diploma.fitra.model.Type;
+import com.diploma.fitra.model.User;
 
 public interface UpdateMapper {
 
@@ -26,19 +28,6 @@ public interface UpdateMapper {
         travel.setWithChildren(travelSaveDto.isWithChildren());
 
         return travel;
-    }
-
-    static Event updateEventWithPresentEventSaveDtoFields(Event event, EventSaveDto eventSaveDto) {
-        if (event == null)
-            return null;
-        else if (eventSaveDto == null)
-            return event;
-
-        event.setName(eventSaveDto.getName());
-        event.setStartTime(eventSaveDto.getStartTime());
-        event.setEndTime(eventSaveDto.getEndTime());
-
-        return event;
     }
 
     static Type updateTypeWithPresentTypeSaveDtoFields(Type type, TypeSaveDto typeSaveDto) {
@@ -74,7 +63,9 @@ public interface UpdateMapper {
 
         user.setFirstName(userInfoSaveDto.getFirstName());
         user.setLastName(userInfoSaveDto.getLastName());
+        user.setFullName(userInfoSaveDto.getFirstName() + " " + userInfoSaveDto.getLastName());
         user.setBirthday(userInfoSaveDto.getBirthday());
+        user.setAbout(userInfoSaveDto.getAbout());
 
         return user;
     }

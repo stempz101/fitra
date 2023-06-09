@@ -17,7 +17,7 @@ import java.util.UUID;
 public class ChatMessage {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
     @JoinColumn(nullable = false)

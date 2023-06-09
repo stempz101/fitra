@@ -47,6 +47,13 @@ public enum Error {
     EMAIL_CONFIRMED("Email is already confirmed!"),
     EMAIL_IS_CURRENT("Entered email is current!"),
     USER_CANT_COMMENT_HIMSELF("User can't comment himself!"),
+    PHOTO_IS_NULL_OR_EMPTY("Photo is null or empty!"),
+    ROUTE_MAPPING_ERROR("Error is occurred while mapping route from JSON to List<>!"),
+    EVENTS_MAPPING_ERROR("Error is occurred while mapping events from JSON to List<>!"),
+    USER_IS_BLOCKED_OR_ADMIN("User is blocked or an admin!"),
+    USER_IS_BLOCKED_OR_NOT_ADMIN("User is blocked or not an admin!"),
+    USER_IS_BLOCKED("User is already blocked!"),
+    USER_IS_NOT_BLOCKED("User is not blocked!"),
 
     // ExistenceException messages
     USER_EXISTS_WITH_EMAIL("User with specified email already exists!"),
@@ -74,10 +81,15 @@ public enum Error {
     PASSWORD_RECOVERY_CAN_NOT_BE_SENT("Password recovery can not be sent because recover link is still valid!"),
     PASSWORD_PREVIOUSLY_USED("Entered new password was previously used!"),
     USER_COMMENT_IS_EXISTS("User review is already exists!"),
+    ONLY_ONE_IMAGE("There is no possible images that can be as main!"),
 
     // GoneException
     EMAIL_CONFIRMATION_EXPIRED("Email confirmation link has expired!"),
-    PASSWORD_RECOVERY_EXPIRED("Password recovery link has expired!");
+    PASSWORD_RECOVERY_EXPIRED("Password recovery link has expired!"),
+
+    // RuntimeException
+    TRAVEL_IMAGE_IS_NOT_DELETED("Failed to delete travel image"),
+    USER_IMAGE_IS_NOT_DELETED("Failed to delete user image");
 
     private final String message;
 

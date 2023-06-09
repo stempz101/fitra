@@ -44,10 +44,10 @@ public interface UserApi {
     ResponseEntity<Void> resendConfirmRegistration(@AuthenticationPrincipal UserDetails userDetails);
 
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
-    @SecurityRequirement(name = "Bearer Authentication")
-    List<UserDto> getUsers(@PageableDefault(size = 15) Pageable pageable,
-                           @AuthenticationPrincipal UserDetails userDetails);
+    UserItemsResponse getUsers(@RequestParam(required = false) String name,
+                           @RequestParam(required = false) Long countryId,
+                           @RequestParam(required = false) Long cityId,
+                           @PageableDefault(size = 15) Pageable pageable);
 
     @GetMapping("/{userId}")
     UserDto getUser(@PathVariable Long userId);
@@ -60,7 +60,7 @@ public interface UserApi {
     @PostMapping("/{userId}/comments")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
-    CommentDto createComment(@PathVariable Long userId,
+    ResponseEntity<Void> createComment(@PathVariable Long userId,
                              @RequestBody @Validated(IsUserComment.class) CommentSaveDto commentSaveDto,
                              @AuthenticationPrincipal UserDetails userDetails);
 
@@ -74,22 +74,8 @@ public interface UserApi {
     ResponseEntity<Void> deleteComment(@PathVariable Long commentId,
                                        @AuthenticationPrincipal UserDetails userDetails);
 
-    @PostMapping("/comments/{commentId}")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    @SecurityRequirement(name = "Bearer Authentication")
-    CommentDto createReply(@PathVariable Long commentId,
-                           @RequestBody @Validated(IsNotUserComment.class) CommentSaveDto commentSaveDto,
-                           @AuthenticationPrincipal UserDetails userDetails);
-
-    @GetMapping("/comments/{commentId}/replies")
-    List<CommentDto> getReplies(@PathVariable Long commentId,
-                                @PageableDefault Pageable pageable);
-
-    @DeleteMapping("/comments/replies/{replyId}")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    @SecurityRequirement(name = "Bearer Authentication")
-    ResponseEntity<Void> deleteReply(@PathVariable Long replyId,
-                                     @AuthenticationPrincipal UserDetails userDetails);
+    @GetMapping("/{userId}/rating")
+    RatingDto getUserRating(@PathVariable Long userId);
 
     @PostMapping("/send-recover-password-mail")
     ResponseEntity<Void> sendRecoverPasswordMail(@RequestBody @Valid UserEmailSaveDto userEmailDto);
@@ -98,28 +84,39 @@ public interface UserApi {
     ResponseEntity<Void> recoverPassword(@RequestParam String token,
                                          @RequestBody @Validated(OnRecover.class) UserPasswordSaveDto userPasswordSaveDto);
 
-    @PutMapping("/{userId}/info")
+    @PutMapping("/{userId}/admin/{newAdmin}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @SecurityRequirement(name = "Bearer Authentication")
+    ResponseEntity<Void> setUserIsAdmin(@PathVariable Long userId,
+                                        @PathVariable Boolean newAdmin,
+                                        @AuthenticationPrincipal UserDetails userDetails);
+
+    @PutMapping("/{userId}/block/{block}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @SecurityRequirement(name = "Bearer Authentication")
+    ResponseEntity<Void> setUserIsBlocked(@PathVariable Long userId,
+                                          @PathVariable Boolean block,
+                                          @AuthenticationPrincipal UserDetails userDetails);
+
+    @PutMapping("/info")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
-    UserDto updateUserInfo(@PathVariable Long userId,
-                           @RequestBody @Valid UserInfoSaveDto userInfoSaveDto,
+    UserDto updateUserInfo(@RequestBody @Valid UserInfoSaveDto userInfoSaveDto,
                            @AuthenticationPrincipal UserDetails userDetails);
 
-    @PutMapping("/{userId}/email")
+    @PutMapping("/email")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
-    ResponseEntity<Void> updateUserEmail(@PathVariable Long userId,
-                                         @RequestBody @Valid UserEmailSaveDto userEmailSaveDto,
+    ResponseEntity<Void> updateUserEmail(@RequestBody @Valid UserEmailSaveDto userEmailSaveDto,
                                          @AuthenticationPrincipal UserDetails userDetails);
 
     @GetMapping("/confirm-email")
     RedirectView confirmEmail(@RequestParam String token);
 
-    @PutMapping("/{userId}/password")
+    @PutMapping("/password")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
-    ResponseEntity<Void> updateUserPassword(@PathVariable Long userId,
-                                            @RequestBody @Validated(OnUpdate.class) UserPasswordSaveDto userPasswordSaveDto,
+    ResponseEntity<Void> updateUserPassword(@RequestBody @Validated(OnUpdate.class) UserPasswordSaveDto userPasswordSaveDto,
                                             @AuthenticationPrincipal UserDetails userDetails);
 
     @DeleteMapping("/{userId}")

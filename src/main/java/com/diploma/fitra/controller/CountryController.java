@@ -22,13 +22,22 @@ public class CountryController implements CountryApi {
     }
 
     @Override
-    public Country getCountry(Long countryId) {
+    public CountryDto getCountry(Long countryId) {
         return countryService.getCountry(countryId);
     }
 
     @Override
-    public List<CityDto> getCities(Long countryId, String search, Pageable pageable) {
-        System.out.println("AAAAAAAAAAAAAA: " + search);
-        return countryService.getCities(countryId, search, pageable);
+    public List<CityDto> getCities(String search, Pageable pageable) {
+        return countryService.getCities(search, pageable);
+    }
+
+    @Override
+    public List<CityDto> getCitiesByCountry(Long countryId, String search, Pageable pageable) {
+        return countryService.getCitiesByCountry(countryId, search, pageable);
+    }
+
+    @Override
+    public CityDto getCity(Long cityId) {
+        return countryService.getCity(cityId);
     }
 }

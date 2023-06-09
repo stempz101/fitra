@@ -14,6 +14,8 @@ public class RequestDto {
     private Long id;
     private TravelShortDto travel;
     private UserShortDto sender;
+    private String text;
     private LocalDateTime createTime;
     private String status;
+    private boolean viewed;
 }

@@ -12,9 +12,16 @@ import java.util.List;
 @Repository
 public interface TravelRepository extends JpaRepository<Travel, Long> {
 
-    List<Travel> findAllByBlockedIsFalseOrderByCreatedTimeDesc(Pageable pageable);
-
     @Query("select t from _travels t " +
+            "where t in (select p.travel from _participants p where p.user = ?1) " +
+            "order by t.startDate")
+    List<Travel> findAllForUserOrderByStartDate(User user, Pageable pageable);
+
+    List<Travel> findAllByCreatorIdOrderByStartDate(Long creatorId, Pageable pageable);
+
+    @Query("select count(t) from _travels t " +
             "where t in (select p.travel from _participants p where p.user = ?1)")
-    List<Travel> findAllForUser(User user, Pageable pageable);
+    long countAllForUser(User user);
+
+    long countAllByCreatorId(Long creatorId);
 }

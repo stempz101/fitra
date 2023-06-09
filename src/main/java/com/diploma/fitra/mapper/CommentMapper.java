@@ -3,7 +3,6 @@ package com.diploma.fitra.mapper;
 import com.diploma.fitra.dto.comment.CommentDto;
 import com.diploma.fitra.model.PlaceReviewComment;
 import com.diploma.fitra.model.UserComment;
-import com.diploma.fitra.model.UserCommentReply;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
@@ -18,7 +17,4 @@ public interface CommentMapper {
 
     @Mapping(source = "author.fullName", target = "user.name")
     CommentDto toCommentDto(UserComment comment);
-
-    @Mapping(source = "author.fullName", target = "user.name")
-    CommentDto toCommentDto(UserCommentReply commentReply);
 }

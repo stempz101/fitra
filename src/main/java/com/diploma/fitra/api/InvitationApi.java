@@ -1,7 +1,10 @@
 package com.diploma.fitra.api;
 
 import com.diploma.fitra.dto.invitation.InvitationDto;
+import com.diploma.fitra.dto.invitation.InvitationSaveDto;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -18,19 +21,26 @@ public interface InvitationApi {
     @SecurityRequirement(name = "Bearer Authentication")
     ResponseEntity<Void> createInvitation(@PathVariable Long travelId,
                                           @PathVariable Long userId,
+                                          @RequestBody InvitationSaveDto invitationSaveDto,
                                           @AuthenticationPrincipal UserDetails userDetails);
 
-    @GetMapping("/user/{userId}")
+    @GetMapping("/user")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
-    List<InvitationDto> getInvitations(@PathVariable Long userId,
-                                       @AuthenticationPrincipal UserDetails userDetails);
+    List<InvitationDto> getUserInvitations(@PageableDefault Pageable pageable,
+                                           @AuthenticationPrincipal UserDetails userDetails);
 
-    @GetMapping("/creator/{creatorId}")
+    @GetMapping("/travel/{travelId}")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
-    List<InvitationDto> getInvitationsForCreator(@PathVariable Long creatorId,
-                                                 @AuthenticationPrincipal UserDetails userDetails);
+    List<InvitationDto> getTravelInvitations(@PathVariable Long travelId,
+                                             @AuthenticationPrincipal UserDetails userDetails);
+
+    @PutMapping("/{invitationId}/viewed")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @SecurityRequirement(name = "Bearer Authentication")
+    ResponseEntity<Void> setInviteAsViewed(@PathVariable Long invitationId,
+                                           @AuthenticationPrincipal UserDetails userDetails);
 
     @PostMapping("/{invitationId}/approve")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
@@ -44,9 +54,9 @@ public interface InvitationApi {
     ResponseEntity<Void> rejectInvitation(@PathVariable Long invitationId,
                                           @AuthenticationPrincipal UserDetails userDetails);
 
-    @DeleteMapping("/{invitationId}/cancel")
+    @DeleteMapping("/{invitationId}")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
-    ResponseEntity<Void> cancelInvitation(@PathVariable Long invitationId,
+    ResponseEntity<Void> deleteInvitation(@PathVariable Long invitationId,
                                           @AuthenticationPrincipal UserDetails userDetails);
 }

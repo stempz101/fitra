@@ -25,7 +25,7 @@ public interface TypeApi {
     List<TypeDto> getTypes();
 
     @GetMapping("/{typeId}")
-    Type getType(@PathVariable Long typeId);
+    TypeDto getType(@PathVariable Long typeId);
 
     @PutMapping("/{typeId}")
     @PreAuthorize("hasRole('ADMIN')")

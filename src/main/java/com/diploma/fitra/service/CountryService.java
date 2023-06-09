@@ -11,7 +11,11 @@ public interface CountryService {
 
     List<CountryDto> getCountries(String search);
 
-    Country getCountry(Long id);
+    CountryDto getCountry(Long id);
 
-    List<CityDto> getCities(Long countryId, String search, Pageable pageable);
+    List<CityDto> getCities(String search, Pageable pageable);
+
+    List<CityDto> getCitiesByCountry(Long countryId, String search, Pageable pageable);
+
+    CityDto getCity(Long cityId);
 }

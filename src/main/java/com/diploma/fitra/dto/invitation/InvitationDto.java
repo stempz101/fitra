@@ -8,10 +8,11 @@ import java.time.LocalDateTime;
 
 @Data
 public class InvitationDto {
-
     private Long id;
     private TravelShortDto travel;
     private UserShortDto receiver;
+    private String text;
     private LocalDateTime createTime;
     private String status;
+    private boolean viewed;
 }

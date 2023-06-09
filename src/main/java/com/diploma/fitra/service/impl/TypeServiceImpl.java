@@ -50,19 +50,25 @@ public class TypeServiceImpl implements TypeService {
         log.info("Getting types");
 
         return typeRepository.findAll().stream()
-                .map(TypeMapper.INSTANCE::toTypeDto)
+                .map(type -> {
+                    TypeDto typeDto = TypeMapper.INSTANCE.toTypeDto(type);
+                    typeDto.setName(type.getNameEn());
+                    return typeDto;
+                })
                 .collect(Collectors.toList());
     }
 
     @Override
-    public Type getType(Long typeId) {
+    public TypeDto getType(Long typeId) {
         log.info("Getting type with id: {}", typeId);
 
         Type type = typeRepository.findById(typeId)
                 .orElseThrow(() -> new NotFoundException(Error.TYPE_NOT_FOUND.getMessage()));
 
         log.info("Received category (id={}): {}", typeId, type);
-        return type;
+        TypeDto typeDto = TypeMapper.INSTANCE.toTypeDto(type);
+        typeDto.setName(type.getNameEn());
+        return typeDto;
     }
 
     @Override

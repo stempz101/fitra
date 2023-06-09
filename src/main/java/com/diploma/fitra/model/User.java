@@ -46,6 +46,7 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private LocalDate birthday;
 
+    @Column(columnDefinition = "TEXT")
     private String about;
 
     @JoinColumn(nullable = false)

@@ -18,11 +18,18 @@ public interface CountryApi {
     @GetMapping
     List<CountryDto> getCountries(@RequestParam(defaultValue = "") String search);
 
-    @GetMapping("/id/{countryId}")
-    Country getCountry(@PathVariable Long countryId);
+    @GetMapping("/{countryId}")
+    CountryDto getCountry(@PathVariable Long countryId);
+
+    @GetMapping("/cities")
+    List<CityDto> getCities(@RequestParam(defaultValue = "") String search,
+                            @PageableDefault(size = 50, sort = {"id"}) Pageable pageable);
 
     @GetMapping("/{countryId}/cities")
-    List<CityDto> getCities(@PathVariable Long countryId,
-                            @RequestParam(defaultValue = "") String search,
-                            @PageableDefault(size = 50, sort = {"id"}) Pageable pageable);
+    List<CityDto> getCitiesByCountry(@PathVariable Long countryId,
+                                     @RequestParam(defaultValue = "") String search,
+                                     @PageableDefault(size = 50, sort = {"id"}) Pageable pageable);
+
+    @GetMapping("/cities/{cityId}")
+    CityDto getCity(@PathVariable Long cityId);
 }

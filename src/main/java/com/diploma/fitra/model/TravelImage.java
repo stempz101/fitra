@@ -8,34 +8,25 @@ import lombok.ToString;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import java.time.LocalDateTime;
-
-@Entity(name = "_user_comment_replies")
+@Entity(name = "_travel_images")
 @Getter
 @Setter
 @ToString
 @RequiredArgsConstructor
-public class UserCommentReply {
+public class TravelImage {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @JoinColumn(nullable = false)
-    @ManyToOne(fetch = FetchType.LAZY)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    @ToString.Exclude
-    private UserComment comment;
-
-    @JoinColumn(nullable = false)
-    @ManyToOne(fetch = FetchType.LAZY)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    @ToString.Exclude
-    private User author;
-
-    @Column(nullable = false, columnDefinition = "TEXT")
-    private String text;
-
     @Column(nullable = false)
-    private LocalDateTime createTime;
+    private String fileName;
+
+    private boolean main;
+
+    @JoinColumn(nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @ToString.Exclude
+    private Travel travel;
 }

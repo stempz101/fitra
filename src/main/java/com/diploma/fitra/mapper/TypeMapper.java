@@ -12,7 +12,6 @@ public interface TypeMapper {
 
     TypeMapper INSTANCE = Mappers.getMapper(TypeMapper.class);
 
-    @Mapping(source = "nameEn", target = "name")
     TypeDto toTypeDto(Type type);
 
     Type fromTypeSaveDto(TypeSaveDto typeSaveDto);

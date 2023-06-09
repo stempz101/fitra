@@ -27,7 +27,7 @@ public class TypeController implements TypeApi {
     }
 
     @Override
-    public Type getType(Long typeId) {
+    public TypeDto getType(Long typeId) {
         return typeService.getType(typeId);
     }
 

@@ -19,35 +19,35 @@ public interface UserService {
 
     void resendConfirmRegistration(UserDetails userDetails);
 
-    List<UserDto> getUsers(Pageable pageable, UserDetails userDetails);
+    UserItemsResponse getUsers(String name, Long countryId, Long cityId, Pageable pageable);
 
     UserDto getUser(Long userId);
 
     UserShortDto getAuthorizedUser(UserDetails userDetails);
 
-    CommentDto createComment(Long userId, CommentSaveDto commentSaveDto, UserDetails userDetails);
+    void createComment(Long userId, CommentSaveDto commentSaveDto, UserDetails userDetails);
 
     List<CommentDto> getComments(Long userId, Pageable pageable);
 
     void deleteComment(Long commentId, UserDetails userDetails);
 
-    CommentDto createReply(Long commentId, CommentSaveDto commentSaveDto, UserDetails userDetails);
-
-    List<CommentDto> getReplies(Long commentId, Pageable pageable);
-
-    void deleteReply(Long replyId, UserDetails userDetails);
+    RatingDto getUserRating(Long userId);
 
     void sendRecoverPasswordMail(UserEmailSaveDto userEmailDto);
 
     void recoverPassword(String token, UserPasswordSaveDto userPasswordSaveDto);
 
-    UserDto updateUserInfo(Long userId, UserInfoSaveDto userInfoSaveDto, UserDetails userDetails);
+    void setUserIsAdmin(Long userId, Boolean newAdmin, UserDetails userDetails);
 
-    void updateUserEmail(Long userId, UserEmailSaveDto userEmailSaveDto, UserDetails userDetails);
+    void setUserIsBlocked(Long userId, Boolean block, UserDetails userDetails);
+
+    UserDto updateUserInfo(UserInfoSaveDto userInfoSaveDto, UserDetails userDetails);
+
+    void updateUserEmail(UserEmailSaveDto userEmailSaveDto, UserDetails userDetails);
 
     RedirectView confirmEmail(String token);
 
-    void updateUserPassword(Long userId, UserPasswordSaveDto userPasswordSaveDto, UserDetails userDetails);
+    void updateUserPassword(UserPasswordSaveDto userPasswordSaveDto, UserDetails userDetails);
 
     void deleteUser(Long userId, UserDetails userDetails);
 }

@@ -2,8 +2,10 @@ package com.diploma.fitra.controller;
 
 import com.diploma.fitra.api.InvitationApi;
 import com.diploma.fitra.dto.invitation.InvitationDto;
+import com.diploma.fitra.dto.invitation.InvitationSaveDto;
 import com.diploma.fitra.service.InvitationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,19 +19,25 @@ public class InvitationController implements InvitationApi {
     private final InvitationService invitationService;
 
     @Override
-    public ResponseEntity<Void> createInvitation(Long travelId, Long userId, UserDetails userDetails) {
-        invitationService.createInvitation(travelId, userId, userDetails);
+    public ResponseEntity<Void> createInvitation(Long travelId, Long userId, InvitationSaveDto invitationSaveDto, UserDetails userDetails) {
+        invitationService.createInvitation(travelId, userId, invitationSaveDto, userDetails);
         return ResponseEntity.noContent().build();
     }
 
     @Override
-    public List<InvitationDto> getInvitations(Long userId, UserDetails userDetails) {
-        return invitationService.getInvitations(userId, userDetails);
+    public List<InvitationDto> getUserInvitations(Pageable pageable, UserDetails userDetails) {
+        return invitationService.getUserInvitations(pageable, userDetails);
     }
 
     @Override
-    public List<InvitationDto> getInvitationsForCreator(Long creatorId, UserDetails userDetails) {
-        return invitationService.getInvitationsForCreator(creatorId, userDetails);
+    public List<InvitationDto> getTravelInvitations(Long travelId, UserDetails userDetails) {
+        return invitationService.getTravelInvitations(travelId, userDetails);
+    }
+
+    @Override
+    public ResponseEntity<Void> setInviteAsViewed(Long invitationId, UserDetails userDetails) {
+        invitationService.setInviteAsViewed(invitationId, userDetails);
+        return ResponseEntity.noContent().build();
     }
 
     @Override
@@ -45,8 +53,8 @@ public class InvitationController implements InvitationApi {
     }
 
     @Override
-    public ResponseEntity<Void> cancelInvitation(Long invitationId, UserDetails userDetails) {
-        invitationService.cancelInvitation(invitationId, userDetails);
+    public ResponseEntity<Void> deleteInvitation(Long invitationId, UserDetails userDetails) {
+        invitationService.deleteInvitation(invitationId, userDetails);
         return ResponseEntity.noContent().build();
     }
 }

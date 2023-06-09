@@ -2,6 +2,8 @@ package com.diploma.fitra.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Entity(name = "_user_images")
 @Getter
@@ -19,8 +21,9 @@ public class UserImage {
 
     private boolean avatar;
 
-    @JoinColumn
+    @JoinColumn(nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @ToString.Exclude
     private User user;
 }

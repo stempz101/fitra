@@ -7,12 +7,17 @@ import com.diploma.fitra.dto.validation.NoPhoneNumber;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.*;
 import lombok.Data;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.List;
 
 @Data
 public class TravelSaveDto {
+
+    public TravelSaveDto() {
+        System.out.println(this);
+    }
 
     @NotBlank(message = "{validation.not_blank.title}", groups = {OnCreate.class, OnUpdate.class})
     private String name;
@@ -53,10 +58,13 @@ public class TravelSaveDto {
 
     private boolean withChildren;
 
-    @NotNull(message = "{validation.not_null.route}", groups = OnCreate.class)
-    @Null(message = "{validation.null.route}", groups = OnUpdate.class)
-    private List<RouteDto> route;
+    @NotNull(message = "{validation.not_null.photo}", groups = OnCreate.class)
+    @Null(message = "{validation.null.photo}", groups = OnUpdate.class)
+    private MultipartFile photo;
+
+    @NotNull(message = "{validation.not_null.route}", groups = {OnCreate.class, OnUpdate.class})
+    private String route;
 
     @Null(message = "{validation.null.events}", groups = OnUpdate.class)
-    private List<EventSaveDto> events;
+    private String events;
 }

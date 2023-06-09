@@ -32,10 +32,15 @@ public class JoinRequest {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
 
+    @Column(columnDefinition = "TEXT")
+    private String text;
+
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Status status;
 
     @Column(nullable = false)
     private LocalDateTime createTime;
+
+    private boolean viewed;
 }

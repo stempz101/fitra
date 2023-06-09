@@ -34,6 +34,9 @@ spring:
             enable: true
     sender:
       name: Fitra
+  servlet:
+    multipart:
+      max-file-size: 10MB
 photo-storage:
   user-photos: uploads/user-photos/
   travel-photos: uploads/travel-photos/

@@ -264,7 +264,7 @@ public class PlaceReviewServiceImpl implements PlaceReviewService {
 
     private CommentDto toCommentDto(PlaceReviewComment comment) {
         CommentDto commentDto = CommentMapper.INSTANCE.toCommentDto(comment);
-        commentDto.setReplies(placeReviewCommentRepository.countByParentCommentId(comment.getId()));
+//        commentDto.setReplies(placeReviewCommentRepository.countByParentCommentId(comment.getId()));
 
         return commentDto;
     }

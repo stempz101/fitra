@@ -15,5 +15,4 @@ public class CommentDto {
     private String text;
     private Integer rating;
     private LocalDateTime createDate;
-    private Long replies;
 }

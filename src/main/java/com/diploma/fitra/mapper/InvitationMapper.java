@@ -12,5 +12,9 @@ public interface InvitationMapper {
     InvitationMapper INSTANCE = Mappers.getMapper(InvitationMapper.class);
 
     @Mapping(source = "user", target = "receiver")
+    @Mapping(source = "user.fullName", target = "receiver.name")
+    @Mapping(source = "user.firstName", target = "receiver.firstName")
+    @Mapping(source = "travel.creator.fullName", target = "travel.creator.name")
+    @Mapping(source = "travel.creator.firstName", target = "travel.creator.firstName")
     InvitationDto toInvitationDto(Invitation invitation);
 }

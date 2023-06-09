@@ -11,6 +11,7 @@ import com.diploma.fitra.model.*;
 import com.diploma.fitra.model.enums.Role;
 import com.diploma.fitra.model.error.Error;
 import com.diploma.fitra.repo.*;
+import com.diploma.fitra.repo.custom.UserCustomRepository;
 import com.diploma.fitra.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,10 +44,10 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final UserCustomRepository userCustomRepository;
     private final CountryRepository countryRepository;
     private final CityRepository cityRepository;
     private final UserCommentRepository userCommentRepository;
-    private final UserCommentReplyRepository userCommentReplyRepository;
     private final EmailUpdateRepository emailUpdateRepository;
     private final UsedPasswordRepository usedPasswordRepository;
     private final PasswordRecoveryTokenRepository passwordRecoveryTokenRepository;
@@ -145,16 +146,27 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDto> getUsers(Pageable pageable, UserDetails userDetails) {
+    public UserItemsResponse getUsers(String name, Long countryId, Long cityId, Pageable pageable) {
         log.info("Getting users");
 
-        if (!userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
-            throw new ForbiddenException(Error.ACCESS_DENIED.getMessage());
-        }
-
-        return userRepository.findAll().stream()
-                .map(this::toUserDto)
+        List<UserShortDto> users = userCustomRepository.findAllByQueryParams(name, countryId, cityId, pageable)
+                .stream()
+                .map(user -> {
+                    UserShortDto userShortDto = UserMapper.INSTANCE.toUserShortDto(user);
+                    userShortDto.setCountry(CountryMapper.INSTANCE.toCountryDto(user.getCountry()));
+                    userShortDto.setBirthday(user.getBirthday());
+                    userShortDto.setCityDto(CityMapper.INSTANCE.toCityDto(user.getCity()));
+                    userShortDto.setIsAdmin(user.getRole().equals(Role.ADMIN));
+                    userShortDto.setIsBlocked(user.isBlocked());
+                    return userShortDto;
+                })
                 .collect(Collectors.toList());
+        long count = userCustomRepository.countByQueryParams(name, countryId, cityId);
+
+        return UserItemsResponse.builder()
+                .items(users)
+                .totalItems(count)
+                .build();
     }
 
     @Override
@@ -171,10 +183,10 @@ public class UserServiceImpl implements UserService {
         log.info("Getting authorized user (email={})", userDetails.getUsername());
 
         User user = (User) userDetails;
-        UserImage avatar = userImageRepository.findByUserAndAvatarIsTrue(user);
 
-        UserShortDto userShortDto = UserMapper.INSTANCE.toUserShortDto(user);
-        userShortDto.setAvatar(avatar != null ? avatar.getFileName() : null);
+        UserShortDto userShortDto = new UserShortDto();
+        userShortDto.setId(user.getId());
+        userShortDto.setFirstName(user.getFirstName());
         if (userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
             userShortDto.setIsAdmin(true);
         }
@@ -183,7 +195,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public CommentDto createComment(Long userId, CommentSaveDto commentSaveDto, UserDetails userDetails) {
+    public void createComment(Long userId, CommentSaveDto commentSaveDto, UserDetails userDetails) {
         log.info("Commenting user (id={})", userId);
 
         User user = userRepository.findById(userId)
@@ -199,7 +211,6 @@ public class UserServiceImpl implements UserService {
 
         log.info("Comment (id={}) is created to the user (id={}) by the user (id={})",
                 comment.getId(), user.getId(), author.getId());
-        return CommentMapper.INSTANCE.toCommentDto(comment);
     }
 
     @Override
@@ -208,7 +219,11 @@ public class UserServiceImpl implements UserService {
 
         return userCommentRepository.findAllByUserIdOrderByCreateTimeDesc(userId, pageable)
                 .stream()
-                .map(this::toCommentDto)
+                .map(userComment -> {
+                    CommentDto commentDto = CommentMapper.INSTANCE.toCommentDto(userComment);
+                    commentDto.getUser().setIsAdmin(userComment.getUser().getRole().equals(Role.ADMIN));
+                    return commentDto;
+                })
                 .collect(Collectors.toList());
     }
 
@@ -232,49 +247,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public CommentDto createReply(Long commentId, CommentSaveDto commentSaveDto, UserDetails userDetails) {
-        log.info("Replying to the comment (id={}) for the user profile", commentId);
-
-        UserComment comment = userCommentRepository.findById(commentId)
-                .orElseThrow(() -> new NotFoundException(Error.USER_COMMENT_NOT_FOUND.getMessage()));
-        User author = (User) userDetails;
-
-        UserCommentReply commentReply = userCommentReplyRepository
-                .save(toUserCommentReply(commentSaveDto, author, comment));
-
-        log.info("Reply (id={}) to the comment (id={}) for the user profile (id={}) " +
-                        "is created successfully by the user (id={})", commentReply.getId(), comment.getId(),
-                comment.getUser().getId(), author.getId());
-        return CommentMapper.INSTANCE.toCommentDto(commentReply);
-    }
-
-    @Override
-    public List<CommentDto> getReplies(Long commentId, Pageable pageable) {
-        log.info("Getting replies for the comment (id={}) in user profile", commentId);
-
-        return userCommentReplyRepository.findAllByCommentIdOrderByCreateTimeAsc(commentId)
-                .stream()
-                .map(CommentMapper.INSTANCE::toCommentDto)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public void deleteReply(Long replyId, UserDetails userDetails) {
-        log.info("Deleting reply (id={}) of the comment from the user profile", replyId);
-
-        UserCommentReply commentReply = userCommentReplyRepository.findById(replyId)
-                .orElseThrow(() -> new NotFoundException(Error.USER_COMMENT_REPLY_NOT_FOUND.getMessage()));
-        if (!commentReply.getAuthor().getEmail().equals(userDetails.getUsername())) {
-            if (!commentReply.getComment().getUser().getEmail().equals(userDetails.getUsername())) {
-                if (!userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
-                    throw new ForbiddenException(Error.ACCESS_DENIED.getMessage());
-                }
-            }
-        }
-
-        userCommentReplyRepository.delete(commentReply);
-
-        log.info("Reply (id={}) of the comment from the user profile is deleted successfully!", replyId);
+    public RatingDto getUserRating(Long userId) {
+        double rating = userCommentRepository.avgRatingByUserId(userId);
+        return RatingDto.builder().rating(Double.parseDouble(String.format("%.1f", rating))).build();
     }
 
     @Override
@@ -333,16 +308,57 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto updateUserInfo(Long userId, UserInfoSaveDto userInfoSaveDto, UserDetails userDetails) {
-        log.info("Updating user (id={}) information", userId);
+    public void setUserIsAdmin(Long userId, Boolean newAdmin, UserDetails userDetails) {
+        User admin = (User) userDetails;
 
+        if (userId.equals(admin.getId())) {
+            throw new ForbiddenException(Error.ACCESS_DENIED.getMessage());
+        }
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(Error.USER_NOT_FOUND.getMessage()));
-        if (!user.getEmail().equals(userDetails.getUsername())) {
-            if (!userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
-                throw new ForbiddenException(Error.ACCESS_DENIED.getMessage());
+        if (newAdmin) {
+            if (user.isBlocked() || user.getRole().equals(Role.ADMIN)) {
+                throw new BadRequestException(Error.USER_IS_BLOCKED_OR_ADMIN.getMessage());
             }
+            user.setRole(Role.ADMIN);
+        } else {
+            if (user.isBlocked() || !user.getRole().equals(Role.ADMIN)) {
+                throw new BadRequestException(Error.USER_IS_BLOCKED_OR_NOT_ADMIN.getMessage());
+            }
+            user.setRole(Role.USER);
         }
+        userRepository.save(user);
+    }
+
+    @Override
+    public void setUserIsBlocked(Long userId, Boolean block, UserDetails userDetails) {
+        User admin = (User) userDetails;
+
+        if (userId.equals(admin.getId())) {
+            throw new ForbiddenException(Error.ACCESS_DENIED.getMessage());
+        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException(Error.USER_NOT_FOUND.getMessage()));
+        if (block) {
+            if (user.isBlocked()) {
+                throw new BadRequestException(Error.USER_IS_BLOCKED.getMessage());
+            }
+            user.setRole(Role.USER);
+            user.setBlocked(true);
+        } else {
+            if (!user.isBlocked()) {
+                throw new BadRequestException(Error.USER_IS_NOT_BLOCKED.getMessage());
+            }
+            user.setBlocked(false);
+        }
+        userRepository.save(user);
+    }
+
+    @Override
+    public UserDto updateUserInfo(UserInfoSaveDto userInfoSaveDto, UserDetails userDetails) {
+        User user = (User) userDetails;
+        log.info("Updating user (id={}) information", user.getId());
+
         Country country = countryRepository.findById(userInfoSaveDto.getCountryId())
                 .orElseThrow(() -> new NotFoundException(Error.COUNTRY_NOT_FOUND.getMessage()));
         City city = null;
@@ -364,15 +380,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateUserEmail(Long userId, UserEmailSaveDto userEmailSaveDto, UserDetails userDetails) {
-        log.info("Updating user (id={}) email", userId);
-
+    public void updateUserEmail(UserEmailSaveDto userEmailSaveDto, UserDetails userDetails) {
         User user = (User) userDetails;
-        if (!userId.equals(user.getId())) {
-            if (!userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
-                throw new ForbiddenException(Error.ACCESS_DENIED.getMessage());
-            }
-        } else if (user.getEmail().equals(userEmailSaveDto.getEmail())) {
+        log.info("Updating user (id={}) email", user.getId());
+
+        if (user.getEmail().equals(userEmailSaveDto.getEmail())) {
             throw new BadRequestException(Error.EMAIL_IS_CURRENT.getMessage());
         } else if (userRepository.existsByEmail(userEmailSaveDto.getEmail())) {
             throw new BadRequestException(Error.USER_EXISTS_WITH_EMAIL.getMessage());
@@ -424,15 +436,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateUserPassword(Long userId, UserPasswordSaveDto userPasswordSaveDto, UserDetails userDetails) {
-        log.info("Updating user (id={}) password", userId);
-
+    public void updateUserPassword(UserPasswordSaveDto userPasswordSaveDto, UserDetails userDetails) {
         User user = (User) userDetails;
-        if (!userId.equals(user.getId())) {
-            if (!userDetails.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
-                throw new ForbiddenException(Error.ACCESS_DENIED.getMessage());
-            }
-        } else if (!passwordEncoder.matches(userPasswordSaveDto.getCurrentPassword(), String.valueOf(user.getPassword()))) {
+        log.info("Updating user (id={}) password", user.getId());
+
+        if (!passwordEncoder.matches(userPasswordSaveDto.getCurrentPassword(), String.valueOf(user.getPassword()))) {
             throw new UnauthorizedException(Error.UNAUTHORIZED.getMessage());
         } else if (!userPasswordSaveDto.getNewPassword().equals(userPasswordSaveDto.getRepeatPassword())) {
             throw new VerificationException(Error.PASSWORD_CONFIRMATION_IS_FAILED.getMessage());
@@ -445,7 +453,7 @@ public class UserServiceImpl implements UserService {
 
         addPasswordToHistory(user);
 
-        log.info("User (id={}) password is updated successfully!", userId);
+        log.info("User (id={}) password is updated successfully!", user.getId());
     }
 
     @Override
@@ -474,13 +482,6 @@ public class UserServiceImpl implements UserService {
         return userDto;
     }
 
-    private CommentDto toCommentDto(UserComment comment) {
-        CommentDto commentDto = CommentMapper.INSTANCE.toCommentDto(comment);
-        commentDto.setReplies(userCommentReplyRepository.countByCommentId(comment.getId()));
-
-        return commentDto;
-    }
-
     private UserComment toUserComment(CommentSaveDto commentSaveDto, User user, User author) {
         UserComment comment = new UserComment();
         comment.setUser(user);
@@ -489,15 +490,6 @@ public class UserServiceImpl implements UserService {
         comment.setRating(commentSaveDto.getRating());
         comment.setCreateTime(LocalDateTime.now());
         return comment;
-    }
-
-    private UserCommentReply toUserCommentReply(CommentSaveDto commentSaveDto, User author, UserComment comment) {
-        UserCommentReply commentReply = new UserCommentReply();
-        commentReply.setComment(comment);
-        commentReply.setAuthor(author);
-        commentReply.setText(commentSaveDto.getText());
-        commentReply.setCreateTime(LocalDateTime.now());
-        return commentReply;
     }
 
     private void addPasswordToHistory(User user) {

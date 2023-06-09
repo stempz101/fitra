@@ -16,7 +16,7 @@ public class CommentSaveDto {
     private String text;
 
     @NotNull(message = "{validation.not_null.rating}", groups = IsUserComment.class)
-    @Min(value = 0, message = "{validation.min.rating}", groups = IsUserComment.class)
+    @Min(value = 1, message = "{validation.min.rating}", groups = IsUserComment.class)
     @Max(value = 5, message = "{validation.max.rating}", groups = IsUserComment.class)
     @Null(message = "{validation.null.rating}", groups = IsNotUserComment.class)
     private Integer rating;

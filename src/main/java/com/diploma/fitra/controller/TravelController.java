@@ -3,6 +3,7 @@ package com.diploma.fitra.controller;
 import com.diploma.fitra.api.TravelApi;
 import com.diploma.fitra.dto.travel.ParticipantDto;
 import com.diploma.fitra.dto.travel.*;
+import com.diploma.fitra.dto.user.UserDto;
 import com.diploma.fitra.service.TravelService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -10,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -19,17 +21,24 @@ public class TravelController implements TravelApi {
 
     @Override
     public TravelDto createTravel(TravelSaveDto travelSaveDto, UserDetails userDetails) {
+        System.out.println(travelSaveDto);
         return travelService.createTravel(travelSaveDto, userDetails);
     }
 
     @Override
-    public List<TravelDto> getTravels(Pageable pageable) {
-        return travelService.getTravels(pageable);
+    public TravelItemsResponse getTravels(String name, Long countryId, Long cityId, Long typeId,
+                                      LocalDate startDate, Integer peopleFrom, Integer peopleTo, Pageable pageable) {
+        return travelService.getTravels(name, countryId, cityId, typeId, startDate, peopleFrom, peopleTo, pageable);
     }
 
     @Override
-    public List<TravelDto> getTravelsForUser(Pageable pageable, UserDetails userDetails) {
-        return travelService.getTravelsForUser(pageable, userDetails);
+    public TravelItemsResponse getParticipatingTravels(Pageable pageable, UserDetails userDetails) {
+        return travelService.getParticipatingTravels(pageable, userDetails);
+    }
+
+    @Override
+    public TravelItemsResponse getCreatedTravels(Pageable pageable, UserDetails userDetails) {
+        return travelService.getCreatedTravels(pageable, userDetails);
     }
 
     @Override
@@ -40,6 +49,11 @@ public class TravelController implements TravelApi {
     @Override
     public List<ParticipantDto> getUsers(Long travelId) {
         return travelService.getUsers(travelId);
+    }
+
+    @Override
+    public List<UserDto> getUsersToInvite(Long travelId, String search, Pageable pageable) {
+        return travelService.getUsersToInvite(travelId, search, pageable);
     }
 
     @Override
@@ -55,19 +69,13 @@ public class TravelController implements TravelApi {
     }
 
     @Override
-    public EventDto createEvent(Long travelId, EventSaveDto eventSaveDto, UserDetails userDetails) {
-        return travelService.createEvent(travelId, eventSaveDto, userDetails);
+    public List<EventDto> getEvents(Long travelId) {
+        return travelService.getEvents(travelId);
     }
 
     @Override
-    public EventDto updateEvent(Long travelId, Long eventId, EventSaveDto eventSaveDto, UserDetails userDetails) {
-        return travelService.updateEvent(travelId, eventId, eventSaveDto, userDetails);
-    }
-
-    @Override
-    public ResponseEntity<Void> deleteEvent(Long travelId, Long eventId, UserDetails userDetails) {
-        travelService.deleteEvent(travelId, eventId, userDetails);
-        return ResponseEntity.noContent().build();
+    public List<EventDto> setEvents(Long travelId, String events, UserDetails userDetails) {
+        return travelService.setEvents(travelId, events, userDetails);
     }
 
     @Override

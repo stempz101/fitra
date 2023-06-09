@@ -24,4 +24,6 @@ public class UserInfoSaveDto {
     private Long countryId;
 
     private Long cityId;
+
+    private String about;
 }
