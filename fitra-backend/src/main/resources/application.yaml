@@ -1,0 +1,49 @@
+server:
+  port: 8081
+frontend:
+  link: http://localhost:3000
+confirmation:
+  registration-link: http://localhost:8081/api/v1/users/confirm-registration
+  email-update-link: http://localhost:8081/api/v1/users/confirm-email
+#  password-recovery-link: http://localhost:8081/api/v1/users/
+spring:
+  application:
+    name: Fitra
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+  datasource:
+    username: postgres
+    password: ENC(TJFVF/dGBxpi2FyQPtQCGo8CK7lpiZacv7HN3IeXHI+/evGSNfZtczANF9QMA/Uk)
+    url: jdbc:postgresql://localhost:5432/fitra
+  liquibase:
+    change-log: classpath:/db/changelog/changelog-master.xml
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: fitra.sender@gmail.com
+    password: ENC(vFlEkvKhmjRYcHdKOHDZuMQ5lAo25wtt/i8Tc7PS/8imPOzoBk/YMWcKc6mlRlwbxw8WgQDpcbsQs3J+6k16qQ==)
+    test-connection: true
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+    sender:
+      name: Fitra
+  servlet:
+    multipart:
+      max-file-size: 10MB
+photo-storage:
+  user-photos: uploads/user-photos/
+  travel-photos: uploads/travel-photos/
+google-places-api:
+  key: AIzaSyDbQ9eS0j9SdcawPhIhjcU8_q97UkopYBI
+logging:
+  level:
+    root: info

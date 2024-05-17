@@ -1,0 +1,83 @@
+databaseChangeLog:
+
+  - changeSet:
+      id: 1
+      author: stempz
+      preConditions:
+        onFail: MARK_RAN
+        not:
+          tableExists:
+            tableName: _types
+      changes:
+        - createTable:
+            tableName: _types
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name_en
+                  type: varchar(255)
+              - column:
+                  name: name_ua
+                  type: varchar(255)
+
+  - changeSet:
+      id: 2
+      author: stempz
+      preConditions:
+        onFail: MARK_RAN
+        not:
+          tableExists:
+            tableName: _countries
+      changes:
+        - createTable:
+            tableName: _countries
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: title_en
+                  type: varchar(255)
+              - column:
+                  name: title_ua
+                  type: varchar(255)
+
+  - changeSet:
+      id: 3
+      author: stempz
+      preConditions:
+        onFail: MARK_RAN
+        not:
+          tableExists:
+            tableName: _cities
+      changes:
+        - createTable:
+            tableName: _cities
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: title_en
+                  type: varchar(255)
+              - column:
+                  name: title_ua
+                  type: varchar(255)
+              - column:
+                  name: country_id
+                  type: bigint
+                  constraints:
+                    foreignKeyName: fks041dh4why3bw5ss4tfykcoah
+                    references: _countries(id)
