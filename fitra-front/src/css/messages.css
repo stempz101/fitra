@@ -26,3 +26,14 @@
 .chat-item .rce-avatar {
     object-fit: cover;
 }
+
+.chat-item .rce-citem .rce-citem-body--bottom-status {
+    background-color: rgb(220, 53, 69, 1);
+    border-radius: 50rem;
+    display: inline-block;
+    padding: 0.1rem;
+}
+
+.chat-item-active .rce-citem .rce-citem-body--bottom-status {
+    display: none;
+}

@@ -81,3 +81,90 @@ databaseChangeLog:
                   constraints:
                     foreignKeyName: fks041dh4why3bw5ss4tfykcoah
                     references: _countries(id)
+
+  - changeSet:
+      id: 4
+      author: stempz
+      preConditions:
+        onFail: MARK_RAN
+        not:
+          tableExists:
+            tableName: _users
+      changes:
+        - createTable:
+            tableName: _users
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: about
+                  type: text
+              - column:
+                  name: birthday
+                  type: date
+                  constraints:
+                    nullable: false
+              - column:
+                  name: blocked
+                  type: boolean
+                  constraints:
+                    nullable: false
+              - column:
+                  name: confirm_token
+                  type: varchar(255)
+              - column:
+                  name: confirm_token_expiration
+                  type: timestamp
+              - column:
+                  name: email
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: enabled
+                  type: boolean
+                  constraints:
+                    nullable: false
+              - column:
+                  name: first_name
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: full_name
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: last_name
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: password
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: role
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: city_id
+                  type: bigint
+                  constraints:
+                    foreignKeyName: fkn4wgntg05bqucxh2rs4kumh8k
+                    references: _cities(id)
+              - column:
+                  name: country_id
+                  type: bigint
+                  constraints:
+                    foreignKeyName: fksnfjwi10f88yb2e659rjqi07b
+                    references: _countries(id)

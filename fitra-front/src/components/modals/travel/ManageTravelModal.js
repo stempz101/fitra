@@ -112,7 +112,7 @@ export default function ManageTravelModal({show, travel, unreadJoinRequestsCount
                     updatedRequest = {...request, sender: {...request.sender, avatar: URL.createObjectURL(blob)}};
                 } catch (error) {
                     if (error && error.response.status === 404) {
-                        updatedRequest = {...request, receiver: {...request.sender, avatar: "/img/default-user.png"}};
+                        updatedRequest = {...request, sender: {...request.sender, avatar: "/img/default-user.png"}};
                     }
                 }
 

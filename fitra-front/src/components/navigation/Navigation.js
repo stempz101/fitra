@@ -137,7 +137,7 @@ export default function Navigation(props) {
                                     }
                                     id="basic-nav-dropdown"
                                 >
-                                    <NavDropdown.Item href="#action/3.1">
+                                    <NavDropdown.Item href={`/mates/${props.currentUser.id}`}>
                                         Profile
                                     </NavDropdown.Item>
                                     <NavDropdown.Item as={Link} to="/my-travels">

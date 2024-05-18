@@ -20,14 +20,14 @@ export default function JoinRequestViewModal({show, request, showRequestStatus, 
                     if (route.city) {
                         return (
                             <>
-                                <span style={{fontWeight: "600"}}> > </span>
+                                <span style={{fontWeight: "600"}}> {">"} </span>
                                 <Link className="route-item" to={`/?cityId=${route.cityId}`}>{route.city}</Link>
                             </>
                         );
                     } else {
                         return (
                             <>
-                                <span style={{fontWeight: "600"}}> > </span>
+                                <span style={{fontWeight: "600"}}> {">"} </span>
                                 <Link className="route-item"
                                       to={`/?countryId=${route.countryId}`}>{route.country}</Link>
                             </>
@@ -77,7 +77,7 @@ export default function JoinRequestViewModal({show, request, showRequestStatus, 
                 <Modal.Body>
                     <Form.Group className="d-flex align-items-center mb-2">
                         <Form.Label className="me-2 mb-0">Sender:</Form.Label>
-                        <Link to="#" className="d-flex align-items-center"
+                        <Link to={`/mates/${request.sender.id}`} className="d-flex align-items-center"
                               style={{
                                   color: "#000",
                                   textDecoration: "none"
@@ -99,7 +99,7 @@ export default function JoinRequestViewModal({show, request, showRequestStatus, 
                     <div className="d-flex justify-content-between mb-2">
                         <Form.Group className="d-flex align-items-center">
                             <Form.Label className="me-2 mb-0">Receiver:</Form.Label>
-                            <Link to="#" className="d-flex align-items-center"
+                            <Link to={`/mates/${request.travel.creator.id}`} className="d-flex align-items-center"
                                   style={{
                                       color: "#000",
                                       textDecoration: "none"
@@ -118,7 +118,7 @@ export default function JoinRequestViewModal({show, request, showRequestStatus, 
                                 <p className="mb-0 me-2">{request.travel.creator.name}</p>
                             </Link>
                         </Form.Group>
-                        <Link to="#chat"
+                        <Link to={`/messages/user/${request.travel.creator.id}`}
                               className="btn btn-primary btn-ask d-flex align-items-center"> {/* TODO: to='/user/chat/..' */}
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                  fill="currentColor" className="bi bi-chat-dots me-1" viewBox="0 0 16 16">

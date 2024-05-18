@@ -89,7 +89,7 @@ export default function JoinRequestManageModal({show, request, showStatus, fetch
                             <div className="d-flex justify-content-between mb-2">
                                 <Form.Group className="d-flex align-items-center">
                                     <Form.Label className="me-2 mb-0">Receiver:</Form.Label>
-                                    <Link to="#" className="d-flex align-items-center"
+                                    <Link to={`/mates/${request.sender.id}`} className="d-flex align-items-center"
                                           style={{
                                               color: "#000",
                                               textDecoration: "none"
@@ -108,7 +108,7 @@ export default function JoinRequestManageModal({show, request, showStatus, fetch
                                         <p className="mb-0 me-2">{request.sender.name}</p>
                                     </Link>
                                 </Form.Group>
-                                <Link to="#chat"
+                                <Link to={`/messages/user/${request.sender.id}`}
                                       className="btn btn-primary btn-ask d-flex align-items-center"> {/* TODO: to='/user/chat/..' */}
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                          fill="currentColor" className="bi bi-chat-dots me-1" viewBox="0 0 16 16">

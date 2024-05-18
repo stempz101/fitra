@@ -141,14 +141,14 @@ export default function CreatedTravels({show, currentUser, location}) {
                     if (route.city) {
                         return (
                             <>
-                                <span style={{fontWeight: "600"}}> > </span>
+                                <span style={{fontWeight: "600"}}> {">"} </span>
                                 <Link className="route-item" to={`/?cityId=${route.cityId}`}>{route.city}</Link>
                             </>
                         );
                     } else {
                         return (
                             <>
-                                <span style={{fontWeight: "600"}}> > </span>
+                                <span style={{fontWeight: "600"}}> {">"} </span>
                                 <Link className="route-item"
                                       to={`/?countryId=${route.countryId}`}>{route.country}</Link>
                             </>

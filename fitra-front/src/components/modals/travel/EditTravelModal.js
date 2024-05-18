@@ -345,6 +345,8 @@ export default function EditTravelModal({show, travel, onHide}) {
                                     yearDropdownItemNumber={100}
                                     scrollableYearDropdown
                                     placeholderText="DD.MM.YYYY"
+                                    minDate={new Date()}
+                                    maxDate={selectedEndDate}
                                 />
                             </Form.Group>
                             <Form.Group className="col-6">
@@ -360,6 +362,7 @@ export default function EditTravelModal({show, travel, onHide}) {
                                     yearDropdownItemNumber={100}
                                     scrollableYearDropdown
                                     placeholderText="DD.MM.YYYY"
+                                    minDate={selectedStartDate || new Date()}
                                 />
                             </Form.Group>
                         </Form.Group>

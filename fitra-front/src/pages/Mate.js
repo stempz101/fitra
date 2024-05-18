@@ -255,7 +255,7 @@ export default function Mate({currentUser, isAuthorized, setShowLogIn}) {
                                 </div>
                                 {user.id !== currentUser?.id ? (
                                     <div className="d-flex align-items-center">
-                                        <Link to="#chat"
+                                        <Link to={`/messages/user/${user.id}`}
                                               className="btn btn-primary btn-ask d-flex align-items-center"> {/* TODO: to='/user/chat/..' */}
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                                  fill="currentColor" className="bi bi-chat-dots me-1"

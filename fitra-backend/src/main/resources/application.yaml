@@ -1,7 +1,7 @@
 server:
   port: 8081
 frontend:
-  link: http://localhost:3000
+  link: "${FRONTEND_URL:http://localhost:3000}"
 confirmation:
   registration-link: http://localhost:8081/api/v1/users/confirm-registration
   email-update-link: http://localhost:8081/api/v1/users/confirm-email
@@ -13,12 +13,11 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: update
-    database: postgresql
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    database-platform: "${DB_DIALECT:org.hibernate.dialect.PostgreSQLDialect}"
   datasource:
-    username: postgres
-    password: ENC(TJFVF/dGBxpi2FyQPtQCGo8CK7lpiZacv7HN3IeXHI+/evGSNfZtczANF9QMA/Uk)
-    url: jdbc:postgresql://localhost:5432/fitra
+    username: "${DB_USER:postgres}"
+    password: "${DB_PASSWORD:ENC(TJFVF/dGBxpi2FyQPtQCGo8CK7lpiZacv7HN3IeXHI+/evGSNfZtczANF9QMA/Uk)}"
+    url: "${DB_URL:jdbc:postgresql://localhost:5432/fitra}"
   liquibase:
     change-log: classpath:/db/changelog/changelog-master.xml
 

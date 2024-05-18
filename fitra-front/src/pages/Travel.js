@@ -172,14 +172,14 @@ export default function Travel({currentUser, isAuthorized, setShowLogIn}) {
                     if (route.city) {
                         return (
                             <>
-                                <span className="h3"> > </span>
+                                <span className="h3"> {">"} </span>
                                 <Link className="h3" to={`/?cityId=${route.cityId}`}>{route.city}</Link>
                             </>
                         );
                     } else {
                         return (
                             <>
-                                <span className="h3"> > </span>
+                                <span className="h3"> {">"} </span>
                                 <Link className="h3" to={`/?countryId=${route.countryId}`}>{route.country}</Link>
                             </>
                         );
@@ -318,7 +318,7 @@ export default function Travel({currentUser, isAuthorized, setShowLogIn}) {
                                 <div className="travel-created-by d-flex align-items-center mb-4">
                                     <p className="mb-0 me-1">Created by</p>
                                     <Link className="me-2"
-                                          to={`#${travel.creator.id}`}> {/* TODO: to='/user/id123122' */}
+                                          to={`/mates/${travel.creator.id}`}> {/* TODO: to='/user/id123122' */}
                                         <div className="travel-creator d-flex align-items-center">
                                             <div
                                                 className="rounded-circle me-1 user-avatar"
@@ -445,7 +445,7 @@ export default function Travel({currentUser, isAuthorized, setShowLogIn}) {
                                             <div className="d-flex align-items-center">
                                                 <div className="travel-creator d-flex align-items-center">
                                                     <Link
-                                                        to={`#${travel.creator.id}`}> {/* TODO: to='/user/id123122' */}
+                                                        to={`/mates/${travel.creator.id}`}> {/* TODO: to='/user/id123122' */}
                                                         <div
                                                             className="rounded-circle me-3 user-avatar"
                                                             style={{
@@ -457,7 +457,7 @@ export default function Travel({currentUser, isAuthorized, setShowLogIn}) {
                                                     </Link>
                                                     <div className="me-3">
                                                         <Link
-                                                            to={`#${travel.creator.id}`}> {/* TODO: to='/user/id123122' */}
+                                                            to={`/mates/${travel.creator.id}`}> {/* TODO: to='/user/id123122' */}
                                                             {travel.creator.firstName}
                                                         </Link>
                                                         <p className="mb-0">{showCreatorAge()}</p>
@@ -481,7 +481,7 @@ export default function Travel({currentUser, isAuthorized, setShowLogIn}) {
                                             </div>
                                             {travel.creator.id !== currentUser?.id &&
                                                 <div className="d-flex align-items-center">
-                                                    <Link to="#chat"
+                                                    <Link to={`/messages/user/${travel.creator.id}`}
                                                           className="btn btn-primary btn-ask d-flex align-items-center"> {/* TODO: to='/user/chat/..' */}
                                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                                              fill="currentColor" className="bi bi-chat-dots me-1"
@@ -502,7 +502,7 @@ export default function Travel({currentUser, isAuthorized, setShowLogIn}) {
                                                     <>
                                                         {' '}
                                                         <Link
-                                                            to={`#${travel.creator.id}`}> {/* TODO: to='/user/id123122' */}More</Link>
+                                                            to={`/mates/${travel.creator.id}`}> {/* TODO: to='/user/id123122' */}More</Link>
                                                     </>
                                                 )}
                                             </div>
@@ -519,7 +519,7 @@ export default function Travel({currentUser, isAuthorized, setShowLogIn}) {
                                                 .map(participant => (
                                                     <>
                                                         <Link
-                                                            to={`#${participant.user.id}`}> {/* TODO: to='/user/id123122' */}
+                                                            to={`/mates/${participant.user.id}`}> {/* TODO: to='/user/id123122' */}
                                                             <div className="d-flex flex-column align-items-center mx-3">
                                                                 <div
                                                                     className="rounded-circle user-avatar mb-1"

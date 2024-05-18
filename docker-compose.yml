@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+
+  postgres:
+    container_name: postgres
+    image: postgres:latest
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: fitra
+    volumes:
+      - fitra-volume:/var/lib/postgresql/data
+  
+  backend:
+    container_name: backend
+    image: stempz/fitra-backend:1.0.0
+    ports:
+      - '8081:8081'
+    environment:
+      DB_URL: jdbc:postgresql://postgres/fitra
+      DB_USER: user
+      DB_PASSWORD: pass
+      FRONTEND_URL: http://localhost:3000
+      jasypt.encryptor.password: domain_expansion
+    volumes:
+      - fitra-userphotos:/app/uploads/user-photos
+      - fitra-travelphotos:/app/uploads/travel-photos
+    depends_on:
+      - postgres
+
+  frontend:
+    container_name: frontend
+    image: stempz/fitra-frontend:1.0.0
+    ports:
+      - '3000:3000'
+    environment:
+      REACT_APP_BACKEND_API_URL: http://localhost:8081/api/v1
+    depends_on:
+      - postgres
+
+volumes:
+  fitra-volume:
+  fitra-userphotos:
+  fitra-travelphotos:

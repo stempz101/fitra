@@ -15,10 +15,6 @@ import java.util.List;
 @Data
 public class TravelSaveDto {
 
-    public TravelSaveDto() {
-        System.out.println(this);
-    }
-
     @NotBlank(message = "{validation.not_blank.title}", groups = {OnCreate.class, OnUpdate.class})
     private String name;
 

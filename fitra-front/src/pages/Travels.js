@@ -511,7 +511,7 @@ export default function Travels({isAuthorized, setShowLogIn}) {
                                                 <div className="travel-img-parent card border-0" style={{height: "225px"}}>
                                                     {/*<img src={travel.photo} alt="travel" className="card-img-top travel-img"/>*/}
                                                     <div className="travel-div-img" style={{backgroundImage: `url(${travel.photo})`}}></div>
-                                                    <Link to={`#${travel.creator.id}`}> {/* TODO: to='/user/id123122' */}
+                                                    <Link to={`/mates/${travel.creator.id}`}> {/* TODO: to='/user/id123122' */}
                                                         <div className="travel-item-creator">
                                                             <div
                                                                 className="rounded-circle me-2 user-avatar"
